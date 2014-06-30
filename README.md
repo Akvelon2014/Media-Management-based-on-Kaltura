@@ -1,6 +1,6 @@
 Media Management based on Kaltura
 =================================
-This projects provides integration of Kaltura CE with Microsoft Azure Media Services. Integration between Kaltura Server and Microsoft Azure makes it possible to move the storage and encoding of media to the Microsoft Azure platform. For instance, a video or audio file that has been uploaded to KMC, can then be transmitted to Microsoft Azure Media Services and encoded. Kaltura player can also pull media content directly from Microsoft Azure, significantly decreasing, the network and operational load on the Kaltura Server.
+This project provides integration of Kaltura CE with Microsoft Azure Media Services. Integration between Kaltura Server and Microsoft Azure makes it possible to move the storage and encoding of media to the Microsoft Azure platform. For instance, a video or audio file that has been uploaded to KMC, can then be transmitted to Microsoft Azure Media Services and encoded. Kaltura player can also pull media content directly from Microsoft Azure, significantly decreasing, the network and operational load on the Kaltura Server.
 
 # Getting Started
 ## Prepare a developer machine 
