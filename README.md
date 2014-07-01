@@ -54,7 +54,7 @@ You can find KDP source code at KDP folder of the repository. Compile KDP with y
 ## Kaltura Management Console Login (KMC-Login)
 Kaltura Management Console Login is implemented on flash. So Kaltura server contains only flash binaries.
 
-You can find Kaltura Management Console Login source code at kmc-login folder of the repository. Compile kmc-login with your changes and put binaries to `web/flash/kmc/login/v1.2.2` folder of your server.
+You can find Kaltura Management Console Login source code at KMC-LOGIN folder of the repository. Compile kmc-login with your changes and put binaries to `web/flash/kmc/login/v1.2.2` folder of your server.
 
 # Create Developer Machine
 Preform following steps to create machine for development:
