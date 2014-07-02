@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<settings>
+  <theme>
+    <layout>themes/Falcon_theme/layout.html</layout>
+    <stylesheet>css/wijmo/aristo/jquery-wijmo.css</stylesheet>
+  </theme>
+  <references>
+    <join>themes/Falcon_theme/settings.theme.xml</join>
+    <join>themes/Falcon_theme/settings.en-us.xml</join>
+    <css>LinksExt/C1H_HTML.css</css>
+  </references>
+  <strings>
+    <pageHeaderText>Kaltura Management Console (KMC) On Line Help - Falcon</pageHeaderText>
+    <emailAddress>support@mycompany.com</emailAddress>
+  </strings>
+  <windows>
+    <window>
+      <name>proc</name>
+      <features>left=680,top=10,height=500,width=315,resizable=1,scrollbars=1</features>
+    </window>
+  </windows>
+</settings>

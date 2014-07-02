@@ -1,0 +1,442 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="init()"
+		 implements="com.kaltura.kmc.modules.account.view.interfaces.IAccountPanel" 
+		 xmlns:components="com.kaltura.kmc.modules.account.components.*">
+	<mx:Script>
+		<![CDATA[
+			import com.adobe.cairngorm.control.CairngormEvent;
+			import com.kaltura.KalturaClient;
+			import com.kaltura.analytics.GoogleAnalyticsConsts;
+			import com.kaltura.analytics.GoogleAnalyticsTracker;
+			import com.kaltura.analytics.KAnalyticsTracker;
+			import com.kaltura.analytics.KAnalyticsTrackerConsts;
+			import com.kaltura.edw.business.permissions.PermissionManager;
+			import com.kaltura.kmc.business.JSGate;
+			import com.kaltura.kmc.events.KmcHelpEvent;
+			import com.kaltura.kmc.modules.account.components.EntitlementActionsRenderer;
+			import com.kaltura.kmc.modules.account.events.IntegrationEvent;
+			import com.kaltura.kmc.modules.account.events.PartnerEvent;
+			import com.kaltura.kmc.modules.account.view.windows.SetEntitlementsWindow;
+			import com.kaltura.kmc.modules.account.vo.PartnerVO;
+			import com.kaltura.types.KalturaAppearInListType;
+			import com.kaltura.types.KalturaContributionPolicyType;
+			import com.kaltura.types.KalturaNullableBoolean;
+			import com.kaltura.types.KalturaPrivacyType;
+			import com.kaltura.types.KalturaStatsKmcEventType;
+			import com.kaltura.utils.KArrayUtil;
+			import com.kaltura.vo.KalturaCategory;
+			
+			import mx.binding.utils.BindingUtils;
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.events.ListEvent;
+			import mx.managers.PopUpManager;
+			import mx.resources.ResourceManager;
+			
+			
+			public static const NAME:String = "integration";
+		
+			private const _lblWidth:Number = 170;
+			
+			private const _maxWidth:Number = 300;
+			
+			private const _textWidth:Number = 190;
+			
+			[Bindable]
+			public var enableNotificationsTable:Boolean = true;
+
+			[Bindable]
+			public var partnerData:PartnerVO;
+			
+			private var _clonedPartnerData:PartnerVO;
+
+			
+			[Bindable]
+			/**
+			 * categories with privacy context label set
+			 * */
+			public var categories:Array;
+			
+			/**
+			 * make sure we have both creationComplete and an external call to init()
+			 * */
+			private var _ready:Boolean = false;
+
+			[Bindable]
+			/**
+			 * default entitlements status in API - user friendly text
+			 * */
+			private var _entitlementsEnabledText:String;
+
+			
+			
+			public function init():void {
+				if (_ready) {
+					BindingUtils.bindSetter(onPartnerDataLoaded, this, "partnerData");
+					var cgEvent:CairngormEvent = new PartnerEvent(PartnerEvent.GET_PARTNER_INFO);
+					cgEvent.dispatch();
+					cgEvent = new IntegrationEvent(IntegrationEvent.LIST_CATEGORIES_WITH_PRIVACY_CONTEXT);
+					cgEvent.dispatch();
+					PermissionManager.getInstance().applyAllAttributes(this, NAME);
+				}
+				else {
+					_ready = true;
+				}
+
+			}
+
+
+			private function onPartnerDataLoaded(pvo:PartnerVO):void {
+				if (pvo) {
+					_clonedPartnerData = pvo.clone();
+
+					if (partnerData.partner.notify == KalturaNullableBoolean.TRUE_VALUE)
+						yesGetNoti.selected = true;
+					else
+						noGetNoti.selected = true;
+
+					partnerData.partner.allowQuickEdit == 1 ? appendEntry.selectedIndex = 0 : appendEntry.selectedIndex = 1;
+					partnerData.partner.mergeEntryLists == 1 ? returnListOfUserClips.selectedIndex = 0 : returnListOfUserClips.selectedIndex = 1;
+
+					switch (partnerData.partner.appearInSearch) {
+						case 2:
+							appearInUploader.selectedIndex = 0;
+							break;
+						case 1:
+							appearInUploader.selectedIndex = 1;
+							break;
+						case 0:
+							appearInUploader.selectedIndex = 2;
+							break;
+					}
+					
+					if (partnerData.partner.defaultEntitlementEnforcement) {
+						_entitlementsEnabledText = ResourceManager.getInstance().getString('account', 'entEnabled');
+					}
+					else {
+						_entitlementsEnabledText = ResourceManager.getInstance().getString('account', 'entDisabled');
+					}
+				}
+			}
+
+
+			public function undo():void {
+				partnerData = _clonedPartnerData.clone();
+			}
+
+
+			public function isChanged():Boolean {
+				if (!partnerData) return false;
+				return (!partnerData.equals(_clonedPartnerData));
+			}
+
+
+			public function saveChanges():void {
+				KAnalyticsTracker.getInstance().sendEvent(KAnalyticsTrackerConsts.ACCOUNT, KalturaStatsKmcEventType.ACCOUNT_SAVE_SERVER_SETTINGS, "Account>Save Server Settings");
+				GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.ACCOUNT_UPDATE_INTEGRATION, GoogleAnalyticsConsts.ACCOUNT);
+				savePartnerInfo();
+			}
+
+
+			public function resetClonedData():void {
+				_clonedPartnerData = partnerData.clone();
+			}
+
+
+			public function savePartnerInfo():void {
+				if (!partnerData.equals(_clonedPartnerData)) {
+					_clonedPartnerData = partnerData.clone();
+					//do save
+					var partnerEvent:PartnerEvent = new PartnerEvent(PartnerEvent.UPDATE_PARTNER);
+					partnerEvent.dispatch();
+				}
+			}
+
+
+			private function toggoleAdvanced():void {
+				if (advCont.visible) {
+					advCont.visible = false;
+					openCloseAdv.styleName = "openCloseBtnOpen";
+				}
+				else {
+					advCont.visible = true;
+					openCloseAdv.styleName = "openCloseBtnClose";
+				}
+			}
+
+
+			private function onAppearInUploaderChange(event:ListEvent):void {
+				switch ((event.target as ComboBox).selectedIndex) {
+					case 0:
+						partnerData.partner.appearInSearch = 2;
+						break;
+					case 1:
+						partnerData.partner.appearInSearch = 1;
+						break;
+					case 2:
+						partnerData.partner.appearInSearch = 0;
+						break;
+				}
+			}
+
+
+			private function onNotificationsConfigChange(event:Event):void {
+				if (event.target == yesGetNoti)
+					partnerData.partner.notify = KalturaNullableBoolean.TRUE_VALUE; 
+				else
+					partnerData.partner.notify = KalturaNullableBoolean.FALSE_VALUE;
+			}
+
+
+			private function verifyHttp():void {
+				if (recieveServerNoti.text != "" && recieveServerNoti.text.indexOf("http") > -1)
+					pingUrlSrv.send()
+				else
+					Alert.show(resourceManager.getString('account', 'httpverify'))
+			}
+
+
+			
+			
+			private function handleEntitlementsTableActions(e:Event):void {
+				e.stopImmediatePropagation();
+				switch (e.type) {
+					case EntitlementActionsRenderer.REMOVE_CONTEXT:
+						catToClearContext = e.target.data as KalturaCategory;
+						Alert.show(resourceManager.getString('account', 'removeEntNote', [catToClearContext.name]), resourceManager.getString('account', 'important'), Alert.OK|Alert.CANCEL, null, removePrivacyContext);
+						break;
+					case EntitlementActionsRenderer.CHANGE_CONTEXT:
+						openSetEntitlementWindow(e.target.data as KalturaCategory);
+						break;
+				}
+			}
+			
+			private var catToClearContext:KalturaCategory;
+			
+			private function removePrivacyContext(e:CloseEvent):void {
+				if (e.detail == Alert.OK) {
+					if (getInheritedPrivacyContexts(catToClearContext.privacyContext, catToClearContext.privacyContexts)) {
+						catToClearContext.privacy = KalturaPrivacyType.ALL;
+						catToClearContext.appearInList = KalturaAppearInListType.PARTNER_ONLY;
+						catToClearContext.contributionPolicy = KalturaContributionPolicyType.ALL;
+					}
+					catToClearContext.privacyContext = KalturaClient.NULL_STRING;
+					var cge:CairngormEvent = new IntegrationEvent(IntegrationEvent.UPDATE_CATEGORY);
+					cge.data = catToClearContext;
+					cge.dispatch();
+				}
+				// reset
+				catToClearContext = null;
+			}
+			
+			
+			/**
+			 * get a list of inherited privacy context labels (without labels of the current category)
+			 * @param selfContexts	non-inherited privacy context labels
+			 * @param allContexts	all privacy context labels for teh current category
+			 * @return comma separated string of inherited context labels
+			 * */
+			private function getInheritedPrivacyContexts(selfContexts:String, allContexts:String):String {
+				if (allContexts == null) {
+					// this is not something that is ever supposed to happen
+					return null;
+				}
+				var self:Array = selfContexts.split(",");
+				var all:Array = allContexts.split(",");
+				
+				var res:Array = KArrayUtil.subtract(all, self);
+				if (res.length) {
+					return res.join(",");
+				}
+				
+				return null;
+				
+			}
+			
+			private function openSetEntitlementWindow(kCat:KalturaCategory = null):void {
+				var popup:SetEntitlementsWindow = new SetEntitlementsWindow();
+				if (kCat) {
+					popup.category = kCat;
+				}
+				PopUpManager.addPopUp(popup, this, true);	
+				PopUpManager.centerPopUp(popup);
+				JSGate.maskHeader(false);
+			}
+
+
+
+			private function readMore_linkHandler(event:TextEvent):void {
+//				navigateToURL(new URLRequest(evt.text));
+				dispatchEvent(new KmcHelpEvent(KmcHelpEvent.HELP, 'section_entitlement_more'));
+			}
+
+		]]>
+	</mx:Script>
+	<!-- Service -->
+	<mx:HTTPService id="pingUrlSrv" url="{recieveServerNoti.text}" resultFormat="text"
+					result="{Alert.show(resourceManager.getString('account', 'pingSuccessful'))}"
+					fault="{Alert.show(resourceManager.getString('account', 'pingFailed'))}" method="POST"
+					showBusyCursor="true"/>
+
+	<!-- Effects -->
+	<mx:WipeUp id="wipeOut"/>
+	<mx:WipeDown id="wipeIn"/>
+
+	<mx:HBox width="100%" height="100%">
+		<mx:VBox width="100%" height="100%">
+
+			<!-- account info -->
+			<mx:VBox id="details" width="100%" height="50%" styleName="blueBox" disabledOverlayAlpha="0">
+				<mx:Label text="{resourceManager.getString('account', 'partnerInfo')}" styleName="expendableButton"/>
+				<mx:HBox>
+					<mx:Label text="{resourceManager.getString('account', 'partnerIdB')}" width="{_lblWidth}"
+							  styleName="boldLabel"/>
+					<mx:Label text="{partnerData.partnerId}" selectable="true"/>
+				</mx:HBox>
+
+				<mx:HBox>
+					<mx:Label text="{resourceManager.getString('account', 'subPartnerIdB')}" width="{_lblWidth}"
+							  styleName="boldLabel"/>
+					<mx:Label text="{partnerData.subPId}" selectable="true"/>
+				</mx:HBox>
+
+				<mx:HBox>
+					<mx:Label text="{resourceManager.getString('account', 'adminSeceretB')}" width="{_lblWidth}"
+							  styleName="boldLabel"/>
+					<mx:Label text="{partnerData.partner.adminSecret}" selectable="true"/>
+				</mx:HBox>
+
+				<mx:HBox>
+					<mx:Label text="{resourceManager.getString('account', 'userSeceretB')}" width="{_lblWidth}"
+							  styleName="boldLabel"/>
+					<mx:Label text="{partnerData.partner.secret}" selectable="true"/>
+				</mx:HBox>
+
+				<mx:HBox width="100%" height="100%" horizontalAlign="right" verticalAlign="bottom">
+					<mx:LinkButton id="openCloseAdv" label="{resourceManager.getString('account', 'advancedSettings')}"
+								   click="toggoleAdvanced()" styleName="openCloseBtnOpen"/>
+				</mx:HBox>
+			</mx:VBox>
+			
+			<!-- Entitlement services -->
+			<mx:VBox id="entitlements" width="{advCont.width}" height="{advCont.height}" styleName="blueBox" disabledOverlayAlpha="0" includeInLayout="false">
+				<mx:Label text="{resourceManager.getString('account', 'entitlements')}" styleName="expendableButton"/>
+				<mx:Text text="{resourceManager.getString('account', 'entitlementsDesc')}" width="100%"/>
+				<mx:HBox width="100%">
+					<!--<mx:Image source="{StyleManager.getStyleDeclaration('.imageBank').getStyle('SpinnerImg')}"/>-->
+					<mx:Text htmlText="{resourceManager.getString('account', 'entitlementsNote')}" width="100%" link="readMore_linkHandler(event)"/>
+				</mx:HBox>
+				<components:EntitlementTable width="100%" dataProvider="{categories}" height="100%"
+											 changeContext="handleEntitlementsTableActions(event)"
+											 removeContext="handleEntitlementsTableActions(event)"/>
+				<mx:HBox width="100%">
+					<mx:LinkButton id="addContextsBtn" label="{resourceManager.getString('account', 'addEntitlement')}"
+							   click="openSetEntitlementWindow()" styleName="plusIcon"/>
+					<mx:Spacer width="100%" />
+					<mx:Label styleName="boldLabel" text="{resourceManager.getString('account', 'entDefault')}" />
+					<mx:Label text="{_entitlementsEnabledText}" />
+				</mx:HBox>
+			</mx:VBox>
+
+			<!-- advanced settings -->
+			<mx:VBox id="advCont" width="100%" height="50%" styleName="blueBox"
+					 disabledOverlayAlpha="0" visible="false" hideEffect="{wipeOut}" showEffect="{wipeIn}" >
+				<mx:Label text="{resourceManager.getString('account', 'entryManagment')}" styleName="expendableButton"/>
+				<mx:HBox>
+					<mx:Label width="{_lblWidth}" text="{resourceManager.getString('account', 'appendEntry')}"/>
+					<mx:ComboBox id="appendEntry"
+								 change="{partnerData.partner.allowQuickEdit = appendEntry.selectedIndex == 0 ? 1 : 0}"
+								 enabled="{advCont.enabled}">
+						<mx:dataProvider>
+							<mx:String>{resourceManager.getString('account', 'true')}</mx:String>
+							<mx:String>{resourceManager.getString('account', 'false')}</mx:String>
+						</mx:dataProvider>
+					</mx:ComboBox>
+				</mx:HBox>
+				<mx:HBox>
+					<mx:Label width="{_lblWidth}" text="{resourceManager.getString('account', 'appearInUploader')}"/>
+					<mx:ComboBox id="appearInUploader" change="onAppearInUploaderChange( event )"
+								 enabled="{advCont.enabled}">
+						<mx:dataProvider>
+							<mx:String>{resourceManager.getString('account', 'kalturaNetwork')}</mx:String>
+							<mx:String>{resourceManager.getString('account', 'siteSearch')}</mx:String>
+							<mx:String>{resourceManager.getString('account', 'doesntAppearInCW')}</mx:String>
+						</mx:dataProvider>
+					</mx:ComboBox>
+				</mx:HBox>
+				<mx:HBox>
+					<mx:Label width="{_lblWidth}" text="{resourceManager.getString('account', 'returnListOfUserClips')}"/>
+					<mx:ComboBox id="returnListOfUserClips"
+								 change="{partnerData.partner.mergeEntryLists = returnListOfUserClips.selectedIndex == 0 ? 1 : 0}"
+								 enabled="{advCont.enabled}">
+						<mx:dataProvider>
+							<mx:String>{resourceManager.getString('account', 'true')}</mx:String>
+							<mx:String>{resourceManager.getString('account', 'false')}</mx:String>
+						</mx:dataProvider>
+					</mx:ComboBox>
+				</mx:HBox>
+				<mx:Label text="{resourceManager.getString('account', 'misc')}" styleName="expendableButton"/>
+				<mx:HBox>
+					<mx:Label width="{_lblWidth}" text="{resourceManager.getString('account', 'userPageUrlFormat')}"/>
+					<mx:TextInput id="userLandingPage" text="{partnerData.partner.userLandingPage}"
+								  change="{partnerData.partner.userLandingPage = userLandingPage.text}"
+								  enabled="{advCont.enabled}"/>
+				</mx:HBox>
+				<mx:HBox>
+					<mx:Label width="{_lblWidth}" text="{resourceManager.getString('account', 'mediaPageUrlFormat')}"/>
+					<mx:TextInput id="landingPage" text="{partnerData.partner.landingPage}"
+								  change="{partnerData.partner.landingPage = landingPage.text}" enabled="{advCont.enabled}"/>
+				</mx:HBox>
+				<mx:HBox>
+					<mx:Label width="{_lblWidth}" text="{resourceManager.getString('account', 'userUploadLimit')}"/>
+					<mx:NumericStepper id="maxUploadSize" minimum="0" maximum="10000"
+									   value="{partnerData.partner.maxUploadSize}"
+									   change="{partnerData.partner.maxUploadSize = maxUploadSize.value}"
+									   enabled="{advCont.enabled}"/>
+					<mx:Label text="{resourceManager.getString('account', 'mb')}"/>
+				</mx:HBox>
+			</mx:VBox>
+		</mx:VBox>
+
+
+		<!-- notifications -->
+		<mx:VBox width="100%" height="100%">
+			<mx:VBox id="notifications" width="100%" height="50%" styleName="blueBox" disabledOverlayAlpha="0">
+				<mx:HBox width="100%">
+					<mx:Label text="{resourceManager.getString('account', 'notifications')}"
+							  styleName="expendableButton"/>
+				</mx:HBox>
+				<mx:HBox>
+					<mx:Label text="{resourceManager.getString('account', 'recieveServerNoti')}" width="224"/>
+					<mx:RadioButton id="yesGetNoti" label="{resourceManager.getString('account', 'yes')}"
+									groupName="getNoti" change="onNotificationsConfigChange( event )"
+									enabled="{notifications.enabled}"/>
+					<mx:RadioButton id="noGetNoti" label="{resourceManager.getString('account', 'no')}"
+									groupName="getNoti" change="onNotificationsConfigChange( event )"
+									enabled="{notifications.enabled}"/>
+				</mx:HBox>
+
+				<mx:HBox>
+					<mx:Label width="224" text="{resourceManager.getString('account', 'notificationUrl')}:"/>
+					<mx:TextInput id="recieveServerNoti" width="{_textWidth}" text="{partnerData.partner.notificationUrl}"
+								  change="{partnerData.partner.notificationUrl = recieveServerNoti.text}"
+								  enabled="{yesGetNoti.selected &amp;&amp; notifications.enabled}"/>
+					<mx:Button label="{resourceManager.getString('account', 'pingUrl')}" click="{verifyHttp()}"
+							   enabled="{yesGetNoti.selected &amp;&amp; notifications.enabled}" buttonMode="true"/>
+				</mx:HBox>
+			</mx:VBox>
+
+			<!-- notifications table -->
+			<mx:VBox id="notificationsTable" width="100%" height="50%" styleName="blueBox" disabledOverlayAlpha="0"
+					 enabled="{!noGetNoti.selected &amp;&amp; enableNotificationsTable}">
+				<components:NotificationsTable width="100%" height="100%" rowHeight="30" dataProvider="{partnerData.notifications}"
+											   selectable="false" enableEdit="{notifications.enabled}"/>
+			</mx:VBox>
+		</mx:VBox>
+	</mx:HBox>
+	<mx:Spacer height="10"/>
+	<mx:HBox width="100%" styleName="centerHBox">
+		<mx:Button id="saveChangesBtn" label="{resourceManager.getString('account', 'saveChanges')}"
+				   click="saveChanges()" buttonMode="true"/>
+	</mx:HBox>
+</mx:VBox>

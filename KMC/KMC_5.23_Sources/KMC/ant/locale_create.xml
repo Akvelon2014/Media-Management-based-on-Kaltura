@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<project name="Locale Compiler" basedir="." default="build">
+	
+	<!-- the language for which we compile locale 
+    <property name="LANGUAGE" value="en_US"/>
+	-->
+	<!-- the module (folder name) for which we compile locale -->
+    <property name="MODULE" value="create"/>
+	
+	<!-- path to Flex SDK 
+    <property name="FLEX_HOME" value="C:/Program Files/Adobe/Adobe Flash Builder 4/sdks/3.5.0"/>
+	-->
+	<!-- directory for the compiled locale swf 
+    <property name="DEPLOY_DIR" value="../html-template/locale/${LANGUAGE}"/>
+	-->
+	
+	
+	<!-- include flex tasks -->
+	<taskdef resource="flexTasks.tasks" classpath="${FLEX_HOME}/ant/lib/flexTasks.jar" />
+    
+
+	
+	<target name="compile" description="compile the desired locale module">
+        <mxmlc output="${LOCALE_DEPLOY_DIR}/${LANGUAGE}/${MODULE}_${LANGUAGE}_ResourceModule.swf" locale="${LANGUAGE}">
+			
+            <!-- Get default compiler options. -->
+            <load-config filename="${FLEX_HOME}/frameworks/flex-config.xml"/>
+
+            <!-- List of path elements that form the roots of ActionScript class hierarchies. -->
+            <source-path path-element="${basedir}/locale/{locale}"/>
+            <source-path path-element="${basedir}/locale/{locale}/${MODULE}"/>
+
+			<!-- List of resource bundles to compile in the resourceModule -->
+			<include-resource-bundles>create</include-resource-bundles>
+			<include-resource-bundles>common</include-resource-bundles>
+
+
+        </mxmlc>
+		<echo>${MODULE}_${LANGUAGE}_ResourceModule.swf compiled.</echo>
+    </target>
+
+		
+	<target name="build" depends="clean, init, compile">
+		<echo>Locale ${MODULE}_${LANGUAGE} compiled successfully</echo>
+	</target>
+	
+	
+	<target name="clean" description="delete old file">
+		<echo>Deleting ${MODULE}_${LANGUAGE}_ResourceModule.swf</echo>
+        <delete failonerror="false">
+            <fileset dir="${LOCALE_DEPLOY_DIR}/${LANGUAGE}" includes="${MODULE}_${LANGUAGE}_ResourceModule.swf"/>
+        </delete>
+    </target>
+	
+	
+	<target name="init">
+		<mkdir dir="${LOCALE_DEPLOY_DIR}/${LANGUAGE}" description="Make sure there is a bin directory"/>
+	</target>
+</project>

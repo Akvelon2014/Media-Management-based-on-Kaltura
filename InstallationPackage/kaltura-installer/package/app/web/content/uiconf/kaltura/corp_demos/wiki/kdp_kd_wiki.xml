@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layouts>
+	<!--sizes="420_422"-->
+	<layout layoutId="Large" skinPath="/content/uiconf/kaltura/corp_demos/wiki/kdp_kd_wiki_skin.swf">
+		<VBox height="100%" styleName="mlayout" width="100%">
+			<HBox height="46" styleName="TopTitle" width="100%">
+				<VBox height="100%" styleName="titels" width="100%">
+					<Label height="23" id="vtitle" label="{kdpModel.Title,myKplayer.kalturaShow.kshowName,myKplayer.kalturaEntry.entryName,''}" styleName="vtitle" width="100%"/>
+					<Label height="15" id="vdescript" label="{kdpModel.Description,myKplayer.kalturaShow.description,''}" width="100%"/>
+				</VBox>
+				<VBox height="46" id="topButtonsBox" styleName="topButtonsBox" width="100">
+					<LinkButton height="15" id="startNewVideo" k_click="jsInject:addVideo,pauseMedia" label="Start New Video" styleName="topLinkButtons" width="88"/>
+					<Spacer width="2"/>
+					<HBox height="15" styleName="topButtonsBox" width="100%">
+						<LinkButton height="15" id="credits" k_click="popup:Credits" label="Credits" styleName="topLinkButtons"/>
+						<LinkButton height="15" id="sharePopUp" k_click="popup:SharePop" label="Share" styleName="topLinkButtons"/>
+					</HBox>
+				</VBox>
+			</HBox>
+			<Canvas height="100%" id="PlayerHolder" styleName="PlayerBackground" width="100%">
+				<KplayerModule height="100%" id="myKplayer" k_path="kplayer/KplayerModule.swf" maxHeight="450" maxWidth="600" styleName="Kplayer" width="100%"/>
+			</Canvas>
+			<HBox height="32" styleName="controllerBox" width="100%">
+				<Spacer width="4"/>
+				<Button height="17" id="play" styleName="play" width="20"/>
+				<Spacer width="2"/>
+				<VBox height="100%" width="100%">
+					<Scrubber height="100%" id="scrubber" styleName="scrubber" width="100%"/>
+					<Spacer height="5"/>
+				</VBox>
+				<TimerCountdown id="timer" k_path="timertext/TimerCountdown.swf" styleName="timer" width="36"/>
+				<VolumeModule height="20" id="Volume" k_path="VolumeBars/VolumeBarA.swf" styleName="pp" width="20"/>
+				<Spacer width="2"/>
+				<Button height="17" id="gotoArticle" k_click="jsInject:gotoArticle,stopMedia" label="Info" styleName="article" width="48"/>
+				<Spacer width="4"/>
+			</HBox>
+			<HBox height="29" styleName="colabotare" width="100%">
+				<LinkButton height="22" id="addToReel" k_click="jsInject:gotoContribWizard,pauseMedia" label="Add to this video" styleName="addToReel" width="150"/>
+				<Canvas height="19" id="seperator" styleName="seperator" width="1"/>
+				<LinkButton height="22" id="editReel" k_click="jsInject:gotoEditorWindow,pauseMedia" label="Remix this video" styleName="editReel" width="150"/>
+			</HBox>
+			<HBox height="18" styleName="poweredBox2" width="100%">
+				<poweredBy height="15" id="poweredBy" k_path="poweredby/PoweredBy.swf" k_url="http://www.kaltura.com/index.php/corp/wiki_extension" styleName="poweredBy2" width="120"/>
+			</HBox>
+		</VBox>
+		<popups>
+			<SharePop height="300" id="SharePop" k_uiconf_id="204" k_path="popups/SharePopup.swf" width="350"/>
+			<Credits height="300" id="Credits" k_path="credits/CreditsWindow.swf" width="350"/>
+		</popups>
+		<javaScript>
+			<jsBlock functionName="gotoContribWizard" id="gotoContribWizard" params="kshowId,pd_extraData">
+				<![CDATA[
+						function gotoContribWizard (kshowId,pd_extraData)
+						{
+							demoAlert();
+							//gotoCW (kshowId,pd_extraData);
+						};
+					]]>
+			</jsBlock>
+			<jsBlock functionName="gotoEditorWindow" id="gotoEditorWindow" params="kshowId,pd_extraData,editorType">
+				<![CDATA[
+						function gotoEditorWindow (kshowId,pd_extraData, editorType)
+						{
+							demoAlert();
+							//if ( editorType == "" || editorType == null || editorType == "Keditor" ) type = 2;
+							//else type = 1;
+							// kaltura_editor: 1==simple, 2==advanced
+							//gotoEditor (kshowId,pd_extraData,type);
+						};
+					]]>
+			</jsBlock>
+			<jsBlock functionName="gotoArticle" id="gotoArticle" params="kshowId,pd_extraData">
+				<![CDATA[
+						function gotoArticle (kshowId,pd_extraData)
+						{
+							demoAlert();
+							//gotoKalturaArticle (kshowId,pd_extraData);
+						};
+					]]>
+			</jsBlock>
+			<jsBlock functionName="addVideo" id="addVideo" params="">
+				<![CDATA[
+						function addVideo()
+						{
+							demoAlert();
+							//createNewVideo ();
+						};
+					]]>
+			</jsBlock>
+		</javaScript>
+	</layout>
+	<!-- sizes="342_300" -->
+	<layout layoutId="Medium" skinPath="/content/uiconf/kaltura/corp_demos/wiki/kdp_kd_wiki_skin.swf">
+		<VBox height="100%" styleName="mlayout" width="100%">
+			<HBox height="37" styleName="TopTitle" width="100%">
+				<VBox height="100%" styleName="titels" width="100%">
+					<Label height="18" id="vtitle"  label="{kdpModel.Title,myKplayer.kalturaShow.kshowName,myKplayer.kalturaEntry.entryName,''}" width="100%" styleName="vtitleSmall"/>
+					<Label height="14" id="vdescript"  label="{kdpModel.Description,myKplayer.kalturaShow.description,''}" width="100%" styleName="vdescript"/>
+				</VBox>
+				<VBox height="35" styleName="titelsCentered" width="45">
+						<Spacer height="3" />
+						<LinkButton height="15" width="45" id="credits" k_click="popup:Credits" label="Credits" styleName="topLinkButtonsCentered"/>
+						<LinkButton height="15" width="38" id="sharePopUp" k_click="popup:SharePop" label="Share" styleName="topLinkButtonsCentered"/>
+				</VBox>
+				<Spacer />
+			</HBox>
+			
+			<Canvas height="100%" id="PlayerHolder" styleName="PlayerBackground" width="100%">
+				<KplayerModule height="100%" id="myKplayer" k_path="kplayer/KplayerModule.swf" maxHeight="450" maxWidth="600" styleName="Kplayer" width="100%"/>
+			</Canvas>
+			
+			<HBox height="28" styleName="controllerBox" width="100%">
+				<Spacer width="2"/>
+				<Button height="17" id="play" styleName="play" width="15"/>
+				<Spacer width="2"/>
+				<Scrubber id="scrubber" styleName="scrubber" width="100%"/>
+				<TimerCountdown id="timer" k_path="timertext/TimerCountdown.swf" styleName="timerModule" width="36"/>
+				<VolumeModule height="20" id="Volume" k_path="VolumeBars/VolumeBarA.swf" styleName="pp" width="20"/>
+				<Button height="17" id="gotoArticle" k_click="jsInject:gotoArticle,stopMedia" label="Info" styleName="article" width="40"/>
+			</HBox>
+			<HBox height="20" styleName="colabotare" width="100%">
+				<LinkButton color="0xFF00FF" fontSize="10" height="18" id="addToReel" k_click="jsInject:gotoContribWizard,pauseMedia" label="Add to Video" styleName="smallWikiButtons" width="98"/>
+				<Spacer width="4"/>
+				<Canvas height="19" id="seperator" styleName="seperator" width="1"/>
+				<Spacer width="4"/>
+				<LinkButton color="0xFF00FF" fontSize="10" height="18" id="editReel" k_click="jsInject:gotoEditorWindow,pauseMedia" label="Remix Video" styleName="smallWikiButtons" width="98"/>
+			</HBox>
+			<HBox height="18" styleName="poweredBox" width="100%">
+				<poweredBy height="14" id="poweredBy" k_path="poweredby/PoweredBy.swf" k_url="http://www.kaltura.com/index.php/corp/wiki_extension" styleName="poweredBy" width="120"/>
+			</HBox>
+		</VBox>
+		<popups>
+			<SharePop height="280" id="SharePop" k_uiconf_id="204" k_path="popups/SharePopup.swf" width="250"/>
+			<Credits height="280" id="Credits" k_path="credits/CreditsWindow.swf" width="250"/>
+		</popups>
+		<javaScript>
+			<jsBlock functionName="gotoContribWizard" id="gotoContribWizard" params="kshowId,pd_extraData">
+				<![CDATA[
+						function gotoContribWizard (kshowId,pd_extraData)
+						{
+							gotoCW (kshowId,pd_extraData);
+						};
+					]]>
+			</jsBlock>
+			<jsBlock functionName="gotoEditorWindow" id="gotoEditorWindow" params="kshowId,pd_extraData">
+				<![CDATA[
+						function gotoEditorWindow (kshowId,pd_extraData)
+						{
+							// kaltura_editor: 1==simple, 2==advanced
+							gotoEditor (kshowId,pd_extraData,1);
+						};
+					]]>
+			</jsBlock>
+			<jsBlock functionName="gotoArticle" id="gotoArticle" params="kshowId,pd_extraData">
+				<![CDATA[
+						function gotoArticle (kshowId,pd_extraData)
+						{
+							gotoKalturaArticle (kshowId,pd_extraData);
+						};
+					]]>
+			</jsBlock>
+		</javaScript>
+	</layout>
+</layouts>

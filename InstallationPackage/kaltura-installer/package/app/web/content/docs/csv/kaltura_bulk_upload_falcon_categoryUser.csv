@@ -1,0 +1,10 @@
+# Available columns:,,,,,,
+"# - action - mandatory. 1- add, 2 - update, 3 - delete, 6- add or update ",,,,,,
+"#  - userId - mandatory, string ID of the user we want to associate with the category",,,,,,
+#  - categoryId - mandatory (either this property of categoryReferenceId must be present),,,,,,
+# - categoryReferenceId - optional - either this property of categoryId must be passed.,,,,,,
+"# - updateMethod - optional - Default value : 1 (AUTOMATIC). Available values: 0 - MANUAL, 1 -AUTOMATIC",,,,,,
+"# - permissionLevel - optional. Available values: 0- Manager, 1- Moderator, 2 - contributor, 3- categoryMember",,,,,,
+"# - status - optional. Status of the new categoryUser. Default: PENDING (2). Available values: 1- active, 3- deactivated",,,,,,
+*action,userId,categoryId,categoryReferenceId,updateMethod,permissionLevel,status
+2,hilauser1,1990990,,,2,3

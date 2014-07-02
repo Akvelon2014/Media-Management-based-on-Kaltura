@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+
+ Modified by Akvelon Inc.
+ 2014-06-30
+ http://www.akvelon.com/contact-us
+-->
+
+<HelpTitleWindow xmlns="com.kaltura.containers.*" xmlns:mx="http://www.adobe.com/2006/mxml"
+				 title="{resourceManager.getString('account','addNewConvProfileTitle')}" 
+				 xmlns:conversion="com.kaltura.kmc.modules.account.view.windows.conversion.*"
+				 close="closeWindow(event)" showCloseButton="true" creationComplete="onCreationComplete(event)"
+				 help="{help()}" styleName="TitleWindowType2" xmlns:validators="com.kaltura.validators.*" xmlns:controls="com.kaltura.controls.*">
+	<states>
+		<mx:State name="{EDIT_STATE}">
+			<mx:SetProperty name="title" value="{resourceManager.getString('account','editConvProfileTitle')}"/>
+			<mx:SetProperty target="{submitBtn}" name="label"
+							value="{resourceManager.getString('account','saveConProfileChanges')}"/>
+		</mx:State>
+	</states>
+	<mx:Script>
+		<![CDATA[
+			import com.kaltura.KalturaClient;
+			import com.kaltura.edw.business.permissions.PermissionManager;
+			import com.kaltura.kmc.events.KmcHelpEvent;
+			import com.kaltura.kmc.modules.account.events.ConversionSettingsEvent;
+			import com.kaltura.kmc.modules.account.events.EntryEvent;
+			import com.kaltura.kmc.modules.account.model.AccountModelLocator;
+			import com.kaltura.kmc.modules.account.vo.ConversionProfileVO;
+			import com.kaltura.vo.KalturaBaseEntry;
+			import com.kaltura.vo.KalturaStorageProfile;
+			
+			import mx.binding.utils.BindingUtils;
+			import mx.binding.utils.ChangeWatcher;
+			import mx.controls.Alert;
+			import mx.managers.PopUpManager;
+
+			public static const EDIT_STATE:String = "edit_state";
+			
+			private const LABEL_WIDTH:int = 100;
+			
+
+			[Bindable]
+			private var _model:AccountModelLocator = AccountModelLocator.getInstance();
+			
+			/**
+			 * true if partner has remote storage feature
+			 * */
+			public var allowStorageProfiles:Boolean = true;
+			
+			/**
+			 *  the conversion profile to add or edit
+			 */
+			private var _conversionProfile:ConversionProfileVO;
+
+			/**
+			 * chagne watcher for default entry
+			 * */
+			private var _cw:ChangeWatcher;
+
+			/**
+			 * get the conversion profile
+			 */
+			[Bindable]
+			public function get conversionProfile():ConversionProfileVO {
+				return _conversionProfile;
+			}
+
+
+			/**
+			 * set the conversion profile
+			 */
+			public function set conversionProfile(conversionProfile:ConversionProfileVO):void {
+				_conversionProfile = conversionProfile;
+			}
+
+
+			private function help():void {
+				dispatchEvent(new KmcHelpEvent(KmcHelpEvent.HELP, 'section_transcoding_profile_edit'));
+			}
+
+			/**
+			 * clear listeners, bindings, etc.
+			 * */
+			private function destroy():void {
+				if (_cw) {
+					_cw.unwatch();
+				}
+				var cg:EntryEvent = new EntryEvent(EntryEvent.RESET_DEFAULT_ENTRY);
+				cg.dispatch();
+			}
+
+			/**
+			 * creation complete of the main window.
+			 * for edit we clone the acp, for add new one we create a new acp.
+			 */
+			private function onCreationComplete(event:Event):void {
+				if (currentState == EDIT_STATE) {
+					PermissionManager.getInstance().applyAllAttributes(this, "conversionProfileDrilldown_edit");
+					showConvProfData();
+				}
+				else {
+					// when we use this pop-up to create a new Conversion profile
+					conversionProfile = new ConversionProfileVO();
+					conversionProfile.flavors = new Array();
+					PermissionManager.getInstance().applyAllAttributes(this, "conversionProfileDrilldown_add");
+				}
+				
+				// list storage profiles once
+				if (!_model.storageProfiles && allowStorageProfiles) {
+					var cg:ConversionSettingsEvent = new ConversionSettingsEvent(ConversionSettingsEvent.LIST_STORAGE_PROFILES);
+					cg.dispatch();
+				}
+			}
+
+
+			/**
+			 * show conversion profile data
+			 */
+			private function showConvProfData():void {
+				conversionNameTextInput.text = _conversionProfile.profile.name;
+				conversionDescTextArea.text = _conversionProfile.profile.description;
+				txtDefaultEntryId.text = _conversionProfile.profile.defaultEntryId;
+
+				// flavors are set in the cProfile
+				validateInput();
+			}
+			
+			private function validateInput(event:Event = null):Boolean {
+				var isValid:Boolean = true
+				var name:String = conversionNameTextInput.text;
+				name = name.replace(new RegExp(' ', 'g'), '');
+				isValid = (name != '');
+
+				return isValid && flavorsTable.isFlavorsSelected();
+			}
+
+
+			/**
+			 * close window event - when pressing the X button, cancel button or after saving the data
+			 */
+			private function closeWindow(event:Event = null):void {
+				destroy();
+				PopUpManager.removePopUp(this);
+			}
+
+
+			/**
+			 * save the profile
+			 * @param value the entry that is set as default for the profile
+			 * @param forceSave	if true, save even if no value
+			 * */
+			private function save(value:KalturaBaseEntry, forceSave:Boolean = false):void {
+				if (!(value || forceSave)) return; // initial binding
+				_conversionProfile.profile.name = conversionNameTextInput.text;
+				_conversionProfile.profile.description = conversionDescTextArea.text;
+				_conversionProfile.profile.defaultEntryId = txtDefaultEntryId.text != '' ? txtDefaultEntryId.text : KalturaClient.NULL_STRING;
+
+				// make sure we send a value, and that it means "none".
+				_conversionProfile.profile.storageProfileId = KalturaClient.NULL_INT;
+				
+				if (currentState == EDIT_STATE) {
+					var updateProfileEvent:ConversionSettingsEvent = new ConversionSettingsEvent(ConversionSettingsEvent.UPDATE_CONVERSION_PROFILE, false, conversionProfile);
+					updateProfileEvent.dispatch();
+				}
+				else {
+					var addProfileEvent:ConversionSettingsEvent = new ConversionSettingsEvent(ConversionSettingsEvent.ADD_CONVERSION_PROFILE, false, conversionProfile);
+					addProfileEvent.dispatch();
+				}
+				closeWindow();
+			}
+			
+			private function validateBeforeSave(event:Event):void {
+				if (validateInput()) {
+					if (txtDefaultEntryId.text && txtDefaultEntryId.text != _conversionProfile.profile.defaultEntryId) {
+						// get this entry to make sure it's valid
+						// dispatch list, bind to model (_model.defaultEntry) and respond
+						if (!_cw) {
+							_cw = BindingUtils.bindSetter(save, _model, 'defaultEntry');
+						}
+						
+						var ee:EntryEvent = new EntryEvent(EntryEvent.GET_DEFAULT_ENTRY);
+						ee.data = txtDefaultEntryId.text;
+						ee.dispatch();
+					}
+					else {
+						// deleting default entry
+						save(null, true);
+					}
+				}
+				else {
+					Alert.show(resourceManager.getString('account', 'invalidInputErrorMsg'), resourceManager.getString('account', 'invalidInputErrorTitle'));
+				}
+
+			}
+		]]>
+	</mx:Script>
+
+
+	<mx:StringValidator source="{conversionNameTextInput}" property="text" trigger="{conversionNameTextInput}"
+						triggerEvent="change" required="true"
+						requiredFieldError="{resourceManager.getString('account','requiredNameError')}"/>
+	<mx:HBox width="100%" >
+		<mx:Label text="{resourceManager.getString('account','requiredName')}"
+				  toolTip="{resourceManager.getString('account','requiredNameToolTip')}"
+				  styleName="boldLabel" width="{LABEL_WIDTH}"/>
+		<mx:TextInput id="conversionNameTextInput" width="100%" change='validateInput(event)'/>
+	</mx:HBox>
+	<mx:HBox width="100%" >
+		<mx:Label text="{resourceManager.getString('account','description')}" 
+				  styleName="boldLabel" width="{LABEL_WIDTH}"/>
+		<mx:TextArea id="conversionDescTextArea" width="100%"/>
+	</mx:HBox>
+	<mx:HBox width="100%" >
+		<mx:Label text="{resourceManager.getString('account','requiredFlavors')}" 
+				  toolTip="{resourceManager.getString('account','requiredFlavorsToolTip')}"
+				  styleName="boldLabel" width="{LABEL_WIDTH}"/>
+		<conversion:ConversionSettingsTable id="flavorsTable" height="100%" 
+			dataProvider="{currentState == EDIT_STATE ? _model.getClonedFlavorsData() : _model.getUnselectedClonedFlavorsData()}"
+			cProfile="{conversionProfile}"  />
+	</mx:HBox>
+	<mx:HBox width="100%" verticalAlign="middle">
+		<mx:Text text="{resourceManager.getString('account','ingestion_settings')}"   
+				 width="{LABEL_WIDTH}" styleName="tightBoldLines"/>
+		<controls:DefaultLabelTextArea id="txtDefaultEntryId" width="100%" height="{conversionNameTextInput.height}" 
+				defaultLabel="{resourceManager.getString('account','ingestion_entryid')}"
+				defaultLabelStyleName="textAreaDefaultLabel" />
+		<!--<mx:TextInput id="txtDefaultEntryId" width="100%" />-->
+
+	</mx:HBox>
+	<mx:ControlBar width="100%" horizontalAlign="center" >
+		<mx:Button id="submitBtn" label="{resourceManager.getString('account','createNewConvProfile')}" 
+				   useHandCursor="true" buttonMode="true" click="validateBeforeSave(event)"/>
+	</mx:ControlBar>
+</HelpTitleWindow>

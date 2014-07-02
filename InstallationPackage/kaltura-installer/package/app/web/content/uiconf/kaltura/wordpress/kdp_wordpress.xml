@@ -1,0 +1,368 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layouts>
+
+<!-- Player Only Large -->
+<layout layoutId="playerOnlyLarge" skinPath="/content/uiconf/kaltura/wordpress/wordpress.swf">
+	<VBox width="100%" height="100%" styleName="mlayout" >
+		<HBox width="100%" height="30" styleName="TopTitle" >
+			<Label id="movieName" styleName="movieName" height="22" width="100%" label="{myKplayer.kalturaShow.kshowName,myKplayer.kalturaEntry.entryName,''}"/>
+			<Button id="kalturaLogo" height="20" styleName="kalturaLogo" />
+			<poweredBy id="poweredBy" k_path="poweredby/PoweredBy.swf" styleName="poweredBy" k_url="http://corp.kaltura.com/static/wordpress_video_plugin" width="120" height="18"/>
+		</HBox> 
+		<HBox width="100%" height="100%" styleName="playerContainer"> 
+			<Canvas id="marginLeft" width="5" height="100%" styleName="playerMarginLeft" /> 
+			<Canvas id="PlayerHolder" styleName="PlayerBackground" width="100%" height="100%" >
+				<KplayerModule id="myKplayer" styleName="centered"  k_path="kplayer/KplayerModule.swf" width="100%" height="100%" maxWidth="640" maxHeight="480"/>
+				<EndScreen id="endScreen" styleName="centered" k_share_click="popup:SharePop"  k_path="endScreen/EndScreen.swf" width="100%" height="100%" maxWidth="640" maxHeight="480"/>
+			</Canvas>
+			<Canvas id="marginRight" width="5" height="100%" styleName="playerMarginRight" /> 
+		</HBox>
+		<HBox styleName="controllerBox" height="34" width="100%">
+			<VBox>
+				<Button id="play" styleName="play" width="15" height="17" />
+				<Spacer height="4"/>
+			</VBox>
+			<VBox width="100%" height="100%" styleName="scrubberContainer">
+				<Scrubber id="scrubber" styleName="scrubber" width="100%" />
+				<HBox styleName="timerHolder">
+					<TimerCountdown id="timer" styleName="timer" width="30" height="8" k_path="timertext/SimpleTimer.swf"/>
+				</HBox>
+			</VBox>
+			<VBox>
+				<VolumeModule width="20" height="20" k_path="VolumeBars/VolumeBarA.swf" id="Volume" styleName="pp"/> 
+				<Spacer height="4"/>
+			</VBox>
+			<VBox>
+				<Button id="fullScreen" width="20" height="17" styleName="fs" label="" tooltip="Full Screen" />
+				<Spacer height="4"/>
+			</VBox>
+		</HBox>
+	</VBox>
+    <popups>
+    		<SharePop id="SharePop" k_path="popups/SharePopup.swf" k_uiconf_id="506" width="350" height="350"/> 
+	</popups>
+</layout>
+
+<!-- Player Only Small -->
+<layout layoutId="playerOnlySmall" skinPath="/content/uiconf/kaltura/wordpress/wordpress.swf">
+	<VBox width="100%" height="100%" styleName="mlayout" >
+		<HBox width="100%" height="30" styleName="TopTitle" >
+			<Label id="movieName" styleName="movieName" height="22" width="100%" label="{myKplayer.kalturaShow.kshowName,myKplayer.kalturaEntry.entryName,''}"/>
+			<Button id="kalturaLogo" height="20" styleName="kalturaLogo" />
+			<poweredBy id="poweredBy" k_path="poweredby/PoweredBy2.swf" styleName="poweredBy" k_url="http://corp.kaltura.com/static/wordpress_video_plugin" width="69" height="22"/>
+		</HBox> 
+		<HBox width="100%" height="100%" styleName="playerContainer"> 
+			<Canvas id="marginLeft" width="5" height="100%" styleName="playerMarginLeft" /> 
+			<Canvas id="PlayerHolder" styleName="PlayerBackground" width="100%" height="100%" >
+				<KplayerModule id="myKplayer" styleName="centered"  k_path="kplayer/KplayerModule.swf" width="100%" height="100%" maxWidth="640" maxHeight="480"/>
+				<EndScreen id="endScreen" styleName="centered" k_share_click="popup:SharePop"  k_path="endScreen/EndScreen.swf" width="100%" height="100%" maxWidth="640" maxHeight="480"/>
+			</Canvas>
+			<Canvas id="marginRight" width="5" height="100%" styleName="playerMarginRight" /> 
+		</HBox>
+		<HBox styleName="controllerBox" height="34" width="100%">
+			<VBox>
+				<Button id="play" styleName="play" width="15" height="17" />
+				<Spacer height="4"/>
+			</VBox>
+			<VBox width="100%" height="100%" styleName="scrubberContainer">
+				<Scrubber id="scrubber" styleName="scrubber" width="100%" />
+				<HBox styleName="timerHolder">
+					<TimerCountdown id="timer" styleName="timer" width="30" height="8" k_path="timertext/SimpleTimer.swf"/>
+				</HBox>
+			</VBox>
+			<VBox>
+				<VolumeModule width="20" height="20" k_path="VolumeBars/VolumeBarA.swf" id="Volume" styleName="pp"/> 
+				<Spacer height="4"/>
+			</VBox>
+			<VBox>
+				<Button id="fullScreen" width="20" height="17" styleName="fs" label="" tooltip="Full Screen" />
+				<Spacer height="4"/>
+			</VBox>
+		</HBox>
+	</VBox>
+    <popups>
+    		<SharePop id="SharePop" k_path="popups/SharePopup.swf" k_uiconf_id="507" width="250" height="244"/> 
+	</popups>
+</layout>
+
+<!--  Full Large-->
+<layout layoutId="fullLarge" skinPath="/content/uiconf/kaltura/wordpress/wordpress.swf">
+	<VBox width="100%" height="100%" styleName="mlayout" >
+		<HBox width="100%" height="30" styleName="TopTitle" >
+			<Label id="movieName" styleName="movieName" height="22" width="100%" label="{myKplayer.kalturaShow.kshowName,myKplayer.kalturaEntry.entryName,''}"/>
+			<Button id="kalturaLogo" height="20" styleName="kalturaLogo" />
+			<poweredBy id="poweredBy" k_path="poweredby/PoweredBy.swf" styleName="poweredBy" k_url="http://corp.kaltura.com/static/wordpress_video_plugin" width="120" height="18"/>
+		</HBox> 
+		<HBox width="100%" height="100%" styleName="playerContainer"> 
+			<Canvas id="marginLeft" width="5" height="100%" styleName="playerMarginLeft" /> 
+			<Canvas id="PlayerHolder" styleName="PlayerBackground" width="100%" height="100%" >
+				<KplayerModule id="myKplayer" styleName="centered"  k_path="kplayer/KplayerModule.swf" width="100%" height="100%" maxWidth="640" maxHeight="480"/>
+				<EndScreen id="endScreen" styleName="centered" k_share_click="popup:SharePop"  k_path="endScreen/EndScreen.swf" width="100%" height="100%" maxWidth="640" maxHeight="480"/>
+			</Canvas>
+			<Canvas id="marginRight" width="5" height="100%" styleName="playerMarginRight" /> 
+		</HBox>
+		<HBox styleName="controllerBox" height="34" width="100%">
+			<VBox>
+				<Button id="play" styleName="play" width="15" height="17" />
+				<Spacer height="4"/>
+			</VBox>
+			<VBox width="100%" height="100%" styleName="scrubberContainer">
+				<Scrubber id="scrubber" styleName="scrubber" width="100%" />
+				<HBox styleName="timerHolder">
+					<TimerCountdown id="timer" styleName="timer" width="30" height="8" k_path="timertext/SimpleTimer.swf"/>
+				</HBox>
+			</VBox>
+			<VBox>
+				<VolumeModule width="20" height="20" k_path="VolumeBars/VolumeBarA.swf" id="Volume" styleName="pp"/> 
+				<Spacer height="4"/>
+			</VBox>
+			<VBox>
+				<Button id="fullScreen" width="20" height="17" styleName="fs" label="" tooltip="Full Screen" />
+				<Spacer height="4"/>
+			</VBox>
+			<Button id="addToReel" styleName="bottomButtons" label="UPLOAD" height="18" width="55" k_click="jsInject:gotoContribWizard,pauseMedia" />
+			<Spacer width="4"/>
+			<Button id="editReel" styleName="bottomButtons" label="REMIX" height="18" width="45" k_click="jsInject:gotoEditorWindow,pauseMedia" />
+		</HBox>
+	</VBox>
+    <popups>
+    		<SharePop id="SharePop" k_path="popups/SharePopup.swf" k_uiconf_id="506" width="350" height="350"/> 
+	</popups>
+	<javaScript>
+		<jsBlock id="gotoContribWizard" functionName="gotoContribWizard" params="kshowId" >
+			<![CDATA[
+				function gotoContribWizard (kshowId)
+				{
+					setTimeout("handleGotoContribWizard ('"+kshowId+"');", 0);
+				};
+			]]>
+		</jsBlock>
+		<jsBlock id="gotoEditorWindow" functionName="gotoEditorWindow" params="kshowId" >
+			<![CDATA[
+				function gotoEditorWindow (kshowId)
+				{
+					setTimeout("handleGotoEditorWindow ('"+kshowId+"');", 0);
+				};
+			]]>
+		</jsBlock>
+	</javaScript>
+</layout>
+
+<!--  Full Small-->
+<layout layoutId="fullSmall" skinPath="/content/uiconf/kaltura/wordpress/wordpress.swf">
+	<VBox width="100%" height="100%" styleName="mlayout" >
+		<HBox width="100%" height="30" styleName="TopTitle" >
+			<Label id="movieName" styleName="movieName" height="22" width="100%" label="{myKplayer.kalturaShow.kshowName,myKplayer.kalturaEntry.entryName,''}"/>
+			<Button id="kalturaLogo" height="20" styleName="kalturaLogo" />
+			<poweredBy id="poweredBy" k_path="poweredby/PoweredBy2.swf" styleName="poweredBy" k_url="http://corp.kaltura.com/static/wordpress_video_plugin" width="69" height="22"/>
+		</HBox> 
+		
+		<HBox width="100%" height="100%" styleName="playerContainer"> 
+			<Canvas id="marginLeft" width="5" height="100%" styleName="playerMarginLeft" /> 
+			<Canvas id="PlayerHolder" styleName="PlayerBackground" width="100%" height="100%" >
+				<KplayerModule id="myKplayer" styleName="centered"  k_path="kplayer/KplayerModule.swf" width="100%" height="100%" maxWidth="640" maxHeight="480"/>
+				<EndScreen id="endScreen" styleName="centered" k_share_click="popup:SharePop"  k_path="endScreen/EndScreen.swf" width="100%" height="100%" maxWidth="640" maxHeight="480"/>
+			</Canvas>
+			<Canvas id="marginRight" width="5" height="100%" styleName="playerMarginRight" /> 
+		</HBox>
+		
+		<HBox styleName="controllerBox" height="34" width="100%">
+			<VBox>
+				<Button id="play" styleName="play" width="15" height="17" />
+				<Spacer height="4"/>
+			</VBox>
+			<VBox width="100%" height="100%" styleName="scrubberContainer">
+				<Scrubber id="scrubber" styleName="scrubber" width="100%" />
+				<HBox styleName="timerHolder">
+					<TimerCountdown id="timer" styleName="timer" width="30" height="8" k_path="timertext/SimpleTimer.swf"/>
+				</HBox>
+			</VBox>
+			<VBox>
+				<VolumeModule width="20" height="20" k_path="VolumeBars/VolumeBarA.swf" id="Volume" styleName="pp"/> 
+				<Spacer height="4"/>
+			</VBox>
+			<VBox>
+				<Button id="fullScreen" width="20" height="17" styleName="fs" label="" tooltip="Full Screen" />
+				<Spacer height="4"/>
+			</VBox>
+			<Button id="addToReel" styleName="bottomButtonsSmall" label="UPLOAD" height="18" width="45" k_click="jsInject:gotoContribWizard,pauseMedia" />
+			<Spacer width="4"/>
+			<Button id="editReel" styleName="bottomButtonsSmall" label="REMIX" height="18" width="40" k_click="jsInject:gotoEditorWindow,pauseMedia" />
+		</HBox>
+	</VBox>
+    <popups>
+    		<SharePop id="SharePop" k_path="popups/SharePopup.swf" k_uiconf_id="507" width="250" height="244"/> 
+	</popups>
+	<javaScript>
+		<jsBlock id="gotoContribWizard" functionName="gotoContribWizard" params="kshowId" >
+			<![CDATA[
+				function gotoContribWizard (kshowId)
+				{
+					setTimeout("handleGotoContribWizard ('"+kshowId+"');", 0);
+				};
+			]]>
+		</jsBlock>
+		<jsBlock id="gotoEditorWindow" functionName="gotoEditorWindow" params="kshowId" >
+			<![CDATA[
+				function gotoEditorWindow (kshowId)
+				{
+					setTimeout("handleGotoEditorWindow ('"+kshowId+"');", 0);
+				};
+			]]>
+		</jsBlock>
+	</javaScript>
+</layout>
+
+<!--  Add Only Large-->
+<layout layoutId="addOnlyLarge" skinPath="/content/uiconf/kaltura/wordpress/wordpress.swf">
+   <VBox width="100%" height="100%" styleName="mlayout" >
+		<HBox width="100%" height="30" styleName="TopTitle" >
+			<Label id="movieName" styleName="movieName" height="22" width="100%" label="{myKplayer.kalturaShow.kshowName,myKplayer.kalturaEntry.entryName,''}"/>
+			<Button id="kalturaLogo" height="20" styleName="kalturaLogo" />
+			<poweredBy id="poweredBy" k_path="poweredby/PoweredBy.swf" styleName="poweredBy" k_url="http://corp.kaltura.com/static/wordpress_video_plugin" width="120" height="18"/>
+		</HBox> 
+		<HBox width="100%" height="100%" styleName="playerContainer"> 
+			<Canvas id="marginLeft" width="5" height="100%" styleName="playerMarginLeft" /> 
+			<Canvas id="PlayerHolder" styleName="PlayerBackground" width="100%" height="100%" >
+				<KplayerModule id="myKplayer" styleName="centered"  k_path="kplayer/KplayerModule.swf" width="100%" height="100%" maxWidth="640" maxHeight="480"/>
+				<EndScreen id="endScreen" styleName="centered" k_share_click="popup:SharePop"  k_path="endScreen/EndScreen.swf" width="100%" height="100%" maxWidth="640" maxHeight="480"/>
+			</Canvas>
+			<Canvas id="marginRight" width="5" height="100%" styleName="playerMarginRight" /> 
+		</HBox>
+		
+		<HBox styleName="controllerBox" height="34" width="100%">
+			<VBox>
+				<Button id="play" styleName="play" width="15" height="17" />
+				<Spacer height="4"/>
+			</VBox>
+			<VBox width="100%" height="100%" styleName="scrubberContainer">
+				<Scrubber id="scrubber" styleName="scrubber" width="100%" />
+				<HBox styleName="timerHolder">
+					<TimerCountdown id="timer" styleName="timer" width="30" height="8" k_path="timertext/SimpleTimer.swf"/>
+				</HBox>
+			</VBox>
+			<VBox>
+				<VolumeModule width="20" height="20" k_path="VolumeBars/VolumeBarA.swf" id="Volume" styleName="pp"/> 
+				<Spacer height="4"/>
+			</VBox>
+			<VBox>
+				<Button id="fullScreen" width="20" height="17" styleName="fs" label="" tooltip="Full Screen" />
+				<Spacer height="4"/>
+			</VBox>
+			<Button id="addToReel" styleName="bottomButtons" label="UPLOAD" height="18" width="55" k_click="jsInject:gotoContribWizard,pauseMedia" />
+		</HBox>
+	</VBox>
+    <popups>
+    		<SharePop id="SharePop" k_path="popups/SharePopup.swf" k_uiconf_id="506" width="350" height="350"/> 
+	</popups>
+	<javaScript>
+			<jsBlock id="gotoContribWizard" functionName="gotoContribWizard" params="kshowId" >
+				<![CDATA[
+					function gotoContribWizard (kshowId)
+					{
+						setTimeout("handleGotoContribWizard ('"+kshowId+"');", 0);
+					};
+				]]>
+			</jsBlock>
+	</javaScript>
+</layout>
+
+<!--  Add Only Small-->
+<layout layoutId="addOnlySmall" skinPath="/content/uiconf/kaltura/wordpress/wordpress.swf">
+        <VBox width="100%" height="100%" styleName="mlayout" >
+		<HBox width="100%" height="30" styleName="TopTitle" >
+			<Label id="movieName" styleName="movieName" height="22" width="100%" label="{myKplayer.kalturaShow.kshowName,myKplayer.kalturaEntry.entryName,''}"/>
+			<Button id="kalturaLogo" height="20" styleName="kalturaLogo" />
+			<poweredBy id="poweredBy" k_path="poweredby/PoweredBy2.swf" styleName="poweredBy" k_url="http://corp.kaltura.com/static/wordpress_video_plugin" width="69" height="22"/>
+		</HBox> 
+		<HBox width="100%" height="100%" styleName="playerContainer"> 
+			<Canvas id="marginLeft" width="5" height="100%" styleName="playerMarginLeft" /> 
+			<Canvas id="PlayerHolder" styleName="PlayerBackground" width="100%" height="100%" >
+				<KplayerModule id="myKplayer" styleName="centered"  k_path="kplayer/KplayerModule.swf" width="100%" height="100%" maxWidth="640" maxHeight="480"/>
+				<EndScreen id="endScreen" styleName="centered" k_share_click="popup:SharePop"  k_path="endScreen/EndScreen.swf" width="100%" height="100%" maxWidth="640" maxHeight="480"/>
+			</Canvas>
+			<Canvas id="marginRight" width="5" height="100%" styleName="playerMarginRight" /> 
+		</HBox>
+		<HBox styleName="controllerBox" height="34" width="100%">
+			<VBox>
+				<Button id="play" styleName="play" width="15" height="17" />
+				<Spacer height="4"/>
+			</VBox>
+			<VBox width="100%" height="100%" styleName="scrubberContainer">
+				<Scrubber id="scrubber" styleName="scrubber" width="100%" />
+				<HBox styleName="timerHolder">
+					<TimerCountdown id="timer" styleName="timer" width="30" height="8" k_path="timertext/SimpleTimer.swf"/>
+				</HBox>
+			</VBox>
+			<VBox>
+				<VolumeModule width="20" height="20" k_path="VolumeBars/VolumeBarA.swf" id="Volume" styleName="pp"/> 
+				<Spacer height="4"/>
+			</VBox>
+			<VBox>
+				<Button id="fullScreen" width="20" height="17" styleName="fs" label="" tooltip="Full Screen" />
+				<Spacer height="4"/>
+			</VBox>
+			<Button id="addToReel" styleName="bottomButtonsSmall" label="UPLOAD" height="18" width="45" k_click="jsInject:gotoContribWizard,pauseMedia" />
+		</HBox>
+	</VBox>
+    	<popups>
+    		<SharePop id="SharePop" k_path="popups/SharePopup.swf" k_uiconf_id="507" width="250" height="244"/> 
+	</popups>
+	<javaScript>
+			<jsBlock id="gotoContribWizard" functionName="gotoContribWizard" params="kshowId" >
+				<![CDATA[
+					function gotoContribWizard (kshowId)
+					{
+						setTimeout("handleGotoContribWizard ('"+kshowId+"');", 0);
+					};
+				]]>
+			</jsBlock>
+	</javaScript>
+</layout>
+
+<!-- Tiny Player -->
+<layout layoutId="tinyPlayer" skinPath="/content/uiconf/kaltura/wordpress/wordpress.swf">
+	<VBox width="100%" height="100%" styleName="mlayout" >
+		<HBox width="100%" height="30" styleName="TopTitle" >
+			<Label id="movieName" styleName="movieName" height="22" width="100%" label=""/>
+			<Button id="kalturaLogo" height="20" styleName="kalturaLogo" />
+			<poweredBy id="poweredBy" k_path="poweredby/PoweredBy2.swf" styleName="poweredBy" k_url="http://corp.kaltura.com/static/wordpress_video_plugin" width="69" height="22"/>
+		</HBox> 
+		<HBox width="100%" height="100%" styleName="playerContainer"> 
+			<Canvas id="marginLeft" width="5" height="100%" styleName="playerMarginLeft" /> 
+			<Canvas id="PlayerHolder" styleName="PlayerBackground" width="100%" height="100%" >
+				<KplayerModule id="myKplayer" styleName="centered"  k_path="kplayer/KplayerModule.swf" width="100%" height="100%" maxWidth="640" maxHeight="480"/>
+				<EndScreen id="endScreen" styleName="centered" k_share_click="popup:SharePop"  k_path="endScreen/EndScreen.swf" width="100%" height="100%" maxWidth="640" maxHeight="480"/>
+			</Canvas>
+			<Canvas id="marginRight" width="5" height="100%" styleName="playerMarginRight" /> 
+		</HBox>
+		
+		<HBox styleName="controllerBox" height="34" width="100%">
+			<VBox>
+				<Button id="play" styleName="play" width="15" height="17" />
+				<Spacer height="4"/>
+			</VBox>
+			<VBox width="100%" height="100%" styleName="scrubberContainer">
+				<Scrubber id="scrubber" styleName="scrubber" width="100%" />
+				<HBox styleName="timerHolder">
+					<TimerCountdown id="timer" styleName="timer" width="30" height="8" k_path="timertext/SimpleTimer.swf"/>
+				</HBox>
+			</VBox>
+			<VBox>
+				<VolumeModule width="20" height="20" k_path="VolumeBars/VolumeBarA.swf" id="Volume" styleName="pp"/> 
+				<Spacer height="4"/>
+			</VBox>
+			<VBox>
+				<Button id="fullScreen" width="20" height="17" styleName="fs" label="" tooltip="Full Screen" />
+				<Spacer height="4"/>
+			</VBox>
+		</HBox>
+	</VBox>
+    <popups>
+		<SharePop id="SharePop" k_path="popups/SharePopup.swf" k_uiconf_id="507" width="250" height="244"/> 
+	</popups>
+	<javaScript/>
+</layout>
+
+
+</layouts>

@@ -1,0 +1,267 @@
+<layouts>  
+<layout layoutId="" skinPath="/content/uiconf/kaltura/default_player/kdp_1.2.3/kdp_skin_light2.swf">
+  <VBox height="100%" styleName="mlayout" width="100%">
+   <HBox height="30" styleName="" width="100%">
+       <Label height="27" id="movieName" label="{myKplayer.kalturaEntry.entryName}" styleName="movieName" width="100%"/>
+   </HBox>
+   <HBox height="100%" styleName="black" width="100%">
+    <Canvas width="100%" height="100%" id="PlayerHolder" styleName="PlayerBackground" >
+     <KplayerModule height="100%" id="myKplayer" k_path="kplayer/KplayerModule.swf" styleName="centered" width="100%"/>
+     <screens height="100%" id="screens" k_path="screens/Screens.swf" styleName="centered" width="100%"
+     k_end_screen_id="endScreen" k_end_screen_over_id="endScreen"
+     k_pause_screen_id="pauseScreen" k_pause_screen_over_id="pauseScreen" 
+     k_play_screen_id="emptyScreen" k_play_screen_over_id="emptyScreen" 
+     k_start_screen_id="startScreen" k_start_screen_over_id="startScreen" />
+     <Gigya height="100%" id="Gigya" 
+      k_share_email_body="Hi%2c%3cbr%3eI watched this video and thought you'd enjoy it too %24URL%24 to watch.%3cbr%3e%0d%0a%24sender%24%0d%0a" 
+      k_share_email_subject="Take a look at this video"
+      k_path="addons/Gigya.swf" width="100%" />
+    </Canvas>
+   </HBox>
+   <HBox id="controller" height="32" k_theme_change="true" styleName="controllerBoxLight"  width="100%" >
+    <Button width="28" height="28" id="play" styleName="play" k_buttonType="buttonIconControllerArea" />
+    <VBox width="100%" height="100%" styleName="scrubberHolder" >
+     <Scrubber width="100%" height="12" id="scrubber" styleName="scrubber" />
+     <HBox width="100%" height="12" styleName="TimerCont" >
+      <TimerCountdown k_change_by_click="false" height="20" id="timer1" k_path="timertext/TimerCountdown.swf" styleName="timer" width="32"/>
+     <Spacer width="100%" />
+     <TimerCountdown height="20" id="timer2" k_show_total_time="true" k_path="timertext/TimerCountdown.swf" k_change_by_click="false" styleName="timer" width="32"/>
+     </HBox>
+    </VBox>
+    <VolumeModule width="29" height="23" id="Volume" k_path="VolumeBars/VolumeBarA.swf" k_buttonType="buttonIconControllerArea"  />
+    <Button width="29" height="23" id="fullScreen" label="" k_buttonType="buttonIconControllerArea" styleName="fullScreen" tooltip="Full Screen" /> 
+    <Button height="29" id="share" label="" styleName="controlShare" k_buttonType="buttonIconControllerArea" tooltip="Share this video" command="gigyaButton" />
+    <Button k_theme_change="true" id="poweredByController" width="40" height="20"  k_click="navigate:http://www.kaltura.com" styleName="kalturaLogo" />
+   </HBox>
+  </VBox>
+  <popups>
+   <module width="100%" height="100%" id="report" k_path="popups/Report.swf" k_report_form_title="Report"  />
+  </popups>  
+  <screens>
+     <screen id="endScreen">
+       <HBox width="100%" height="100%" styleName="tileHolder">
+     		<Tile styleName="bottonsTile">
+      		<Button id="endScreenreplayBtn" width="60" height="60" styleName="replayBtn" label="Replay" labelPlacement="top" command="play" k_buttonType="buttonVideoArea" />
+    		  	<Button id="endScreenShare" width="60" height="60" styleName="shareBtn" label="Share"  labelPlacement="top" command="gigyaButton" k_buttonType="buttonVideoArea" />
+     		</Tile>
+    </HBox>
+     </screen>
+     <screen id="pauseScreen">
+    	<HBox width="100%" height="100%" styleName="tileHolder">
+   		 <Tile styleName="bottonsTile">
+    		  <Button id="pauseScreenPlay" width="60" height="60" styleName="playPauseScreen" label="Play" labelPlacement="top" command="play" />
+    		  <Button id="pauseScreenShare" width="60" height="60" styleName="shareBtn" label="Share"  labelPlacement="top" command="gigyaButton"  />
+    		 </Tile>
+   	 </HBox>
+     </screen>
+     <screen id="startScreen">
+    	<HBox width="100%" height="100%" styleName="tileHolder">
+   		 <Tile styleName="bottonsTile">
+    		  <Button id="startScreenPlayButtnOnScreen" width="60" height="60" styleName="playPauseScreen" label="" labelPlacement="top" command="play" />
+    		 </Tile>
+   	 </HBox>
+     </screen>
+  </screens>
+  <javaScript>
+  </javaScript>
+
+	<visual>
+			<theme id="currentTheme">
+				<primaryColor>0x000000</primaryColor>
+				<secondaryColor>0xFFFFFF</secondaryColor>
+				<cssSelector componentId="controller" newClass="controllerBoxLight" />
+				<cssSelector componentId="poweredByController" newClass="kalturaLogo" />
+				<font>Arial</font>
+			</theme>
+	</visual>
+  <extraData>
+   <GigyaUI>
+	<config><display showDesktop="false" showEmail="true" useTransitions="true" showBookmark="true" codeBoxHeight="auto" showCloseButton="true" postToSidebarChecked="false" bulletinChecked="false" networksToHide="livespaces, piczo, orkut, pageflakes, vox, tagged, hi5, wordpress, multiply" networksWithCodeBox="*" networksToShow="myspace, facebook, bebo, blogger, freewebs, livejournal, blackplanet, myyearbook, typepad, xanga, igoogle, netvibes, migente, friendster" bookmarksToShow="googlebookmarks,delicious,digg,facebookshare,newsvine,reddit,twitter,ask,myaol,slashdot,skimbit,simpy,blogmarks,spurl,linkagogo,Magnolia,faves,segnalo,netvouz,blinklist,dropjack,feedmelinks"></display><body><controls corner-roundness="0;10;0;10"><snbuttons iconsOnly="false" type="textUnder"></snbuttons><servicemarker gradient-color-begin="#F4F4F4" gradient-color-end="#D5D5D5"></servicemarker></controls></body></config>
+   </GigyaUI>
+  </extraData> 
+ </layout>
+
+
+
+ <layout skinPath="/content/uiconf/kaltura/generic/kdp/kdp_skin_light2.swf" layoutId="fastforward" >
+	  <VBox height="100%" styleName="mlayout" width="100%">
+	   <HBox height="100%" styleName="black" width="100%">
+		<Canvas width="100%" height="100%" id="PlayerHolder" styleName="reportResponseContainerCanvas" >
+		 <KplayerModule height="100%" id="myKplayer" k_path="kplayer/KplayerModule.swf" styleName="centered" width="100%"/>
+		</Canvas>
+	   </HBox>
+	
+		<HBox id="controller" height="32" k_theme_change="true" styleName="controllerBoxLight"  width="100%" >
+			<Button width="19" height="19" id="play" styleName="playSmall" k_buttonType="buttonIconControllerArea" />
+				<Spacer width="2" />
+				<Button id="ffx2" width="15" height="23" styleName="ffx2" label="" command="ffwx2"  />
+				<Spacer width="2" />
+				<Button id="ffx4" width="15" height="23" styleName="ffx4" label="" command="ffwx4" />
+				<Spacer width="2" />
+				<Button id="ffx8" width="15" height="23" styleName="ffx8" label="" command="ffwx8" />
+				<VBox width="100%" height="100%" styleName="scrubberHolder" >
+					<Spacer height="3" />
+					<Scrubber width="100%" height="12" id="scrubber" styleName="scrubber" />
+					<HBox width="100%" height="10" styleName="TimerCont" >
+					<TimerCountdown k_change_by_click="false" height="20" id="timer1" k_path="timertext/TimerCountdown.swf" styleName="timer" width="32"/>
+						<Spacer width="100%" />
+						<TimerCountdown height="20" id="timer2" k_show_total_time="true" k_path="timertext/TimerCountdown.swf" k_change_by_click="false" styleName="timer" width="32"/>
+					</HBox>
+				</VBox>
+			<VolumeModule width="20" height="15" id="Volume" k_path="VolumeBars/VolumeBarA.swf" k_buttonType="buttonIconControllerArea"  />
+	   </HBox>
+	  </VBox>
+	  <popups>
+	   <module width="100%" height="100%" id="report" k_path="popups/Report.swf" k_report_form_title="Report"  />
+	  </popups>
+	  <javaScript>
+	  </javaScript>
+		<visual>
+				<theme id="currentTheme">
+					<primaryColor>0x000000</primaryColor>
+					<secondaryColor>0xFFFFFF</secondaryColor>
+					<cssSelector componentId="controller" newClass="controllerBoxLight" />
+					<cssSelector componentId="poweredByController" newClass="kalturaLogo" />
+					<font>Arial</font>
+				</theme>
+		</visual>
+	  <extraData>
+	  </extraData> 
+	 </layout>
+
+	
+ 	<layout skinPath="/content/uiconf/kaltura/generic/kdp/kdp_skin_light2.swf" layoutId="nofast">
+	  <VBox height="100%" styleName="mlayout" width="100%">
+	   <HBox height="100%" styleName="black" width="100%">
+		<Canvas width="100%" height="100%" id="PlayerHolder" styleName="reportResponseContainerCanvas" >
+		 <KplayerModule height="100%" id="myKplayer" k_path="kplayer/KplayerModule.swf" styleName="centered" width="100%"/>
+		 <screens height="100%" id="screens" k_path="screens/Screens.swf" styleName="centered" width="100%"
+		 k_end_screen_id="endScreen" k_end_screen_over_id="endScreen"
+		 k_pause_screen_id="pauseScreen" k_pause_screen_over_id="pauseScreen" 
+		 k_play_screen_id="emptyScreen" k_play_screen_over_id="emptyScreen" 
+		 k_start_screen_id="startScreen" k_start_screen_over_id="startScreen" />
+		</Canvas>
+	   </HBox>
+	   <HBox id="controller" height="32" k_theme_change="true" styleName="controllerBoxLight"  width="100%" >
+		<Button width="28" height="28" id="play" styleName="play" k_buttonType="buttonIconControllerArea" />
+		<VBox width="100%" height="100%" styleName="scrubberHolder" >
+		 <Scrubber width="100%" height="12" id="scrubber" styleName="scrubber" />
+		 <HBox width="100%" height="12" styleName="TimerCont" >
+		  <TimerCountdown k_change_by_click="false" height="20" id="timer1" k_path="timertext/TimerCountdown.swf" styleName="timer" width="32"/>
+		 <Spacer width="100%" />
+		 <TimerCountdown height="20" id="timer2" k_show_total_time="true" k_path="timertext/TimerCountdown.swf" k_change_by_click="false" styleName="timer" width="32"/>
+		 </HBox>
+		</VBox>
+		<VolumeModule width="29" height="23" id="Volume" k_path="VolumeBars/VolumeBarA.swf" />
+		 <Button id="pauseScreenThumb" width="23" height="23" styleName="thumb" label="" labelPlacement="top" k_buttonType="buttonIconControllerArea"  command="createThumbnail"   />
+		<Button k_theme_change="true" id="poweredByController" width="40" height="20"  k_click="navigate('http://www.kaltura.com')" styleName="kalturaLogo" />
+	   </HBox>
+	  </VBox>
+	  <popups>
+	   <module width="100%" height="100%" id="report" k_path="popups/Report.swf" k_report_form_title="Report"  />
+	  </popups>  
+	  <screens>
+		 <screen id="endScreen">
+		   <HBox width="100%" height="100%" styleName="tileHolder">
+				<Tile styleName="bottonsTile">
+				<Button id="endScreenreplayBtn" width="60" height="60" styleName="replayBtn" label="Replay" labelPlacement="top" command="play" k_buttonType="buttonVideoArea" />
+				</Tile>
+		</HBox>
+		 </screen>
+		 <screen id="pauseScreen">
+			<HBox width="100%" height="100%" styleName="tileHolder">
+			 <Tile styleName="bottonsTile">
+				  <Button id="pauseScreenPlay" width="60" height="60" styleName="playPauseScreen" label="Play" labelPlacement="top" command="play" />
+				 </Tile>
+		 </HBox>
+		 </screen>
+		 <screen id="startScreen">
+			<HBox width="100%" height="100%" styleName="tileHolder">
+			 <Tile styleName="bottonsTile">
+				  <Button id="startScreenPlayButtnOnScreen" width="60" height="60" styleName="playPauseScreen" label="" labelPlacement="top" command="play" />
+				 </Tile>
+		 </HBox>
+		 </screen>
+	  </screens>
+	  <javaScript>
+	  </javaScript>
+		<visual>
+				<theme id="currentTheme">
+					<primaryColor>0x000000</primaryColor>
+					<secondaryColor>0xFFFFFF</secondaryColor>
+					<cssSelector componentId="controller" newClass="controllerBoxLight" />
+					<cssSelector componentId="poweredByController" newClass="kalturaLogo" />
+					<font>Arial</font>
+				</theme>
+		</visual>
+	  <extraData>
+	   <GigyaUI>
+	   </GigyaUI>
+	  </extraData> 
+	 </layout>
+	
+	<layout layoutId="playlistLight" skinPath="/content/uiconf/kaltura/kmc/kdp_bright.swf?r=0">
+		<Canvas height="100%" styleName="mlayout" width="100%">
+			<HBox height="100%" styleName="noPaddings" width="100%">
+			<VBox height="100%" styleName="mlayout" width="100%">
+				<HBox height="100%" styleName="playerContainer" width="100%">
+					<Canvas width="100%" height="100%" id="PlayerHolder" styleName="PlayerBackground" >
+						<KplayerModule height="100%" id="myKplayer" k_path="kplayer/KplayerModule.swf" styleName="centered" width="100%"/>
+					</Canvas>
+				</HBox>
+				<HBox height="29" styleName="controllerBox" width="100%">
+					<VBox width="25" height="100%" styleName="noPadding" >
+						<Spacer height="2" />
+						<Button width="25" height="25" id="play" styleName="playBtnController" />
+					</VBox>
+					<VBox width="100%" height="100%" styleName="scrubberHolder" >
+						<Spacer height="2" />
+						<Scrubber width="100%" height="12" id="scrubber" styleName="scrubber" />
+						<Spacer height="1" />
+						<HBox width="100%" styleName="noPadding" >
+							<Spacer width="3" />
+							<TimerCountdown height="20" id="timer" k_path="timertext/TimerCountdown.swf" styleName="timer" width="40"/>
+						</HBox>
+					</VBox>
+				<VBox width="18" height="100%" styleName="noPadding" >
+					<Spacer height="6" />
+					<VolumeModule width="21" height="16" id="Volume" 
+						k_path="VolumeBars/VolumeBarA.swf" />
+				</VBox>
+					<Spacer width="3" />
+					<VBox width="30" height="100%" styleName="noPadding" >
+						<Spacer height="1" />
+						<Button id="poweredByController" width="40" k_click="navigate:http://www.kaltura.com" styleName="kalturaLogo" />
+					</VBox>
+					<Spacer width="5" />
+				</HBox>
+			</VBox>
+			<Playlist id="playlistApi" k_path="playlist/PlaylistAPI.swf" width="300" height="100%" />
+			</HBox>
+		</Canvas>
+			<screens>
+				<screen id="startScreen">
+						<Canvas width="100%" height="100%">
+							<VBox width="100%" height="100%" id="startScreenCont" styleName="overScreenWhite">
+								<Button id="onVideoPlayBtnStartScreen" command="play" styleName="playBtn" label="" labelPlacement="top" />
+							</VBox>
+						</Canvas>
+				</screen>
+				<screen id="pauseScreen">
+						<Canvas width="100%" height="100%">
+							<VBox width="100%" height="100%" id="startScreenCont" styleName="overScreenWhite">
+								<Button id="shareBtnPauseScreen" command="gigyaButton" styleName="shareBtn" label="Share" labelPlacement="top" />
+							</VBox>
+						</Canvas>
+				</screen>
+				<screen id="endScreen">
+						<HBox width="100%" height="100%" id="startScreenCont" styleName="overScreenWhite">
+							<Button id="shareBtnEndScreen" command="gigyaButton" styleName="shareBtn" label="Share" labelPlacement="top" />
+							<Button id="replayBtnEndScreen" command="replay"  styleName="replayBtn" label="replay" labelPlacement="top" />
+						</HBox>
+				</screen>
+			</screens>
+		<extraData>
+		</extraData>
+	</layout>	
+</layouts>

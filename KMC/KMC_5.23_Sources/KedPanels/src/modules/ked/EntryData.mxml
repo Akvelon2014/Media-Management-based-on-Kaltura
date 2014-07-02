@@ -1,0 +1,1081 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+
+ Modified by Akvelon Inc.
+ 2014-06-30
+ http://www.akvelon.com/contact-us
+-->
+<mx:Module layout="horizontal" xmlns:mx="http://www.adobe.com/2006/mxml" 
+		   creationComplete="onCreationComplete()" implements="com.kaltura.edw.business.IDrilldownPanel"
+		   label="{resourceManager.getString('drilldown', 'metadata')}" height="100%"
+		   xmlns:components="com.hillelcoren.components.*" hide="pausePreview()">
+	<mx:Metadata> 
+		[Event(name="validationComplete", type="com.kaltura.edw.events.ValidationResultEvent")] 
+		[Event(name="panelDataSaved", type="com.kaltura.edw.events.InternalKedEvent")] 
+	</mx:Metadata>
+
+
+	<mx:Script>
+		<![CDATA[
+			import com.kaltura.KalturaClient;
+			import com.kaltura.autocomplete.controllers.KACCategoryController;
+			import com.kaltura.autocomplete.controllers.KACTagsController;
+			import com.kaltura.autocomplete.itemRenderers.selection.CategorySelectedItem;
+			import com.kaltura.edw.business.EntryDataHelper;
+			import com.kaltura.edw.business.EntryFormBuilder;
+			import com.kaltura.edw.business.EntryUtil;
+			import com.kaltura.edw.business.KedJSGate;
+			import com.kaltura.edw.business.MetadataDataParser;
+			import com.kaltura.edw.business.permissions.PermissionManager;
+			import com.kaltura.edw.constants.PanelConsts;
+			import com.kaltura.edw.control.DataTabController;
+			import com.kaltura.edw.control.events.KedEntryEvent;
+			import com.kaltura.edw.control.events.MetadataDataEvent;
+			import com.kaltura.edw.control.events.MetadataProfileEvent;
+			import com.kaltura.edw.control.events.ModelEvent;
+			import com.kaltura.edw.events.InternalKedEvent;
+			import com.kaltura.edw.events.ValidationResultEvent;
+			import com.kaltura.edw.model.datapacks.ContextDataPack;
+			import com.kaltura.edw.model.datapacks.CustomDataDataPack;
+			import com.kaltura.edw.model.datapacks.DistributionDataPack;
+			import com.kaltura.edw.model.datapacks.EntryDataPack;
+			import com.kaltura.edw.model.datapacks.FilterDataPack;
+			import com.kaltura.edw.model.datapacks.PermissionsDataPack;
+			import com.kaltura.edw.view.customData.SingleCustomData;
+			import com.kaltura.edw.view.window.CategoryBrowser;
+			import com.kaltura.edw.vo.CustomMetadataDataVO;
+			import com.kaltura.events.KdpEventTypes;
+			import com.kaltura.kmvc.control.KMvCEvent;
+			import com.kaltura.kmvc.model.IDataPackRepository;
+			import com.kaltura.kmvc.model.KMvCModel;
+			import com.kaltura.types.KalturaEntryStatus;
+			import com.kaltura.types.KalturaMediaType;
+			import com.kaltura.types.KalturaTaggedObjectType;
+			import com.kaltura.utils.KTimeUtil;
+			import com.kaltura.vo.KMCMetadataProfileVO;
+			import com.kaltura.vo.KalturaBaseEntry;
+			import com.kaltura.vo.KalturaCategory;
+			import com.kaltura.vo.KalturaLiveStreamAdminEntry;
+			import com.kaltura.vo.KalturaMediaEntry;
+			
+			import mx.binding.utils.BindingUtils;
+			import mx.binding.utils.ChangeWatcher;
+			import mx.collections.ArrayCollection;
+			import mx.controls.Image;
+			import mx.managers.PopUpManager;
+			import mx.resources.ResourceManager;
+			import mx.utils.StringUtil;
+
+
+			// =================================================================
+			// Constants
+			// =================================================================
+
+			private static const customDataVerticalGap:int = 5;
+
+			/**
+			 * image to display when entry doesn't have content
+			 * */
+			private static const noMediaImage:* = StyleManager.getStyleDeclaration(".imageBank").getStyle("noContentImg");
+
+
+			/**
+			 * reference to kdp3Loader.
+			 * due to performance issue that we fixed, this is static.
+			 * */
+			private static var kdp3StaticSwfLoader:SWFLoader;
+
+
+			/**
+			 * landing page replace string
+			 * @internal
+			 * the landing page is a page on the partner's website where they can view the entry directly.
+			 * this is the token that tells KMC where the entry id should appear in the url.
+			 * */
+			private const ENTRY_PLACEHOLDER:String = '{entryId}';
+
+
+			// ==============================
+			// page layout: labels width
+			// ==============================
+
+			/**
+			 * width of labels of editable fields
+			 * */
+			private const LABEL_WIDTH:Number = 90;
+
+			/**
+			 * width of components of editable fields
+			 * */
+			private const TEXT_WIDTH:Number = 264;
+
+
+			/**
+			 * width of label of noneditable fields on the left
+			 * */
+			private const RIGHT_LABEL_WIDTH:Number = 86;
+
+			/**
+			 * width of components of non editable fields on the left
+			 * */
+			private const RIGHT_TEXT_WIDTH:Number = 80;
+
+
+			/**
+			 * width of components of non editable fields on the left
+			 * */
+			private const RIGHT_TEXT_WIDTH2:Number = 62;
+
+			// =================================================================
+			// Other Stuff
+			// =================================================================
+
+			private var controller:DataTabController = DataTabController.getInstance();
+
+			/**
+			 * change watcher for categories list
+			 * */
+			private var _catWatcher:ChangeWatcher;
+
+			/**
+			 * change watcher for data load
+			 * */
+			private var _loadWatcher:ChangeWatcher;
+
+			/**
+			 * change watcher for custom data profiles, if not previously loaded via filter
+			 * */
+			private var _profsWatcher:ChangeWatcher;
+
+			/**
+			 * RnP: edit custom data
+			 * */
+			public var customDataEditable:Boolean = true;
+			
+			/**
+			 * 
+			 * */
+			private var _enableCustomData:Boolean = true;
+
+			/**
+			 * RnP (feature): disable alerts in KDP
+			 * */
+			public var disableKDPAlerts:Boolean = true;
+			
+			[Bindable]
+			/**
+			 * RnP: should category selection controls be available
+			 * */
+			public var categoriesEditable:Boolean = true;
+
+
+			// =================================================================
+			// Data Model
+			// =================================================================
+
+			/**
+			 * @copy #selectedEntry
+			 * */
+			private var _selectedEntry:KalturaBaseEntry;
+
+
+			[Bindable]
+			/**
+			 * the entry to which we apply changes
+			 * */
+			public function get selectedEntry():KalturaBaseEntry {
+				return _selectedEntry;
+			}
+
+
+			public function set selectedEntry(value:KalturaBaseEntry):void {
+				if (value is KalturaLiveStreamAdminEntry) {
+					offlineHolder.visible = true;
+					offlineHolder.includeInLayout = true;
+				}
+				else {
+					offlineHolder.visible = false;
+					offlineHolder.includeInLayout = false;
+				}
+
+				// set entry tags on screen
+				if (value && value.tags) {
+					var ac:ArrayCollection = new ArrayCollection(value.tags.split(", "));
+					tagsComplete.selectedItems = ac;
+				}
+				else {
+					tagsComplete.selectedItems = null;
+				}
+
+				// set selected entry
+				_selectedEntry = value;
+			}
+
+
+			private var _dpModel:IDataPackRepository;
+
+
+			public function get dataPackModel():IDataPackRepository {
+				return _dpModel;
+			}
+
+
+			public function set dataPackModel(value:IDataPackRepository):void {
+				_dpModel = value;
+				_distributionData = _dpModel.getDataPack(DistributionDataPack) as DistributionDataPack;
+				_entryData = _dpModel.getDataPack(EntryDataPack) as EntryDataPack;
+
+				_loadWatcher = BindingUtils.bindProperty(this, "loadingFlag", _dpModel, "loadingFlag");
+				_catWatcher = BindingUtils.bindSetter(setCategoriesOnScreen, _entryData, ["entryCategories"]);
+
+				var context:ContextDataPack = _dpModel.getDataPack(ContextDataPack) as ContextDataPack;
+				showEmbed = context.showEmbedCode;
+				
+				var filterData:FilterDataPack = _dpModel.getDataPack(FilterDataPack) as FilterDataPack;
+				_enableCustomData = filterData.filterModel.enableCustomData;
+			}
+
+			[Bindable]
+			public var loadingFlag:Boolean;
+
+			public function get helpAnchor():String {
+				return "entry_metadata";
+			}
+
+
+
+			[Bindable]
+			private var _distributionData:DistributionDataPack;
+
+
+			private var _entryData:EntryDataPack;
+
+
+			[Bindable]
+			/**
+			 * does the current entry have media content
+			 * */
+			private var _entryHasContent:Boolean;
+
+			/**
+			 * entry's reference id before the user had a chance to change it
+			 * */
+			private var _originalRefid:String;
+
+
+			// =================================================================
+			// Methods
+			// =================================================================
+
+			
+			/**
+			 * compare tags ignoring spaces between them
+			 * @return true if tags are equal
+			 * */
+			private function tagsCompare(tags1:String, tags2:String):Boolean {
+				if (!tags1 && !tags2) {
+					return true;
+				}
+				else if (!tags1) {
+					return false;
+				}
+				else if (!tags2) {
+					return false;
+				}
+				// now we are sure both have values
+				var strippedTags1:String = tags1.replace(/\,\ /g, ",");
+				var strippedTags2:String = tags2.replace(/\,\ /g, ",");
+				
+				return strippedTags1 == strippedTags2;
+			}
+
+			public function isChanged():Boolean {
+				var res:Boolean = false;
+				// entry data:
+				var orig:KalturaBaseEntry = _entryData.selectedEntry;
+				res ||= _selectedEntry.name != orig.name;
+				res ||= _selectedEntry.description != orig.description;
+				res ||= !tagsCompare(_selectedEntry.tags, orig.tags);
+				res ||= _selectedEntry.referenceId != orig.referenceId;
+
+				// categories:
+				if (_entryCategories != null && catComplete.selectedItems && catComplete.selectedItems.length > 0) {
+					res ||= !EntryDataHelper.areCollectionsEqual(_entryCategories, catComplete.selectedItems);
+				}
+
+				// custom data:
+				if (_enableCustomData) {
+					var customDataDataPack:CustomDataDataPack = _dpModel.getDataPack(CustomDataDataPack) as CustomDataDataPack;
+					if (_profilesAC.length && customDataDataPack.metadataInfoArray && customDataDataPack.metadataInfoArray.length) {
+						for (var i:int = 0; i < _profilesAC.length; i++) {
+							var metadataInfo:CustomMetadataDataVO = customDataDataPack.metadataInfoArray.getItemAt(i) as CustomMetadataDataVO;
+							var metadataProfile:KMCMetadataProfileVO = _profilesAC.getItemAt(i) as KMCMetadataProfileVO;
+							if (metadataProfile && metadataProfile.profile && metadataInfo) {
+								var newMetadataXML:XML = MetadataDataParser.toMetadataXML(metadataInfo, metadataProfile);
+								if (metadataInfo.metadata) {
+									var originalMetadataXML:XML = new XML(metadataInfo.metadata.xml);
+									if (!(MetadataDataParser.compareMetadata(newMetadataXML, originalMetadataXML))) {
+										res = true;
+									}
+								}
+								//new metadata was inserted
+								else if (newMetadataXML.children().length() > 0) {
+									res = true;
+								}
+							}
+						}
+					}
+				}
+				return res;
+			}
+
+
+			public function save():void {
+				if (_selectedEntry is KalturaLiveStreamAdminEntry) {
+					(_selectedEntry as KalturaLiveStreamAdminEntry).offlineMessage = offlineMessage.text;
+				}
+
+				//update categories
+				var saveEvent:KedEntryEvent = new KedEntryEvent(KedEntryEvent.UPDATE_ENTRY_CATEGORIES, _selectedEntry);
+				saveEvent.data = EntryDataHelper.getCategoriesUpdateValues(catComplete.selectedItems, _entryCategories);
+				controller.dispatch(saveEvent);
+
+				dispatchEvent(new InternalKedEvent(InternalKedEvent.PANEL_DATA_SAVED));
+
+				// custom data save is done in update entries command, not here
+			}
+
+
+
+			public function validate():void {
+				var success:Boolean = true; // validation result
+				var errorMessage:String;
+				var errorTitle:String;
+
+				// entry name
+				if (StringUtil.trim(name_input.text) == "") {
+					errorMessage = resourceManager.getString('drilldown', 'entryNameIsMandatory');
+					errorTitle = resourceManager.getString('drilldown', 'metadataError');
+					success = false;
+				}
+				if (!errorMessage) {
+					// categories section
+					// auto-complete event isn't full so we need to add this here
+					if (catComplete.selectedItems.length > _entryData.maxNumCategories) {
+						errorMessage = resourceManager.getString('drilldown', 'categoriesLimitErrorMsg', [_entryData.maxNumCategories]);
+						errorTitle = resourceManager.getString('drilldown', 'categoriesErrorTitle');
+						success = false;
+					}
+				}
+
+				var e:ValidationResultEvent = new ValidationResultEvent(ValidationResultEvent.VALIDATION_COMPLETE, success, errorMessage, errorTitle);
+				dispatchEvent(e);
+
+				// custom data validation is done as part of update command, not here.
+			}
+
+
+
+
+
+			public function initData():void {
+				_originalRefid = _selectedEntry.referenceId;
+
+				if (_selectedEntry.status == KalturaEntryStatus.NO_CONTENT) {
+					addImageThumb(noMediaImage);
+					_entryHasContent = false;
+				}
+				else if ((_selectedEntry is KalturaMediaEntry) && (_selectedEntry as KalturaMediaEntry).mediaType == KalturaMediaType.IMAGE) {
+					_entryHasContent = true;
+					addImageThumb();
+				}
+				else {
+					kdp3Loader.includeInLayout = kdp3Loader.visible = true;
+					_entryHasContent = true;
+					//mix or video
+
+					loadKDP();
+				}
+
+				// set landing page string:
+				//var landingPage:String = (_dpModel.getDataPack(ContextDataPack) as ContextDataPack).landingPage;
+				//if (landingPage) {
+				//	var replaceIndex:int = landingPage.indexOf(ENTRY_PLACEHOLDER);
+				//	if (replaceIndex > -1)
+				//		landingPageLabel.text = landingPage.replace(ENTRY_PLACEHOLDER, _selectedEntry.id);
+				//	else
+				//		landingPageLabel.text = landingPage + _selectedEntry.id;
+				//}
+
+				if (_enableCustomData && _profilesAC) {
+					// only list custom data if custom data profiles are loaded
+					var listCustomData:MetadataDataEvent = new MetadataDataEvent(MetadataDataEvent.LIST);
+					controller.dispatch(listCustomData);
+				}
+
+				var listCats:KedEntryEvent = new KedEntryEvent(KedEntryEvent.GET_ENTRY_CATEGORIES, _selectedEntry);
+				controller.dispatch(listCats);
+			}
+
+
+			public function destroy():void {
+				if (_catWatcher) {
+					_catWatcher.unwatch();
+				}
+				
+				if (_loadWatcher) {
+					_loadWatcher.unwatch();
+				}
+
+				if (_profsWatcher) {
+					_profsWatcher.unwatch();
+				}
+
+				var curCustomData:SingleCustomData;
+				for (var i:int = editableBox.numChildren - 1; i >= 1; i--) {
+					curCustomData = editableBox.getChildAt(i) as SingleCustomData;
+					if (curCustomData) {
+						curCustomData.removeEventListener(SingleCustomData.SCROLL_TO_TOP, scrollToTop);
+						curCustomData.destroy();
+					}
+				}
+			}
+
+
+			
+			public function clear():void {
+
+				var listCats:KedEntryEvent = new KedEntryEvent(KedEntryEvent.RESET_ENTRY_CATEGORIES, null);
+				controller.dispatch(listCats);
+
+				_originalRefid = null;
+				_entryCategories = null;
+				if (kdp3StaticSwfLoader && kdp3StaticSwfLoader.content) {
+					kdp3StaticSwfLoader.content['sendNotification'](KdpEventTypes.DO_PAUSE);
+					kdp3StaticSwfLoader.content['sendNotification'](KdpEventTypes.CLEAN_MEDIA); //clear the entry from the kdp
+				}
+				
+				// custom data (SingleCustomData) is built from scratch every time final mxml is set, so no need to clear it
+				// (takes a lot of time for large schemas)
+//				if (_enableCustomData) {
+//					var d1:Date, d2:Date = new Date();
+//					var reset:MetadataDataEvent = new MetadataDataEvent(MetadataDataEvent.RESET);
+//					controller.dispatch(reset);
+//					d1 = new Date();
+//					trace("clear custom data:", d1.time - d2.time);
+//				}
+			}
+
+
+
+			public function init():void {
+				Security.allowDomain("*");
+				PermissionManager.getInstance().applyAllAttributes(this, PanelConsts.METADATA_PANEL);
+				if (_enableCustomData) {
+					var filterData:FilterDataPack = _dpModel.getDataPack(FilterDataPack) as FilterDataPack;
+					if (filterData.filterModel.metadataProfiles) {
+						buildProfiles(filterData.filterModel.metadataProfiles, filterData.filterModel.formBuilders);
+					}
+					else {
+						// if custom data profiles are not loaded, load them
+						_profsWatcher = BindingUtils.bindSetter(onSetProfiles, filterData, ["filterModel", "formBuilders"]);
+						var lmdp:MetadataProfileEvent = new MetadataProfileEvent(MetadataProfileEvent.LIST);
+						controller.dispatch(lmdp);
+					}
+				}
+				else {
+					_profileNames = new ArrayCollection();
+				}
+			}
+
+
+			/**
+			 * after custom data profiles are loaded we can build the custom data UI.
+			 * */
+			private function onSetProfiles(value:ArrayCollection):void {
+				if (!value) {
+					return;
+				}
+				_profsWatcher.unwatch();
+				var filterData:FilterDataPack = _dpModel.getDataPack(FilterDataPack) as FilterDataPack;
+				buildProfiles(filterData.filterModel.metadataProfiles, filterData.filterModel.formBuilders);
+				var listCustomData:MetadataDataEvent = new MetadataDataEvent(MetadataDataEvent.LIST);
+				controller.dispatch(listCustomData);
+			}
+
+
+			protected function onCreationComplete():void {
+				name_input.setFocus();
+				var kc:KalturaClient = (_dpModel.getDataPack(ContextDataPack) as ContextDataPack).kc;
+				new KACTagsController(tagsComplete, kc, KalturaTaggedObjectType.ENTRY);
+				new KACCategoryController(catComplete, kc);
+			}
+
+
+			/**
+			 * Load KDP.
+			 * if we already have a loaded KDP, we add it to the parent of the new (instance) kdploader
+			 * instead of loading a new kdp.
+			 */
+			private function loadKDP():void {
+				//if this is the second time we open the content
+				if (kdp3StaticSwfLoader && kdp3StaticSwfLoader.content) {
+					// parent of instance loader
+					var kdp3LoaderParent:DisplayObjectContainer = kdp3Loader.parent;
+					// add the static loader instead of the instance loader: (if kdp3Loader has content it means we are in the same 
+					// drill down session)
+					if (kdp3LoaderParent && !kdp3Loader.content) {
+						kdp3LoaderParent.addChildAt(kdp3StaticSwfLoader, kdp3LoaderParent.getChildIndex(kdp3Loader));
+						kdp3LoaderParent.removeChild(kdp3Loader);
+					}
+					// listen to kdp ready to show it because on the second time if we won't do that we will see the prev thumb
+					// because this is static KDP (due to performance issue)
+					kdp3StaticSwfLoader.visible = false;
+					kdp3StaticSwfLoader.content.addEventListener(KdpEventTypes.ENTRY_READY, showKDP);
+					kdp3StaticSwfLoader.content["sendNotification"](KdpEventTypes.CHANGE_MEDIA, {entryId: _entryData.selectedEntry.id});
+				}
+				else {
+					var context:ContextDataPack = _dpModel.getDataPack(ContextDataPack) as ContextDataPack;
+					var newUrl:String = context.protocol + context.cdnHost + "/kwidget/wid/_" + context.kc.partnerId + "/ui_conf_id/" + context.drilldownUiconf + "/nowrapper/1";
+					kdp3Loader.scaleContent = false;
+					kdp3Loader.loaderContext = new LoaderContext(true, new ApplicationDomain(), SecurityDomain.currentDomain);
+					kdp3Loader.load(newUrl);
+				}
+			}
+
+
+
+			private function showKDP(event:Event = null):void {
+				kdp3StaticSwfLoader.visible = true;
+				kdp3StaticSwfLoader.includeInLayout = true;
+			}
+
+
+
+
+			/**
+			 * pause the preview player
+			 * */
+			public function pausePreview():void {
+				if (kdp3StaticSwfLoader && kdp3StaticSwfLoader.content) {
+					kdp3StaticSwfLoader.content['sendNotification'](KdpEventTypes.DO_PAUSE);
+				}
+			}
+
+
+			private function addImageThumb(imgSource:Object = null):void {
+				if (kdp3StaticSwfLoader) {
+					// if KDP was never loaded before opening a no content entry
+					kdp3StaticSwfLoader.includeInLayout = kdp3StaticSwfLoader.visible = false;
+				}
+				if (kdp3StaticSwfLoader != kdp3Loader) {
+					// if we start with no content image after we already have a KDP
+					kdp3Loader.includeInLayout = kdp3Loader.visible = false;
+				}
+				if (imgSource) {
+					entryImg.source = imgSource;
+				}
+				else {
+					if ((KMvCModel.getInstance().getDataPack(PermissionsDataPack) as PermissionsDataPack).enableThumbResize) {
+						entryImg.source = _selectedEntry.thumbnailUrl + "/width/290/height/160/bgcolor/F7F7F7/type/2";
+					}
+					else {
+						entryImg.source = _selectedEntry.thumbnailUrl;
+					}
+				}
+			}
+
+
+			private function onPreviewClick():void {
+				//stop the player from playing 
+				if (kdp3StaticSwfLoader) {
+					kdp3StaticSwfLoader.content['sendNotification'](KdpEventTypes.DO_PAUSE);
+				}
+				EntryUtil.openPreview(_selectedEntry, _dpModel, !_showEmbed);
+			}
+
+
+			private function uncaughtErrorHandler(event:Event):void {
+				event.preventDefault();
+				trace("uncaughtErrorHandler in Entry Metadata: ");
+				trace(event, event["error"]);
+			}
+
+
+			/**
+			 * Kdp loaded, initialize it.
+			 */
+			private function onKDP3Loaded(event:Event):void {
+				kdp3Loader.tabChildren = false;
+				kdp3Loader.tabEnabled = false;
+				name_input.setFocus();
+				kdp3StaticSwfLoader = kdp3Loader;
+				if (kdp3Loader.loaderInfo.hasOwnProperty("uncaughtErrorEvents"))
+					IEventDispatcher(kdp3Loader.loaderInfo["uncaughtErrorEvents"]).addEventListener("uncaughtError", uncaughtErrorHandler, false, 1, true);
+
+				//set kdp params
+				var context:ContextDataPack = _dpModel.getDataPack(ContextDataPack) as ContextDataPack;
+				var params:Object = new Object();
+				params.entryId = _entryData.selectedEntry.id;
+				params.ks = context.kc.ks;
+				params.partnerId = context.kc.partnerId;
+				params.subpId = context.kc.partnerId + "00";
+				params.cdnHost = context.cdnHost;
+				params.disableAlerts = disableKDPAlerts;
+				params.debugMode = context.debugMode;
+				params.allowCookies = true;
+
+				kdp3StaticSwfLoader.content["flashvars"] = params;
+				//start the loading sqeunce of the kdp	
+				kdp3StaticSwfLoader.content["init"]();
+			}
+
+
+
+
+
+			/**
+			 * open drilldown window wit the parent entry
+			 * (the entry this clip was made from)
+			 * */
+			protected function showParentEntry(event:MouseEvent):void {
+				// create the new model 
+				var cg:KMvCEvent = new ModelEvent(ModelEvent.DUPLICATE_ENTRY_DETAILS_MODEL);
+				controller.dispatch(cg);
+				cg = new KedEntryEvent(KedEntryEvent.GET_ENTRY_AND_DRILLDOWN, null, _selectedEntry.rootEntryId);
+				controller.dispatch(cg);
+			}
+
+
+			/**
+			 * request JS to open the clipApp in clipping mode
+			 * */
+			protected function openClipping(event:MouseEvent):void {
+				pausePreview();
+				KedJSGate.openClipApp(_selectedEntry.id, "clip");
+			}
+
+
+			/**
+			 * request JS to open the clipApp in trimming mode
+			 * */
+			protected function openTrimming(event:MouseEvent):void {
+				pausePreview();
+				KedJSGate.openClipApp(_selectedEntry.id, "trim");
+			}
+
+
+			private function getRefid(refid:String):String {
+				if (refid == KalturaClient.NULL_STRING) {
+					return '';
+				}
+				else
+					return refid;
+			}
+
+
+			protected function referenceId_changeHandler(event:Event):void {
+				if (event.target.text == '') {
+					if (_originalRefid == null) {
+						// no change from original empty value
+						_selectedEntry.referenceId = null;
+					}
+					else {
+						// used to have value, delete it
+						_selectedEntry.referenceId = KalturaClient.NULL_STRING;
+					}
+				}
+				else {
+					_selectedEntry.referenceId = event.target.text;
+				}
+			}
+
+			// =================================================================
+			// Categories Stuff
+			// =================================================================
+
+			[Bindable]
+			/**
+			 * list of categories the current entry is associated with
+			 * */
+			private var _entryCategories:ArrayCollection;
+
+
+			/**
+			 * pass the given categories to the autocomplete component
+			 * @param value array collection of <code>KalturaCategory</code> objects
+			 * */
+			private function setCategoriesOnScreen(value:ArrayCollection):void {
+				catComplete.selectedItems = value;
+				_entryCategories = value;
+			}
+
+
+			/**
+			 * open category editor
+			 * */
+			private function btnCategories_clickHandler(event:MouseEvent):void {
+				var kc:KalturaClient = (_dpModel.getDataPack(ContextDataPack) as ContextDataPack).kc;
+				var catBrs:CategoryBrowser = new CategoryBrowser();
+				catBrs.filterModel = (_dpModel.getDataPack(FilterDataPack) as FilterDataPack).filterModel;
+				catBrs.kClient = kc;
+				catBrs.setCategories(catComplete.selectedItems.source);
+				catBrs.addEventListener(Event.CLOSE, closeCatPopup);
+				catBrs.addEventListener("apply", setCatsToAutocomplete);
+
+				PopUpManager.addPopUp(catBrs, this, true);
+				PopUpManager.centerPopUp(catBrs);
+			}
+
+
+			/**
+			 * set new selected items to catComplete
+			 * */
+			private function setCatsToAutocomplete(e:Event):void {
+				var tgt:CategoryBrowser = e.target as CategoryBrowser;
+				var cats:Array = tgt.getCategories(); //KalturaCategory objects
+				var cat:KalturaCategory;
+				var kCats:Array = [];
+				for each (cat in cats) {
+					kCats.push(cat);
+				}
+				catComplete.selectedItems = new ArrayCollection(kCats);
+			}
+
+
+			private function closeCatPopup(e:Event):void {
+				var tgt:CategoryBrowser = e.target as CategoryBrowser;
+				if (tgt) {
+					PopUpManager.removePopUp(tgt);
+					tgt.removeEventListener(Event.CLOSE, closeCatPopup);
+					tgt.removeEventListener("apply", setCatsToAutocomplete);
+				}
+			}
+
+
+
+			// =================================================================
+			// Preview and Embed Stuff
+			// =================================================================
+
+
+
+			[Bindable]
+			private var _previewEnable:Boolean = true;
+
+
+			public function get previewEnable():Boolean {
+				return _previewEnable;
+			}
+
+
+			public function set previewEnable(value:Boolean):void {
+				_previewEnable = value;
+			}
+
+
+			[Bindable]
+			public var previewLabel:String = ResourceManager.getInstance().getString('drilldown', 'previewAndEmbed');
+
+
+			[Bindable]
+			/**
+			 * @copy #previewOnly
+			 * */
+			private var _showEmbed:Boolean = false;
+
+
+			/**
+			 * show only "preview" and not "preview & embed"
+			 * @internal
+			 * used by roles and permissions
+			 */
+			public function set showEmbed(value:Boolean):void {
+				if (value)
+					previewLabel = resourceManager.getString('drilldown', 'previewAndEmbed');
+				else {
+					previewLabel = resourceManager.getString('drilldown', 'previewOnly');
+				}
+				_showEmbed = value;
+			}
+
+
+			public function get showEmbed():Boolean {
+				return _showEmbed;
+			}
+			// =================================================================
+			// Custom Metadata Stuff
+			// =================================================================
+
+			[Bindable]
+			/**
+			 * list of profiles presented by the tab.
+			 * <code>KMCMetadataProfileVO</code> objects
+			 * */
+			private var _profilesAC:ArrayCollection;
+
+			[Bindable]
+			/**
+			 * dataprovider for the profiles dropdown
+			 * */
+			private var _profileNames:ArrayCollection;
+
+
+			/**
+			 * create the visual representation of each profile
+			 * @param profilesAC list of custom data profiles (<code>KMCMetadataProfileVO</code>)
+			 * @param formBuildersAC	list of matching form builders (<code>FormBuilder</code>)
+			 * */
+			private function buildProfiles(profilesAC:ArrayCollection, formBuildersAC:ArrayCollection):void {
+				_profilesAC = new ArrayCollection();
+				_profileNames = new ArrayCollection();
+				// header for entry metadata section in the dropdown
+				_profileNames.addItem(resourceManager.getString('drilldown', 'metadata'));
+				// remove custom datas, don't remove entry data box
+				while (editableBox.numChildren > 1) {
+					editableBox.removeChildAt(1);
+				}
+
+				for (var i:int = 0; i < profilesAC.length; i++) {
+					var curProfile:KMCMetadataProfileVO = profilesAC.getItemAt(i) as KMCMetadataProfileVO;
+
+					if (curProfile.profile && curProfile.metadataFieldVOArray && curProfile.metadataFieldVOArray.length > 0) {
+						var curCustomData:SingleCustomData = new SingleCustomData();
+						curCustomData.visibleHeader = profilesAC.length > 1;
+						curCustomData.formBuilder = formBuildersAC.getItemAt(i) as EntryFormBuilder;
+						curCustomData.metadataEditable = customDataEditable;
+						curCustomData.addEventListener(SingleCustomData.SCROLL_TO_TOP, scrollToTop, false, 0, true);
+
+						_profilesAC.addItem(curProfile);
+						_profileNames.addItem(curProfile.profile.name);
+						editableBox.addChild(curCustomData);
+					}
+				}
+
+				scrollToTop(null);
+			}
+
+
+			/**
+			 * jump to the top profile (entry data)
+			 * */
+			private function scrollToTop(event:Event):void {
+				editableBox.verticalScrollPosition = 0;
+			}
+
+
+			private function jumpToProfile():void {
+				var scrollPos:int = 0;
+				var childIndex:int = profilesCB.selectedIndex;
+				if (childIndex != -1) {
+					//sums up all heights before the desired profile
+					for (var i:int = 0; i < childIndex; i++) {
+						scrollPos += editableBox.getChildAt(i).height + customDataVerticalGap;
+					}
+					editableBox.verticalScrollPosition = scrollPos;
+				}
+				profilesCB.selectedIndex = -1;
+			}
+
+
+			protected function tagsComplete_changeHandler(event:Event):void {
+				var str:String = '';
+				var ac:ArrayCollection = tagsComplete.selectedItems;
+				for each (var tag:String in ac) {
+					str += tag + ",";
+				}
+				if (ac.length) {
+					str = str.substr(0, str.length - 1);
+				}
+				_selectedEntry.tags = str;
+			}
+		]]>
+	</mx:Script>
+
+	<mx:StringValidator id="nameListValidator" source="{name_input}" property="text" triggerEvent="change"
+						required="true"
+						requiredFieldError="{resourceManager.getString('drilldown', 'entryNameIsMandatory')}"/>
+
+
+	<mx:VBox width="100%" height="{noneditable.height}" minWidth="300">
+		<!-- navigation -->
+		<mx:HBox width="100%">
+			<mx:Spacer width="{LABEL_WIDTH}" />
+			<mx:ComboBox id="profilesCB" dataProvider="{_profileNames}" change="jumpToProfile()"
+						 styleName="customDataProfilesCB" prompt="{resourceManager.getString('drilldown','jumpToPrompt')}"
+						 selectedIndex="-1" fontWeight="bold" visible="{_profileNames.length > 2}"
+						 includeInLayout="{_profileNames.length > 2}" width="{TEXT_WIDTH}"/>
+		</mx:HBox>
+		<!-- entry data -->
+		<mx:VBox id="editableBox" styleName="noPadding" verticalGap="{customDataVerticalGap}"
+				 height="{noneditable.height - profilesCB.height - getStyle('verticalGap')}" width="100%">
+			<mx:VBox id="entryMetadata" width="100%">
+				<mx:HBox width="100%">
+					<mx:Label text="{resourceManager.getString('drilldown','name')}:" width="{LABEL_WIDTH}"
+							  styleName="drillDownLabel"/>
+					<mx:TextInput id="name_input" width="{TEXT_WIDTH}" text="{selectedEntry.name}"
+								  change="{selectedEntry.name = event.target.text}" styleName="drilldownInput"/>
+				</mx:HBox>
+				<mx:HBox width="100%">
+					<mx:Label text="{resourceManager.getString('drilldown','description')}:" width="{LABEL_WIDTH}"
+							  styleName="drillDownLabel"/>
+					<mx:TextArea id="descriptionTi" width="{TEXT_WIDTH}" text="{selectedEntry.description}"
+								 change="{selectedEntry.description = event.target.text}" styleName="drilldownInput"/>
+				</mx:HBox>
+				<mx:HBox width="100%">
+					<mx:Label id="tagsLbl" text="{resourceManager.getString('drilldown','tags')}:" width="{LABEL_WIDTH}"
+							  styleName="drillDownLabel" />
+
+					<components:AutoComplete id="tagsComplete" width="{TEXT_WIDTH}" height="80"
+											 selectedItemStyleName="selectionBox" showRemoveIcon="true"
+											 allowMultipleSelection="true" allowNewValues="true" labelField="tag"
+											 change="tagsComplete_changeHandler(event)"/>
+				</mx:HBox>
+				<mx:HBox width="100%">
+					<mx:HBox styleName="noPadding" width="{LABEL_WIDTH}" horizontalScrollPolicy="off" horizontalGap="2">
+						<mx:Label text="{resourceManager.getString('drilldown','drillDownCategories')}:"
+								  styleName="drillDownLabel"/>
+						<mx:LinkButton id="btnCategories" click="btnCategories_clickHandler(event)"
+									   styleName="editButton" enabled="{!loadingFlag}" visible="{categoriesEditable}"/>
+					</mx:HBox>
+					<components:AutoComplete id="catComplete" width="{TEXT_WIDTH}" height="80"
+											 selectedItemStyleName="selectionBox" showRemoveIcon="true"
+											 allowMultipleSelection="true" labelField="name" enabled="{categoriesEditable &amp;&amp; !loadingFlag}"
+											 selectionItemRendererClassFactory="{new ClassFactory(CategorySelectedItem)}"
+											 prompt="{resourceManager.getString('drilldown','categoriesPrompt')}"/>
+				</mx:HBox>
+				<mx:HBox id="offlineHolder" width="100%">
+					<mx:Label text="{resourceManager.getString('drilldown','offlineMessage')}" width="{LABEL_WIDTH}"
+							  styleName="drillDownLabel"/>
+					<mx:TextArea id="offlineMessage" width="{TEXT_WIDTH}" text="{selectedEntry.offlineMessage}"
+								 styleName="drilldownInput"/>
+				</mx:HBox>
+				<!---
+				<mx:HBox width="100%">
+					<mx:Label htmlText="{resourceManager.getString('drilldown','referenceId')}" width="{LABEL_WIDTH}"
+							  styleName="drillDownLabel" visible="{referenceId.visible}"/>
+					<mx:TextInput id="referenceId" width="{TEXT_WIDTH}" text="{getRefid(selectedEntry.referenceId)}"
+								  change="referenceId_changeHandler(event)" styleName="drilldownInput"/>
+				</mx:HBox>
+				-->
+				<mx:Spacer height="20"/>
+			</mx:VBox>
+			<!-- entry custom data goes here -->
+		</mx:VBox>
+	</mx:VBox>
+
+
+	<!-- entry static metadata -->
+	<mx:VBox id="noneditable" width="354" height="100%" styleName="noVGap" paddingLeft="10">
+		<!-- entry id -->
+		<mx:HBox width="100%">
+			<mx:Label text="{resourceManager.getString('drilldown','entryId')}:" styleName="drillDownTitleLabel"/>
+			<mx:Label text="{selectedEntry.id}" selectable="true" styleName="drillDownTitleLabel"/>
+		</mx:HBox>
+		<!-- player -->
+		<mx:HBox width="100%" horizontalAlign="center" id="kdpContainer">
+			<!--<mx:HBox id="kdpContainer" styleName="playerContainer">-->
+			<mx:SWFLoader id="kdp3Loader" width="340" height="194" complete="{onKDP3Loaded(event)}"/>
+			<mx:Image id="entryImg" width="340" height="194" maintainAspectRatio="true" horizontalAlign="center" verticalAlign="middle" 
+					  includeInLayout="{!kdp3Loader.includeInLayout}" visible="{!kdp3Loader.visible}"/>
+			<!--</mx:HBox>-->
+		</mx:HBox>
+		<!-- actions -->
+		<mx:HBox width="100%" visible="{_entryHasContent}" includeInLayout="{_entryHasContent}">
+			<mx:LinkButton id="previewAndEmbed" label="{previewLabel}" click="{onPreviewClick()}" styleName="pne"
+						   enabled="{(selectedEntry.status == KalturaEntryStatus.READY) &amp;&amp; _previewEnable}"/>
+		</mx:HBox>
+		<!-- no content message -->
+		<mx:Label visible="{!_entryHasContent}" includeInLayout="{!_entryHasContent}"
+				  text="{resourceManager.getString('drilldown','noContentMessage')}" styleName="noContentLabel"/>
+		<mx:Spacer height="20"/>
+		
+		<!-- non-editable info -->
+		<mx:VBox styleName="noPadding" width="100%" height="190" horizontalScrollPolicy="off" verticalGap="0">
+			
+			<mx:HBox width="100%">
+				<mx:Label text="{resourceManager.getString('drilldown','creator')}:" width="{LABEL_WIDTH}"
+						  styleName="drillDownLabel"/>
+				<mx:Label text="{selectedEntry.creatorId}" width="100%" styleName="drillDownSubLabel"/>
+			</mx:HBox>
+			<mx:HBox width="100%">
+				<mx:Label text="{resourceManager.getString('drilldown','createdDate')}:" width="{LABEL_WIDTH}"
+						  styleName="drillDownLabel"/>
+				<mx:Label text="{EntryDataHelper.formatDate(selectedEntry.createdAt)}" width="100%"
+						  styleName="drillDownSubLabel"/>
+			</mx:HBox>
+			<!---
+			<mx:HBox width="100%" paddingBottom="15">
+				<mx:Label text="{resourceManager.getString('drilldown','landingPage')}:" width="{LABEL_WIDTH}"
+						  styleName="drillDownLabel"/>
+				<mx:Label id="landingPageLabel" selectable="true" width="100%" styleName="drillDownSubLabel"/>
+			</mx:HBox>
+			-->
+	
+			<mx:HRule width="100%"/>
+			<!-- - - - - - - 2 columns - - - - - - - -->
+			<mx:HBox width="100%" styleName="noPadding" paddingTop="15">
+				<mx:VBox width="100%" styleName="noPadding">
+					<mx:HBox width="100%">
+						<mx:Label text="{resourceManager.getString('drilldown','type')}:" width="{RIGHT_LABEL_WIDTH}"
+								  styleName="drillDownLabel"/>
+						<mx:Label text="{EntryDataHelper.getMediaTypes(int(selectedEntry.mediaType),selectedEntry.type)}"
+								  width="{RIGHT_TEXT_WIDTH}" styleName="drillDownSubLabel"/>
+					</mx:HBox>
+					<mx:HBox width="100%">
+						<mx:Label text="{resourceManager.getString('drilldown', 'moderation')}:" width="{RIGHT_LABEL_WIDTH}"
+								  styleName="drillDownLabel"/>
+						<mx:Label text="{EntryDataHelper.getModeration(selectedEntry.moderationStatus)}"
+								  width="{RIGHT_TEXT_WIDTH}" styleName="drillDownSubLabel"/>
+					</mx:HBox>
+					<mx:HBox width="100%" visible="{_entryHasContent}" includeInLayout="{_entryHasContent}">
+						<mx:Label text="{resourceManager.getString('drilldown', 'plays')}:" width="{RIGHT_LABEL_WIDTH}"
+								  styleName="drillDownLabel"/>
+						<mx:Label text="{selectedEntry.plays}" width="{RIGHT_TEXT_WIDTH}" styleName="drillDownSubLabel"/>
+					</mx:HBox>
+					<mx:HBox width="100%" visible="{_entryHasContent &amp;&amp; selectedEntry.rank}"
+							 includeInLayout="{_entryHasContent &amp;&amp; selectedEntry.rank}">
+						<mx:Label text="{resourceManager.getString('drilldown','rating')}:" width="{RIGHT_LABEL_WIDTH}"
+								  styleName="drillDownLabel"/>
+						<mx:Label text="{selectedEntry.rank}" width="{RIGHT_TEXT_WIDTH}" styleName="drillDownSubLabel"/>
+					</mx:HBox>
+				</mx:VBox>
+	
+				<mx:VBox width="100%" styleName="noPadding">
+					<mx:HBox width="100%" visible="{_entryHasContent}" includeInLayout="{_entryHasContent}">
+						<mx:Label text="{resourceManager.getString('drilldown','duration')}:" width="{RIGHT_LABEL_WIDTH}"
+								  styleName="drillDownLabel"/>
+						<mx:Label text="{KTimeUtil.formatTime(selectedEntry.duration)}" width="{RIGHT_TEXT_WIDTH2}"
+								  styleName="drillDownSubLabel"/>
+					</mx:HBox>
+					<mx:HBox width="100%" visible="{_entryHasContent &amp;&amp; selectedEntry.moderationCount}"
+							 includeInLayout="{_entryHasContent &amp;&amp; selectedEntry.moderationCount}">
+						<mx:Label text="{resourceManager.getString('drilldown','flags')}:" width="{RIGHT_LABEL_WIDTH}"
+								  styleName="drillDownLabel"/>
+						<mx:Label text="{selectedEntry.moderationCount}" width="{RIGHT_TEXT_WIDTH2}"
+								  styleName="drillDownSubLabel"/>
+					</mx:HBox>
+					<mx:HBox width="100%" visible="{_entryHasContent &amp;&amp; selectedEntry.votes}"
+							 includeInLayout="{_entryHasContent &amp;&amp; selectedEntry.votes}">
+						<mx:Label text="{resourceManager.getString('drilldown','votesCount')}:" width="{RIGHT_LABEL_WIDTH}"
+								  styleName="drillDownLabel"/>
+						<mx:Label text="{selectedEntry.votes}" width="{RIGHT_TEXT_WIDTH2}" styleName="drillDownSubLabel"/>
+					</mx:HBox>
+	
+					<mx:HBox width="100%" visible="{selectedEntry.rootEntryId != selectedEntry.id}"
+							 includeInLayout="{selectedEntry.rootEntryId != selectedEntry.id}">
+						<mx:Label text="{resourceManager.getString('drilldown','clippedFrom')}:" width="{RIGHT_LABEL_WIDTH}"
+								  styleName="drillDownLabel"/>
+						<mx:LinkButton label="{selectedEntry.rootEntryId}" click="showParentEntry(event)"
+									   width="{RIGHT_TEXT_WIDTH2}" paddingLeft="0"/>
+					</mx:HBox>
+				</mx:VBox>
+			</mx:HBox>
+		</mx:VBox>
+	</mx:VBox>
+</mx:Module>

@@ -1,0 +1,1 @@
+DROP PROCEDURE kalturadw_ds.agg_new_fms_to_bandwidth_usage;

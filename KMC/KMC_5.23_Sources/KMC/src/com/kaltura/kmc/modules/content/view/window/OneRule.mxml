@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!---
+ OneRule encapsulates a filter with entries list.
+-->
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" 
+		 xmlns:playlist="com.kaltura.edw.components.playlist.*"
+		 xmlns:fltr="com.kaltura.edw.components.fltr.*" >
+	<mx:Script>
+		<![CDATA[
+			import com.adobe.cairngorm.control.CairngormEvent;
+			import com.kaltura.edw.components.fltr.cat.CatTreeSelectionMode;
+			import com.kaltura.edw.control.KedController;
+			import com.kaltura.edw.control.events.KedEntryEvent;
+			import com.kaltura.edw.events.KedDataEvent;
+			import com.kaltura.edw.model.FilterModel;
+			import com.kaltura.edw.model.types.WindowsStates;
+			import com.kaltura.kmc.modules.content.events.KMCEntryEvent;
+			import com.kaltura.kmc.modules.content.events.RuleBasedTypeEvent;
+			import com.kaltura.kmc.modules.content.events.WindowEvent;
+			import com.kaltura.kmvc.control.KMvCEvent;
+			import com.kaltura.types.KalturaPlaylistType;
+			import com.kaltura.vo.KalturaBaseEntry;
+			import com.kaltura.vo.KalturaMediaEntryFilter;
+			import com.kaltura.vo.KalturaMediaEntryFilterForPlaylist;
+			import com.kaltura.vo.KalturaPlaylist;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+
+			/**
+			 * defines the value of the type property for the filterWasChanged event
+			 * */
+			public static const FILTER_WAS_CHANGED:String = "filterWasChanged";
+
+			[Bindable]
+			/**
+			 * a list of entries which make up the playlist
+			 * */
+			public var playlistEntries:ArrayCollection = new ArrayCollection();
+
+
+
+			private var _ruleToEdit:KalturaMediaEntryFilterForPlaylist;
+
+			public function set ruleToEdit(value:KalturaMediaEntryFilterForPlaylist):void {
+				_ruleToEdit = value;
+				// make sure to view only allowed content
+				value.moderationStatusIn = "2,6,1,5";
+				// convertion status
+				value.statusIn = "2,1";
+				if (filter) {
+					filter.kalturaFilter = value;
+				}
+				entries.limit = value.limit;
+				entries.setSelectedOrderBy(value.orderBy);
+			}
+
+			public function get ruleToEdit():KalturaMediaEntryFilterForPlaylist {
+				return _ruleToEdit;
+			}
+
+			[Bindable]
+			public var filterData:FilterModel;
+
+			[Bindable]
+			public var distributionProfilesArray : Array;
+
+
+			public function clear():void {
+				filter.clearCategoriesSelection();
+			}
+			
+			/**
+			 * take current rule and execute it to estimate the output;
+			 */
+			public function runRule():void {
+				var playlist:KalturaPlaylist = new KalturaPlaylist();
+				playlist.totalResults = entries.getPlaylistLimit();
+				playlist.playlistType = KalturaPlaylistType.DYNAMIC;
+				playlist.filters = new Array();
+
+				var orderByStr:String = entries.getSelectedOrderBy();
+
+				var kmef:KalturaMediaEntryFilter = filter.kalturaFilter as KalturaMediaEntryFilter;
+				kmef.orderBy = orderByStr;
+				playlist.filters.push(kmef);
+				playlist.parts = playlistEntries;
+
+				var cgEvent:CairngormEvent = new RuleBasedTypeEvent(RuleBasedTypeEvent.ONE_RULE);
+				cgEvent.dispatch();
+
+				cgEvent = new KMCEntryEvent(KMCEntryEvent.GET_RULE_BASED_PLAYLIST, playlist);
+				cgEvent.dispatch();
+
+				if (!_isFirstRun)
+					dispatchEvent(new Event(FILTER_WAS_CHANGED));
+
+				_isFirstRun = false;
+			}
+			private var _isFirstRun:Boolean = true;
+
+
+
+			/**
+			 * Get current rule filter
+			 */
+			public function get ruleFilter():KalturaMediaEntryFilterForPlaylist {
+				var plf:KalturaMediaEntryFilterForPlaylist = filter.kalturaFilter as KalturaMediaEntryFilterForPlaylist;
+				plf.limit = entries.getPlaylistLimit();
+				plf.orderBy = entries.getSelectedOrderBy();
+				return plf;
+			}
+
+			public function get editable():Boolean {
+				return entries.enabled;
+			}
+
+			public function set editable(value:Boolean):void {
+				filter.enabled = value;
+				entries.editable = value;
+			}
+
+			protected function entries_showEntryDetailsHandler(event:KedDataEvent):void
+			{
+				var entry:KalturaBaseEntry = event.data as KalturaBaseEntry;
+				var kEvent:KMvCEvent = new KedEntryEvent(KedEntryEvent.SET_SELECTED_ENTRY, entry, entry.id);
+				KedController.getInstance().dispatch(kEvent);					
+				var cgEvent:CairngormEvent = new WindowEvent(WindowEvent.OPEN, WindowsStates.PLAYLIST_ENTRY_DETAILS_WINDOW);
+				cgEvent.dispatch();
+			}
+
+
+			protected function filter_creationCompleteHandler(event:FlexEvent):void {
+				if (_ruleToEdit) {
+					filter.kalturaFilter = _ruleToEdit;
+				}
+			}
+
+		]]>
+	</mx:Script>
+	<mx:Metadata>
+		 [Event(name="filterWasChanged", type="flash.events.Event")]
+		 [Event(name="switchToAdvanced", type="flash.events.Event")]
+	</mx:Metadata>
+	<mx:VBox height="100%" verticalGap="0" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+		<mx:Label text="{resourceManager.getString('cms', 'filters')}" styleName="formLabel"/>
+		<fltr:FreeTextSearch id="searchBox" styleName="searchHBox" width="{filter.width}"
+							 attribute="freeText" defaultText="{resourceManager.getString('filter', 'searchEntries')}" />
+		<fltr:EntriesFilter id="filter" width="260" height="100%" filterChanged="runRule()"
+							freeTextSearch="{searchBox}" filterModel="{filterData}" showPrefsButton="{false}" 
+							categoriesTreeSelectionMode="{CatTreeSelectionMode.MULTIPLE_SELECT_EXACT}"
+							metadataProfiles="{filterData.metadataProfiles}" distributionProfiles="{distributionProfilesArray}"
+							categoriesRoot="{filterData.categoriesGeneral}" allCategories="{filterData.categoriesMapGeneral}"
+							enableIngestionStatus="false" enableAccessControl="false" enableModeration="false" enableScheduling="false"
+							creationComplete="filter_creationCompleteHandler(event)"/>
+	</mx:VBox>
+	<playlist:PlaylistEntries id="entries" width="100%" height="100%" dataProvider="{playlistEntries}"
+							  showTableSelection="false" allowManualActions="false"
+							  updatedData="{runRule()}" showEntryDetails="entries_showEntryDetailsHandler(event)"/>
+</mx:HBox>

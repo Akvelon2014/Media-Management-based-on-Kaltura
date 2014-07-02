@@ -1,0 +1,22 @@
+﻿.c1-index,
+.c1-index ul,
+.c1-index li {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.c1-index li {
+    margin: .3em 0;
+    line-height: 1;
+}
+.c1-index li ul {
+    margin-left: 15px;
+}
+[dir="rtl"] .c1-index li ul {
+    margin-left: auto;
+    margin-right: 15px;
+}
+.c1-index .service {
+    font-style: italic;
+    margin: 5px 10px;
+}

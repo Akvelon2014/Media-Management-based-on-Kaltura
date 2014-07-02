@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layout skinPath="/content/uiconf/kdp_demo/wiki.swf">
+    <VBox width="400" height="420" styleName="mlayout" >
+		<HBox width="100%" height="46" styleName="TopTitle" >
+		<VBox width="100%" height="46" styleName="titels" >
+			<Label id="vtitle" styleName="vtitle" height="20" width="100%" label="lflfl"/>
+			<Label id="vdescript" height="15" width="100%" dynamicLabel="Title" />
+		</VBox>
+			<LinkButton id="startNewVideo" label="Start New Video" width="120" height="20" styleName="startNewVideo"/>
+		</HBox> 
+						 
+		<Canvas id="PlayerHolder" styleName="PlayerBackground" width="100%" height="100%" >
+			<KplayerModule id="myKplayer"styleName="Kplayer"  k_path="kplayer/KplayerModule.swf" width="100%" height="100%" maxWidth="600" maxHeight="450"/>
+		</Canvas>
+
+		<HBox styleName="controllerBox" height="30" width="100%">
+			<Spacer width="4"/>
+			<Button id="play" styleName="play" width="20" height="17" />
+			<Spacer width="2"/>
+			<Scrubber id="scrubber" styleName="scrubber" width="100%"/>
+			<TimerCountdown  id="timer" width="40" styleName="timer" k_path="timertext/TimerCountdown.swf" vp="myKplayer"/>
+			<Spacer width="2"/>
+			<VolumeModule width="20" height="20" k_path="VolumeBars/VolumeBarA.swf" id="Volume" styleName="pp"/> 
+			<Button id="sharePopUp" width="42" height="17" styleName="share" label="Share" k_click="popup:SharePop"  />
+			<Spacer width="4"/>       
+			<Button id="fullScreen" width="20" height="17" styleName="fs"/>
+			<Spacer width="4"/>
+		</HBox>
+
+		<HBox styleName="colabotare" width="100%" height="29">
+			<LinkButton id="addToReel" width="150" styleName="addToReel" label="Add to this video" height="22" k_click="jsInject:gotoContribWizard" />
+			<Spacer width="4"/>
+			<Canvas id="seperator" styleName="seperator" width="1" height="19" />
+			<Spacer width="4"/>
+			<LinkButton id="editReel"  width="150" styleName="editReel" label="Remix this video" height="22" k_click="jsInject:gotoEditorWindow" />
+		</HBox>
+
+		<HBox styleName="poweredBox" width="100%" height="18">
+			<poweredBy id="poweredBy" k_path="poweredby/PoweredBy.swf" styleName="poweredBy" width="120" height="18"/>
+		</HBox>
+      
+    </VBox>
+    <popups>
+    	<SharePop id="SharePop" k_path="popups/SharePopup.swf" width="350" height="350"/> 
+	 </popups>
+	<javaScript>
+			<jsBlock id="gotoContribWizard" functionName="gotoContribWizard" params="kshowId" >
+				<![CDATA[
+					function gotoContribWizard (kshowId)
+					{
+						gotoCW (kshowId);
+					};
+				]]>
+			</jsBlock>
+			
+			<jsBlock id="gotoEditorWindow" functionName="gotoEditorWindow" params="kshowId" >
+				<![CDATA[
+					function gotoEditorWindow (kshowId)
+					{
+						gotoEditor (kshowId);
+					};
+				]]>
+			</jsBlock>
+	</javaScript>
+    
+</layout>

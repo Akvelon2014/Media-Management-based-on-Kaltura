@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layouts>
+	 <layout skinPath="/content/uiconf/metacafe/kdp_skin_metacafe.swf" layoutId="metacafe">
+	  		<VBox width="100%" height="100%" styleName="topLevelVBox" >
+		    	<Canvas id="PlayerHolder" styleName="PlayerBackground" width="100%" height="100%" >
+		        	<KplayerModule id="myKplayer" styleName="centered" k_path="kplayer/KplayerModule.swf" width="100%" height="100%" maxWidth="600" maxHeight="450"/>
+		        	<Taboola id="taboola" height="100%" width="100%" maxWidth="600" styleName="centered" k_path="addons/Taboola.swf" /> 
+		      	</Canvas>
+		      
+		     	<HBox width="100%" height="22" styleName="controller" >
+		        	<Button id="play" styleName="play" width="20" height="20" />
+		        	<Button id="stop" styleName="stop" width="20" height="20" />
+			        <Scrubber id="scrubber" styleName="scrubber" width="100%" height="10"/>
+			        <VBox height="100%" width="30" styleName="timer">
+	         			<TimerCountdown id="timer" width="30" height="12" k_path="timertext/SimpleTimer.swf" />
+			        </VBox>
+		           	<VolumeModule id="volume" width="20" height="20" styleName="volumeModule" k_path="VolumeBars/VolumeBarA.swf" />
+		           	<Button id="fullScreen" width="20" height="20" styleName="fs" label="" />  
+		     	</HBox>
+
+	   		</VBox>
+	   		
+	   	    <popups>
+    			<credits id="credits" k_path="credits/CreditsWindow.swf" width="300" height="300"/> 
+	 		</popups>
+ 	</layout>
+</layouts>

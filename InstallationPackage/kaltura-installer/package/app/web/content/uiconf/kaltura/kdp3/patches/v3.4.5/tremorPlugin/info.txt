@@ -1,0 +1,1 @@
+This plugin is for Tremor - added a function to close the companion ad

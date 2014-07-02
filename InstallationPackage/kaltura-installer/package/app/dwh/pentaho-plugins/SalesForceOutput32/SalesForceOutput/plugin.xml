@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin
+    id="SalesforceOutputPlugin"
+    iconfile="SFI.png"
+    description="Salesforce Output"
+    tooltip="Insert data into Salesforce"
+   category="Output"
+   classname="org.kaltura.salesforceoutput.SalesforceOutputMeta">
+  
+    <libraries>
+       <library name="salesforceoutput.jar"/>
+       <library name="salesforce-1.5.jar"/>
+       <library name="axis.jar"/>
+       <library name="commons-discovery-0.2.jar"/>
+       <library name="jaxrpc.jar"/>
+       <library name="saaj.jar"/>
+    </libraries>
+    
+   <localized_category>
+     <category locale="en_US">Output</category>
+   </localized_category>
+   <localized_description>
+     <description locale="en_US">Salesforce Output plugin</description>
+   </localized_description>
+   <localized_tooltip>
+     <tooltip locale="en_US">Insert data into Sales force</tooltip>
+   </localized_tooltip>
+   
+</plugin>

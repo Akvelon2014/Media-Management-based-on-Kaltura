@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" horizontalScrollPolicy="off">
+	<mx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.events.ListEvent;
+			import mx.resources.ResourceManager;
+			
+
+			protected function combobox1_changeHandler(event:ListEvent):void {
+				dispatchEvent(new Event(cb.selectedItem.value, true));
+				cb.selectedIndex = -1;
+			}
+
+		]]>
+	</mx:Script>
+	<mx:ComboBox id="cb" dataProvider="{parentDocument.actionsDP}" change="combobox1_changeHandler(event)" selectedIndex="-1"
+				 prompt="{ResourceManager.getInstance().getString('cms', 'selectActionLabel')}"/>
+</mx:VBox>

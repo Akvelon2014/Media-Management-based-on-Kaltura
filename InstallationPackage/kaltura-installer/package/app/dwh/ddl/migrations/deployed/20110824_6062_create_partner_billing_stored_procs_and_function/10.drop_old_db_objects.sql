@@ -1,0 +1,10 @@
+DROP FUNCTION IF EXISTS kalturadw.calc_prev_date_id;
+DROP FUNCTION IF EXISTS kalturadw.calc_primary_partner;
+DROP FUNCTION IF EXISTS kalturadw.get_primary_partner;
+DROP FUNCTION IF EXISTS kalturadw.get_secondary_partners_as_string;
+DROP FUNCTION IF EXISTS kalturadw.is_primary_partner;
+DROP PROCEDURE IF EXISTS kalturadw.monthly_non_paying_billing_report;
+DROP PROCEDURE IF EXISTS kalturadw.monthly_partner_billing_report;
+DROP PROCEDURE IF EXISTS kalturadw.calc_monthly_billing;
+DROP PROCEDURE IF EXISTS kalturadw.top_activities;
+DROP TABLE IF EXISTS kalturadw.dwh_billing;

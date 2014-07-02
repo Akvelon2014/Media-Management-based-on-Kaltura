@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+
+ Modified by Akvelon Inc.
+ 2014-06-30
+ http://www.akvelon.com/contact-us
+-->
+
+<project name="Locale Compiler" basedir="." default="build">
+	
+	<!-- the language for which we compile locale -->
+    <property name="LANGUAGE" value="en_US"/>
+	
+	<!-- the module (folder name) for which we compile locale -->
+    <property name="MODULE" value="content"/>
+	
+	<!-- path to Flex SDK -->
+    <property name="FLEX_HOME" value="C:/Program Files (x86)/Adobe/Adobe Flash Builder 4.6/sdks/3.5.0"/>
+	
+	<!-- directory for the compiled locale swf -->
+    <property name="LOCALE_DEPLOY_DIR" value="../html-template/locale/${LANGUAGE}"/>
+	
+	
+	
+	<!-- include flex tasks -->
+	<taskdef resource="flexTasks.tasks" classpath="${FLEX_HOME}/ant/lib/flexTasks.jar" />
+    
+
+	
+	<target name="compile" description="compile the desired locale module">
+        <mxmlc output="${LOCALE_DEPLOY_DIR}/${LANGUAGE}/${MODULE}_${LANGUAGE}_ResourceModule.swf" locale="${LANGUAGE}">
+			
+            <!-- Get default compiler options. -->
+            <load-config filename="${FLEX_HOME}/frameworks/flex-config.xml"/>
+
+            <!-- List of path elements that form the roots of ActionScript class hierarchies. -->
+            <source-path path-element="${basedir}/locale/{locale}"/>
+            <source-path path-element="${basedir}/locale/{locale}/${MODULE}"/>
+            <source-path path-element="${basedir}/../KedLib/locale/{locale}"/>
+            <source-path path-element="${basedir}/../KalturaLib/locale/{locale}"/>
+
+			<!-- List of resource bundles to compile in the resourceModule -->
+			<!-- content -->
+			<include-resource-bundles>cms</include-resource-bundles>
+			<include-resource-bundles>common</include-resource-bundles>
+			<include-resource-bundles>bulkfailures</include-resource-bundles>
+			<include-resource-bundles>CairngormMessages</include-resource-bundles>
+			<include-resource-bundles>datamanagement</include-resource-bundles>
+			<include-resource-bundles>drilldown</include-resource-bundles>
+			<include-resource-bundles>filter</include-resource-bundles>
+			<include-resource-bundles>entrytable</include-resource-bundles>
+			<include-resource-bundles>countries</include-resource-bundles>
+			<include-resource-bundles>languages</include-resource-bundles>
+			<include-resource-bundles>windows</include-resource-bundles>
+
+
+        </mxmlc>
+		<echo>${MODULE}_${LANGUAGE}_ResourceModule.swf compiled.</echo>
+    </target>
+
+		
+	<target name="build" depends="clean, init, compile">
+		<echo>Locale ${MODULE}_${LANGUAGE} compiled successfully</echo>
+	</target>
+	
+	
+	<target name="clean" description="delete old file">
+		<echo>Deleting ${MODULE}_${LANGUAGE}_ResourceModule.swf</echo>
+        <delete failonerror="false">
+            <fileset dir="${LOCALE_DEPLOY_DIR}/${LANGUAGE}" includes="${MODULE}_${LANGUAGE}_ResourceModule.swf"/>
+        </delete>
+    </target>
+	
+	
+	<target name="init">
+		<mkdir dir="${LOCALE_DEPLOY_DIR}/${LANGUAGE}" description="Make sure there is a bin directory"/>
+	</target>
+</project>
+
+
+<!-- sample commandline locale compilation -->
+<!-- 
+	 mxmlc -locale=en_US 
+     -source-path=locale/{locale}
+     -include-resource-bundles=RegistrationForm,collections,containers,controls,core,effects,skins,styles 
+     -output en_US_ResourceModule.swf
+-->

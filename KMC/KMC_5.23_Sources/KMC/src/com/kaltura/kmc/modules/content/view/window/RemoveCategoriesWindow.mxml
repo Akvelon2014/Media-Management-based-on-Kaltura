@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<containers:HelpTitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:containers="com.kaltura.containers.*"
+							layout="vertical" width="400" height="300" 
+							showCloseButton="true" close="closeHandler(event)" showHelpButton="true" help="helpHandler(event)"
+							title="{resourceManager.getString('cms', 'removeCategoriesTitle')}"
+							creationComplete="creationCompleteHandler(event)" >
+
+	<mx:Script>
+		<![CDATA[
+			import com.kaltura.kmc.events.KmcHelpEvent;
+			import com.kaltura.kmc.modules.content.events.EntriesEvent;
+			import com.kaltura.kmc.modules.content.model.CmsModelLocator;
+
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+
+			[Bindable]
+			public var model:CmsModelLocator;
+
+
+			private function creationCompleteHandler(event:FlexEvent):void {
+				// dispatch a CG event to get categories from all selected entries
+				var cgEvent:EntriesEvent = new EntriesEvent(EntriesEvent.GET_SELECTED_ENTRIES_CATEGORIES, null);
+				cgEvent.data = this;
+				cgEvent.dispatch();
+			}
+
+
+			protected function button1_clickHandler(event:MouseEvent):void {
+				// for each entry, if it has the category remove it.
+				// pass on the event the list of categories to remove.
+				var cgEvent:EntriesEvent = new EntriesEvent(EntriesEvent.REMOVE_CATEGORIES_ENTRIES, null);
+				cgEvent.data = lst.selectedItems;
+				cgEvent.dispatch();
+				dispatchEvent(new CloseEvent(CloseEvent.CLOSE));
+			}
+
+
+			private function helpHandler(event:Event):void {
+				dispatchEvent(new KmcHelpEvent(KmcHelpEvent.HELP, "section_entry_remove_cats", true));
+			}
+
+
+			private function closeHandler(event:CloseEvent):void {
+				var cgEvent:EntriesEvent = new EntriesEvent(EntriesEvent.RESET_SELECTED_ENTRIES_CATEGORIES, null);
+				cgEvent.dispatch();
+				// actual close is handled by WindowsManager
+			}
+		]]>
+	</mx:Script>
+
+	<mx:Label text="{resourceManager.getString('cms', 'removeCategoriesText')}" width="100%"/>
+	<mx:HBox width="100%" height="100%" horizontalAlign="center" verticalAlign="middle"
+			 visible="{model.selectedEntriesCategories == null}" includeInLayout="{model.selectedEntriesCategories == null}" >
+		<mx:Image source="{SpinnerImg}" alpha="0.2"/>
+	</mx:HBox>
+	<mx:List id="lst" width="100%" height="100%" dataProvider="{model.selectedEntriesCategories}"
+			 visible="{model.selectedEntriesCategories != null}" includeInLayout="{model.selectedEntriesCategories != null}"
+			 itemRenderer="com.kaltura.kmc.modules.content.view.itemrenderers.RemoveCategoriesRenderer"/>
+	<mx:ControlBar width="100%">
+		<mx:Button label="{resourceManager.getString('cms', 'apply')}" click="button1_clickHandler(event)"
+				   enabled="{model.selectedEntriesCategories.length > 0}"/>
+	</mx:ControlBar>
+</containers:HelpTitleWindow>

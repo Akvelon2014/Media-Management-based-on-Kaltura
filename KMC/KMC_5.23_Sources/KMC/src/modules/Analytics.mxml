@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modules:KmcModule xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:modules="com.kaltura.kmc.modules.*"
+				   preloader="com.kaltura.preloaders.KmcPreloader" backgroundColor="#034F57" layout="absolute"
+				   horizontalScrollPolicy="off" verticalScrollPolicy="off"
+				   xmlns:business="com.kaltura.kmc.modules.analytics.business.*"
+				   xmlns:control="com.kaltura.kmc.modules.analytics.control.*"
+				   xmlns:view="com.kaltura.kmc.modules.analytics.view.*" minHeight="520" minWidth="950"
+				   >
+	<mx:Metadata>
+		[ResourceBundle("analytics")]
+		[ResourceBundle("map")]
+		[ResourceBundle("sourceTypes")]
+	</mx:Metadata>
+	
+	<mx:Script>
+		<![CDATA[
+			import com.kaltura.analytics.GoogleAnalyticsConsts;
+			import com.kaltura.analytics.GoogleAnalyticsTracker;
+			import com.kaltura.analytics.KAnalyticsTracker;
+			import com.kaltura.analytics.KAnalyticsTrackerConsts;
+			import com.kaltura.kmc.business.JSGate;
+			import com.kaltura.kmc.modules.analytics.control.CategoryEvent;
+			import com.kaltura.kmc.modules.analytics.control.PartnerEvent;
+			import com.kaltura.kmc.modules.analytics.control.StateEvent;
+			import com.kaltura.kmc.modules.analytics.model.AnalyticsModelLocator;
+			import com.kaltura.kmc.modules.analytics.model.types.ScreenTypes;
+			import com.kaltura.types.KalturaStatsKmcEventType;
+			import com.kaltura.utils.KUtils;
+			
+			import mx.binding.utils.BindingUtils;
+			import mx.controls.Alert;
+			import mx.events.ItemClickEvent;
+			
+			/**
+			 * KMC is responsible to use the value of  
+			 * this const as the id of this module.
+			 * */
+			public static const NAME:String = "analytics";
+			
+			[Bindable]
+			private var _model:AnalyticsModelLocator = AnalyticsModelLocator.getInstance();
+			
+			
+			/**
+			 * in case we want to start from a tab other than the
+			 * first, name of the initial tab 
+			 * */
+			private var _initialTab:String;
+			
+			
+			public var urchinNumber:String;
+			
+			
+			// the following const values match *keys* in locale, not values.
+			private static const BANDWIDTH_USAGE:String = "usageTabTitle";
+			private static const CONTENT:String = "contentDashboard";
+			private static const USERS_AND_COMMUNITY:String = "usersandCommunity";
+			
+			
+			override public function getModuleName():String {
+				return NAME;
+			}
+			
+			
+			override public function showSubtab(subtab:String, data:Object = null):void {
+				_initialTab = subtab;
+				// if already added to stage, just go there
+				if (stage) {
+					showTab(_initialTab);
+					//TODO load categories everytime we navigate to analytics
+					var listCategories:CategoryEvent = new CategoryEvent(CategoryEvent.LIST_CATEGORIES);
+					listCategories.dispatch();
+				}
+				// otherwise we'll have _initialTab when we get addedToStage, and we'll switch there.
+				
+			}
+			
+			
+			override protected function start():void {
+				Security.allowDomain('*');
+				
+				BindingUtils.bindSetter(onLoading, _model, "loadingFlag");
+				
+				urchinNumber = _flashvars.urchinnumber;
+				
+				var conf:XML = new XML(_uiconf.confFile);
+				_model.kdpUiConf = conf.uiconf.drilldown.text().toString();
+				_model.kc = _kc;
+				initModelContext(_flashvars);
+				/// set Alert locale for all this application
+				Alert.yesLabel = resourceManager.getString('analytics', 'yes');
+				Alert.noLabel = resourceManager.getString('analytics', 'no');
+				Alert.okLabel = resourceManager.getString('analytics', 'ok');
+				Alert.cancelLabel = resourceManager.getString('analytics', 'cancel');
+				
+				//Get all the partner applications list
+				var getPartner : PartnerEvent = new PartnerEvent( PartnerEvent.GET_PARTNER_APPLICATIONS );
+				getPartner.dispatch();
+				
+				// initialize the tabs: (need to do this after we have _kc)
+				usage.init();
+				content.init();
+				community.init();
+				
+				if (stage) {
+					onAddedToStage();
+				}
+				else {
+					addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
+				}
+			}
+			
+			
+			private function initModelContext(objParam:Object):void {
+				_model.context.userId = objParam.uid;
+				_model.context.partnerId = objParam.partnerid;
+				_model.context.subpId = objParam.subpid;
+				_model.context.ks = objParam.ks;
+				_model.context.rootUrl = KUtils.hostFromCode(objParam.host);
+				_model.context.debugMode = objParam.kdpdebugmode == "true" ? true : false;
+				_model.context.hostName = objParam.host;
+				_model.context.cdnHost = objParam.cdnhost ? objParam.cdnhost : objParam.host;
+				_model.context.protocol = objParam.protocol ? objParam.protocol : "http://";
+			}
+			
+			
+			/**
+			 * shows a subtab as dictated by subtab
+			 * */
+			private function showTab(subtab:String):void {
+				switch (subtab) {
+					case CONTENT:
+						onItemClick(new ItemClickEvent("itemClick", false, false, "dummy", 0))
+						contentView.selectedIndex = 0;
+						break;
+					case USERS_AND_COMMUNITY:
+						onItemClick(new ItemClickEvent("itemClick", false, false, "dummy", 1))
+						contentView.selectedIndex = 1;
+						break;
+					case BANDWIDTH_USAGE:
+						onItemClick(new ItemClickEvent("itemClick", false, false, "dummy", 2))
+						contentView.selectedIndex = 2;
+						break;
+					default:
+						trace("din't get annea dese, eh got " + subtab);
+				}
+				
+				
+			}
+			
+			
+			/**
+			 * initialize stats trackers and show a different tab if reqeusted.
+			 * */
+			private function onAddedToStage():void {
+				if (this.willTrigger(Event.ADDED_TO_STAGE)) {
+					removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
+				}
+				/* google tracker must be initialized after "addedToStage"
+				because of its debug mode.*/
+				// initialize trackers
+				GoogleAnalyticsTracker.getInstance().setBasePath("KMC/Reports and Analytics");
+				
+				var ka:KAnalyticsTracker = KAnalyticsTracker.getInstance();
+				ka.init(_model.kc, "Content", "2.0", _model.context.userId);
+				
+				// show different initial tab if provided
+				/* this must happen after trackers have been initialized because it logs something */
+				if (_initialTab) {
+					showTab(_initialTab);
+					//TODO load categories everytime we navigate to analytics
+					var listCategories:CategoryEvent = new CategoryEvent(CategoryEvent.LIST_CATEGORIES);
+					listCategories.dispatch();
+				}
+				setModuleReady();
+				// Roles and permission code here
+				// At the current - no need to map - the analytics is a whole top tab-hide feature
+				// permissionManager.applyAllAttributes(this,NAME);				
+
+				permissionManager.applyAllAttributes(this, NAME);
+			}
+			
+			
+			/**
+			 * show different cursor while loading
+			 * @param isIt	new value for <code>_model.loadingFlag</code>
+			 * */
+			private function onLoading(isIt:Boolean):void {
+				if (isIt) {
+					cursorManager.setBusyCursor();
+				}
+				else {
+					cursorManager.removeAllCursors();
+				}
+			}
+			
+			
+			/**
+			 * switch between subnav tabs
+			 * @param event
+			 * */
+			private function onItemClick(event:ItemClickEvent):void {
+				if (event.index == 0) {
+					var stateEvent:StateEvent;
+					stateEvent = new StateEvent(StateEvent.STATE_CHANGE, ScreenTypes.TOP_CONTENT);
+					stateEvent.dispatch();
+					
+					// if we get back to the first subtab we must refresh
+					// because the user might have changed filter
+					if (content.topContet && content.dtn.selectedIndex == 0) {
+						content.topContet.onShow();
+					}
+					
+	
+					// trackers:
+					GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.PAGE_VIEW + GoogleAnalyticsConsts.ANALYTICS_CONTENT_REPORTS, GoogleAnalyticsConsts.ANALYTICS);
+					KAnalyticsTracker.getInstance().sendEvent(KAnalyticsTrackerConsts.ANALYTICS,KalturaStatsKmcEventType.REPORTS_AND_ANALYTICS_CONTENT_REPORTS_TAB,
+						"Main Menu>Contents and Reports Tab");
+					JSGate.writeUrlHash(Analytics.NAME, CONTENT);
+				}
+				if (event.index == 1) {
+					// trackers:
+					GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.PAGE_VIEW + GoogleAnalyticsConsts.ANALYTICS_USERS_AND_COMMUNITY_REPORTS, GoogleAnalyticsConsts.ANALYTICS);
+					KAnalyticsTracker.getInstance().sendEvent(KAnalyticsTrackerConsts.ANALYTICS,KalturaStatsKmcEventType.REPORTS_AND_ANALYTICS_USERS_AND_COMMUNITY_REPORTS_TAB,
+						"Main Menu>Users and Community Reports");
+					JSGate.writeUrlHash(Analytics.NAME, USERS_AND_COMMUNITY);
+					
+					// if we get back to the first subtab we must refresh because the user
+					// might have changed filter...
+					if (community.topContributors && community.dtn.selectedIndex == 0)
+						community.topContributors.onShow();
+					
+					stateEvent = new StateEvent(StateEvent.STATE_CHANGE, ScreenTypes.TOP_CONTRIBUTORS);
+					stateEvent.dispatch();
+				}
+				else if (event.index == 2) {
+					// trackers:
+					GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.PAGE_VIEW + GoogleAnalyticsConsts.ANALYTICS_BANDWIDTH_USAGE , GoogleAnalyticsConsts.ANALYTICS);
+					KAnalyticsTracker.getInstance().sendEvent(KAnalyticsTrackerConsts.ANALYTICS,KalturaStatsKmcEventType.REPORTS_AND_ANALYTICS_BANDWIDTH_USAGE_TAB,
+						"Main Menu>Bandwidth Usage Tab");
+					JSGate.writeUrlHash(Analytics.NAME, BANDWIDTH_USAGE);
+					
+					if (usage.pbns && usage.dtn.selectedIndex == 0)
+						usage.pbns.onShow();
+					
+					stateEvent = new StateEvent(StateEvent.STATE_CHANGE, ScreenTypes.PARTNER_BANDWIDTH_AND_STORAGE);
+					stateEvent.dispatch();
+				}
+				
+			}
+			
+			protected function onHelp():void {
+				switch (contentView.selectedChild) {
+					case usage:
+						usage.help();
+						break;
+					case content:
+						content.help();
+						break;
+					case community:
+						community.help();
+						break;
+				}
+			}
+			
+			public function get entitlementEnabled() : Boolean {
+				return _model.entitlementEnabled;
+			}
+			
+			public function set entitlementEnabled( value : Boolean ):void {
+				_model.entitlementEnabled = value;
+			}
+		]]>
+	</mx:Script>
+	
+	<!-- the FrontController, containing Commands specific to this appliation -->
+	<control:AnalyticsController/>
+	
+	<mx:VBox id="mainView" width="100%" height="100%" horizontalScrollPolicy="off" verticalScrollPolicy="off"
+			 styleName="mainView">
+		
+		<mx:HBox width="100%" styleName="tabsContainer" enabled="{!_model.loadingFlag}">
+			<mx:TabBar id="secTln" styleName="tln" itemClick="onItemClick( event )" buttonMode="true"
+					   dataProvider="contentView"/>
+			<mx:Spacer width="100%"/>
+			<mx:Button styleName="help" buttonMode="true" click="{onHelp()}"/>
+		</mx:HBox>
+		
+		<mx:ViewStack id="contentView" width="100%" height="100%" styleName="contentViewStack"
+					  horizontalScrollPolicy="off" verticalScrollPolicy="off" minWidth="900" minHeight="500">
+			<view:Content id="content" width="100%" height="100%" horizontalScrollPolicy="off"
+						  verticalScrollPolicy="off" label="{resourceManager.getString('analytics','contentDashboard')}"
+						  styleName="pageStyle"/>
+			<view:Users id="community" width="100%" horizontalScrollPolicy="off" verticalScrollPolicy="off"
+						label="{resourceManager.getString('analytics','usersAndCommunity')}" styleName="pageStyle"/>
+			<view:Usage id='usage' horizontalScrollPolicy="off" verticalScrollPolicy="off" width="100%" height="100%"
+						label="{resourceManager.getString('analytics','usageTabTitle')}" styleName="pageStyle"
+						partnerData="{_model.partnerData}" accountUsageData="{_model.usageData}"/>
+		</mx:ViewStack>
+		
+	</mx:VBox>
+	
+</modules:KmcModule>

@@ -1,0 +1,1351 @@
+<?xml version="1.0" encoding="utf-8"?>
+<toc>
+  <item url="Documents/kmcoverview.htm">
+    <title><![CDATA[KMC Overview]]></title>
+    <tooltip><![CDATA[KMC Overview]]></tooltip>
+    <item url="Documents/whatcanidowiththekmc.htm">
+      <title><![CDATA[What Can I Do with the KMC?]]></title>
+      <tooltip><![CDATA[What Can I Do with the KMC?]]></tooltip>
+    </item>
+    <item url="Documents/mediamanagementandwo.htm">
+      <title><![CDATA[Media Management and Workflow]]></title>
+      <tooltip><![CDATA[Media Management and Workflow]]></tooltip>
+    </item>
+    <item url="Documents/widgetandapplication.htm">
+      <title><![CDATA[Widget and Application Studio]]></title>
+      <tooltip><![CDATA[Widget and Application Studio]]></tooltip>
+    </item>
+    <item url="Documents/gettingstarted.htm">
+      <title><![CDATA[Getting Started]]></title>
+      <tooltip><![CDATA[Getting Started]]></tooltip>
+    </item>
+  </item>
+  <item url="Documents/uploadingandingestio.htm">
+    <title><![CDATA[Uploading and Ingestion]]></title>
+    <tooltip><![CDATA[Uploading and Ingestion]]></tooltip>
+    <item url="Documents/whatisakalturaentry.htm">
+      <title><![CDATA[What is a Kaltura Entry?]]></title>
+      <tooltip><![CDATA[What is a Kaltura Entry?]]></tooltip>
+    </item>
+    <item url="Documents/browserbasedingestio.htm">
+      <title><![CDATA[Browser-based Ingestion]]></title>
+      <tooltip><![CDATA[Browser-based Ingestion]]></tooltip>
+    </item>
+    <item url="Documents/thekalturauploader.htm">
+      <title><![CDATA[The Kaltura Uploader]]></title>
+      <tooltip><![CDATA[The Kaltura Uploader]]></tooltip>
+    </item>
+    <item url="Documents/theuploadtab.htm">
+      <title><![CDATA[The Upload Tab]]></title>
+      <tooltip><![CDATA[The Upload Tab]]></tooltip>
+      <item url="Documents/uploadmedia.htm">
+        <title><![CDATA[Upload Media]]></title>
+        <tooltip><![CDATA[Upload Media]]></tooltip>
+      </item>
+      <item url="Documents/uploadfromdesktop.htm">
+        <title><![CDATA[Upload from Desktop]]></title>
+        <tooltip><![CDATA[Upload from Desktop]]></tooltip>
+      </item>
+      <item url="Documents/recordfromawebcam.htm">
+        <title><![CDATA[Record from a Webcam]]></title>
+        <tooltip><![CDATA[Record from a Webcam]]></tooltip>
+      </item>
+      <item url="Documents/importfromweb.htm">
+        <title><![CDATA[Import from Web]]></title>
+        <tooltip><![CDATA[Import from Web]]></tooltip>
+      </item>
+      <item url="Documents/prepareentry.htm">
+        <title><![CDATA[Prepare Entry]]></title>
+        <tooltip><![CDATA[Prepare Entry]]></tooltip>
+      </item>
+      <item url="Documents/preparevideoaudioent.htm">
+        <title><![CDATA[Prepare Video/Audio Entry]]></title>
+        <tooltip><![CDATA[Prepare Video/Audio Entry]]></tooltip>
+      </item>
+      <item url="Documents/preparelivestreament.htm">
+        <title><![CDATA[Prepare Live Stream Entry]]></title>
+        <tooltip><![CDATA[Prepare Live Stream Entry]]></tooltip>
+      </item>
+    </item>
+    <item url="Documents/creatingdraftentries.htm">
+      <title><![CDATA[Creating Draft Entries]]></title>
+      <tooltip><![CDATA[Creating Draft Entries]]></tooltip>
+      <item url="Documents/keybenefitsandfuncti.htm">
+        <title><![CDATA[Key Benefits and Functionality]]></title>
+        <tooltip><![CDATA[Key Benefits and Functionality]]></tooltip>
+      </item>
+      <item url="Documents/hostingvideosatyourp.htm">
+        <title><![CDATA[Hosting Videos at your Preferred Location and Linking to Kaltura]]></title>
+        <tooltip><![CDATA[Hosting Videos at your Preferred Location and Linking to Kaltura]]></tooltip>
+      </item>
+    </item>
+    <item url="Documents/replacingvideoassets.htm">
+      <title><![CDATA[Replacing Video Assets for a Kaltura Entry]]></title>
+      <tooltip><![CDATA[Replacing Video Assets for a Kaltura Entry]]></tooltip>
+    </item>
+    <item url="Documents/uploadingandmodifyin.htm">
+      <title><![CDATA[Uploading and Modifying Related Files]]></title>
+      <tooltip><![CDATA[Uploading and Modifying Related Files]]></tooltip>
+    </item>
+    <item url="Documents/bulkuploadandftpuplo.htm">
+      <title><![CDATA[Bulk Upload and FTP Upload]]></title>
+      <tooltip><![CDATA[Bulk Upload and FTP Upload]]></tooltip>
+      <item url="Documents/whatisbulkupload.htm">
+        <title><![CDATA[What is Bulk Upload?]]></title>
+        <tooltip><![CDATA[What is Bulk Upload?]]></tooltip>
+      </item>
+      <item url="Documents/entriesxmlbulkupload.htm">
+        <title><![CDATA[Entries XML Bulk Upload]]></title>
+        <tooltip><![CDATA[Entries XML Bulk Upload]]></tooltip>
+      </item>
+      <item url="Documents/submitbulkoptions.htm">
+        <title><![CDATA[Submit Bulk Options]]></title>
+        <tooltip><![CDATA[Submit Bulk Options]]></tooltip>
+      </item>
+      <item url="Documents/downloadingbulkfiles.htm">
+        <title><![CDATA[Downloading Bulk File Samples]]></title>
+        <tooltip><![CDATA[Downloading Bulk File Samples]]></tooltip>
+      </item>
+    </item>
+    <item url="Documents/automatedcontentinge.htm">
+      <title><![CDATA[Automated Content Ingestion via a Drop Folder]]></title>
+      <tooltip><![CDATA[Automated Content Ingestion via a Drop Folder]]></tooltip>
+    </item>
+    <item url="Documents/usingadropfolder.htm">
+      <title><![CDATA[Using a Drop Folder]]></title>
+      <tooltip><![CDATA[Using a Drop Folder]]></tooltip>
+      <item url="Documents/dropfoldercontrolpan.htm">
+        <title><![CDATA[Drop Folder Control Panel]]></title>
+        <tooltip><![CDATA[Drop Folder Control Panel]]></tooltip>
+        <item url="Documents/mediafilestable.htm" window="proc">
+          <title><![CDATA[Media Files Table]]></title>
+          <tooltip><![CDATA[Media Files Table]]></tooltip>
+        </item>
+        <item url="Documents/dropfolderstatuses.htm" window="proc">
+          <title><![CDATA[Drop Folder Statuses]]></title>
+          <tooltip><![CDATA[Drop Folder Statuses]]></tooltip>
+        </item>
+      </item>
+    </item>
+    <item url="Documents/thedashboardtab.htm">
+      <title><![CDATA[The Dashboard Tab]]></title>
+      <tooltip><![CDATA[The Dashboard Tab]]></tooltip>
+    </item>
+    <item url="Documents/uploadingcontentusin.htm">
+      <title><![CDATA[Uploading Content Using the Content Tab]]></title>
+      <tooltip><![CDATA[Uploading Content Using the Content Tab]]></tooltip>
+    </item>
+    <item url="Documents/trackingyouruploads.htm">
+      <title><![CDATA[Tracking Your Uploads]]></title>
+      <tooltip><![CDATA[Tracking Your Uploads]]></tooltip>
+      <item url="Documents/youruploads.htm">
+        <title><![CDATA[Your Uploads]]></title>
+        <tooltip><![CDATA[Your Uploads]]></tooltip>
+      </item>
+      <item url="Documents/bulkuploadlog.htm">
+        <title><![CDATA[Bulk Upload Log]]></title>
+        <tooltip><![CDATA[Bulk Upload Log]]></tooltip>
+      </item>
+    </item>
+  </item>
+  <item url="Documents/transcodingandproces.htm">
+    <title><![CDATA[Transcoding and Processing]]></title>
+    <tooltip><![CDATA[Transcoding and Processing]]></tooltip>
+    <item url="Documents/convertingvideosinto.htm">
+      <title><![CDATA[Converting Videos into Multiple Flavors (Optimized Output Files)]]></title>
+      <tooltip><![CDATA[Converting Videos into Multiple Flavors (Optimized Output Files)]]></tooltip>
+    </item>
+    <item url="Documents/editingandcreatingtr.htm">
+      <title><![CDATA[Editing and Creating Transcoding Profiles]]></title>
+      <tooltip><![CDATA[Editing and Creating Transcoding Profiles]]></tooltip>
+    </item>
+    <item url="Documents/addingatranscodingpr.htm">
+      <title><![CDATA[Adding a Transcoding Profile]]></title>
+      <tooltip><![CDATA[Adding a Transcoding Profile]]></tooltip>
+      <item url="Documents/quickpublishing.htm">
+        <title><![CDATA[Quick Publishing]]></title>
+        <tooltip><![CDATA[Quick Publishing]]></tooltip>
+      </item>
+    </item>
+    <item url="Documents/editingoptionsforfla.htm">
+      <title><![CDATA[Editing Options for Flavors in a Transcoding Profile]]></title>
+      <tooltip><![CDATA[Editing Options for Flavors in a Transcoding Profile]]></tooltip>
+    </item>
+    <item url="Documents/assigningatranscodin.htm">
+      <title><![CDATA[Assigning a Transcoding Profile to a Bulk Upload]]></title>
+      <tooltip><![CDATA[Assigning a Transcoding Profile to a Bulk Upload]]></tooltip>
+    </item>
+    <item url="Documents/usefultipsforworking.htm">
+      <title><![CDATA[Useful Tips for Working with Transcoding Profiles]]></title>
+      <tooltip><![CDATA[Useful Tips for Working with Transcoding Profiles]]></tooltip>
+    </item>
+    <item url="Documents/theflavorstab.htm">
+      <title><![CDATA[The Flavors Tab]]></title>
+      <tooltip><![CDATA[The Flavors Tab]]></tooltip>
+      <item url="Documents/addvideoaudio.htm">
+        <title><![CDATA[Add Video/Audio]]></title>
+        <tooltip><![CDATA[Add Video/Audio]]></tooltip>
+      </item>
+      <item url="Documents/uploadfiles.htm">
+        <title><![CDATA[Upload Files]]></title>
+        <tooltip><![CDATA[Upload Files]]></tooltip>
+      </item>
+      <item url="Documents/importfiles.htm">
+        <title><![CDATA[Import Files]]></title>
+        <tooltip><![CDATA[Import Files]]></tooltip>
+      </item>
+      <item url="Documents/linktoremotestorage.htm">
+        <title><![CDATA[Link to Remote Storage]]></title>
+        <tooltip><![CDATA[Link to Remote Storage]]></tooltip>
+      </item>
+      <item url="Documents/matchfilesfromdropfo.htm">
+        <title><![CDATA[Match Files from Drop Folder]]></title>
+        <tooltip><![CDATA[Match Files from Drop Folder]]></tooltip>
+      </item>
+      <item url="Documents/replacingmedia.htm">
+        <title><![CDATA[Replacing Media]]></title>
+        <tooltip><![CDATA[Replacing Media]]></tooltip>
+      </item>
+    </item>
+    <item url="Documents/supportedsourceforma.htm">
+      <title><![CDATA[Supported Source Formats]]></title>
+      <tooltip><![CDATA[Supported Source Formats]]></tooltip>
+      <item url="Documents/supportedsourcecodec.htm">
+        <title><![CDATA[Supported Source Codecs]]></title>
+        <tooltip><![CDATA[Supported Source Codecs]]></tooltip>
+      </item>
+      <item url="Documents/targetformatscodecs.htm">
+        <title><![CDATA[Target Formats/Codecs]]></title>
+        <tooltip><![CDATA[Target Formats/Codecs]]></tooltip>
+      </item>
+    </item>
+  </item>
+  <item url="Documents/creatingandcustomizi.htm">
+    <title><![CDATA[Creating and Customizing Playlists and Players]]></title>
+    <tooltip><![CDATA[Creating and Customizing Playlists and Players]]></tooltip>
+    <item url="Documents/whatisaplaylist.htm">
+      <title><![CDATA[What is a Playlist?]]></title>
+      <tooltip><![CDATA[What is a Playlist?]]></tooltip>
+    </item>
+    <item url="Documents/playliststab.htm">
+      <title><![CDATA[Playlists Tab]]></title>
+      <tooltip><![CDATA[Playlists Tab]]></tooltip>
+      <item url="Documents/creatingamanualplayl.htm">
+        <title><![CDATA[Creating a Manual Playlist]]></title>
+        <tooltip><![CDATA[Creating a Manual Playlist]]></tooltip>
+      </item>
+      <item url="Documents/creatingarulebasedpl.htm">
+        <title><![CDATA[Creating a Rule Based Playlist]]></title>
+        <tooltip><![CDATA[Creating a Rule Based Playlist]]></tooltip>
+      </item>
+      <item url="Documents/definingarule.htm">
+        <title><![CDATA[Defining a Rule]]></title>
+        <tooltip><![CDATA[Defining a Rule]]></tooltip>
+      </item>
+      <item url="Documents/multiplerulesbasedpl.htm">
+        <title><![CDATA[Multiple Rules Based Playlist - Advanced Mode]]></title>
+        <tooltip><![CDATA[Multiple Rules Based Playlist - Advanced Mode]]></tooltip>
+      </item>
+      <item url="Documents/additionalplaylistco.htm">
+        <title><![CDATA[Additional Playlist Configuration]]></title>
+        <tooltip><![CDATA[Additional Playlist Configuration]]></tooltip>
+      </item>
+      <item url="Documents/creatingaplayerwithm.htm">
+        <title><![CDATA[Creating a Player with Multi-tab Playlists]]></title>
+        <tooltip><![CDATA[Creating a Player with Multi-tab Playlists]]></tooltip>
+      </item>
+      <item url="Documents/deletingaplaylist.htm">
+        <title><![CDATA[Deleting a Playlist]]></title>
+        <tooltip><![CDATA[Deleting a Playlist]]></tooltip>
+      </item>
+      <item url="Documents/removingvideosfromap.htm">
+        <title><![CDATA[Removing Videos from a Playlist]]></title>
+        <tooltip><![CDATA[Removing Videos from a Playlist]]></tooltip>
+      </item>
+      <item url="Documents/customizingadditiona.htm">
+        <title><![CDATA[Customizing Additional Features for Playlists]]></title>
+        <tooltip><![CDATA[Customizing Additional Features for Playlists]]></tooltip>
+      </item>
+    </item>
+    <item url="Documents/designingandconfigur.htm">
+      <title><![CDATA[Designing and Configuring a Player]]></title>
+      <tooltip><![CDATA[Designing and Configuring a Player]]></tooltip>
+      <item url="Documents/playerlist.htm">
+        <title><![CDATA[Player List]]></title>
+        <tooltip><![CDATA[Player List]]></tooltip>
+      </item>
+      <item url="Documents/selectthetypeofplaye.htm">
+        <title><![CDATA[Select the Type of Player]]></title>
+        <tooltip><![CDATA[Select the Type of Player]]></tooltip>
+      </item>
+    </item>
+    <item url="Documents/configuringtheplayer.htm">
+      <title><![CDATA[Configuring the Player Basics Settings]]></title>
+      <tooltip><![CDATA[Configuring the Player Basics Settings]]></tooltip>
+      <item url="Documents/editingaplayer.htm">
+        <title><![CDATA[Editing a Player]]></title>
+        <tooltip><![CDATA[Editing a Player]]></tooltip>
+      </item>
+      <item url="Documents/addingcontenttoaplay.htm">
+        <title><![CDATA[Adding Content to a Player]]></title>
+        <tooltip><![CDATA[Adding Content to a Player]]></tooltip>
+      </item>
+      <item url="Documents/duplicatingaplayer.htm">
+        <title><![CDATA[Duplicating a Player]]></title>
+        <tooltip><![CDATA[Duplicating a Player]]></tooltip>
+      </item>
+      <item url="Documents/deletingaplayer.htm">
+        <title><![CDATA[Deleting a Player]]></title>
+        <tooltip><![CDATA[Deleting a Player]]></tooltip>
+      </item>
+    </item>
+    <item url="Documents/508compliantvideopla.htm">
+      <title><![CDATA[508-Compliant Video Player]]></title>
+      <tooltip><![CDATA[508-Compliant Video Player]]></tooltip>
+    </item>
+    <item url="Documents/configuringtheplayer1.htm">
+      <title><![CDATA[Configuring the Player Advertising Settings]]></title>
+      <tooltip><![CDATA[Configuring the Player Advertising Settings]]></tooltip>
+    </item>
+    <item url="Documents/configuringtheplayer2.htm">
+      <title><![CDATA[Configuring the Player Features]]></title>
+      <tooltip><![CDATA[Configuring the Player Features]]></tooltip>
+      <item url="Documents/featureslist.htm">
+        <title><![CDATA[Features List]]></title>
+        <tooltip><![CDATA[Features List]]></tooltip>
+        <item url="Documents/controls.htm" window="proc">
+          <title><![CDATA[Controls]]></title>
+          <tooltip><![CDATA[Controls]]></tooltip>
+        </item>
+        <item url="Documents/viraldistribution.htm" window="proc">
+          <title><![CDATA[Viral & Distribution]]></title>
+          <tooltip><![CDATA[Viral & Distribution]]></tooltip>
+        </item>
+        <item url="Documents/ugcuserinteraction.htm" window="proc">
+          <title><![CDATA[UGC & User Interaction]]></title>
+          <tooltip><![CDATA[UGC & User Interaction]]></tooltip>
+        </item>
+        <item url="Documents/subtitlesandtranscri.htm" window="proc">
+          <title><![CDATA[Subtitles and Transcriptions]]></title>
+          <tooltip><![CDATA[Subtitles and Transcriptions]]></tooltip>
+        </item>
+        <item url="Documents/relatedvideosgallery.htm" window="proc">
+          <title><![CDATA[Related Videos Gallery]]></title>
+          <tooltip><![CDATA[Related Videos Gallery]]></tooltip>
+        </item>
+        <item url="Documents/custombuttons.htm" window="proc">
+          <title><![CDATA[Custom Buttons]]></title>
+          <tooltip><![CDATA[Custom Buttons]]></tooltip>
+        </item>
+        <item url="Documents/additionalparameters.htm" window="proc">
+          <title><![CDATA[Additional Parameters and Plugins]]></title>
+          <tooltip><![CDATA[Additional Parameters and Plugins]]></tooltip>
+        </item>
+        <item url="Documents/playlistitemsforplay.htm" window="proc">
+          <title><![CDATA[Playlist Items (For players with playlist)]]></title>
+          <tooltip><![CDATA[Playlist Items (For players with playlist)]]></tooltip>
+        </item>
+        <item url="Documents/examples.htm" window="proc">
+          <title><![CDATA[Examples]]></title>
+          <tooltip><![CDATA[Examples]]></tooltip>
+        </item>
+      </item>
+      <item url="Documents/configuringtheplayer3.htm">
+        <title><![CDATA[Configuring the Player Style]]></title>
+        <tooltip><![CDATA[Configuring the Player Style]]></tooltip>
+      </item>
+    </item>
+  </item>
+  <item url="Documents/managingmetadata.htm">
+    <title><![CDATA[Managing Metadata]]></title>
+    <tooltip><![CDATA[Managing Metadata]]></tooltip>
+    <item url="Documents/entrymetadata.htm">
+      <title><![CDATA[Entry Metadata]]></title>
+      <tooltip><![CDATA[Entry Metadata]]></tooltip>
+      <item url="Documents/typesofmetadata.htm">
+        <title><![CDATA[Types of Metadata]]></title>
+        <tooltip><![CDATA[Types of Metadata]]></tooltip>
+      </item>
+      <item url="Documents/metadataactions.htm">
+        <title><![CDATA[Metadata Actions]]></title>
+        <tooltip><![CDATA[Metadata Actions]]></tooltip>
+      </item>
+    </item>
+    <item url="Documents/uploadingcontentands.htm">
+      <title><![CDATA[Uploading Content and Setting Metadata]]></title>
+      <tooltip><![CDATA[Uploading Content and Setting Metadata]]></tooltip>
+      <item url="Documents/uploadamediafileands.htm">
+        <title><![CDATA[Upload a Media File and Set Its Metadata]]></title>
+        <tooltip><![CDATA[Upload a Media File and Set Its Metadata]]></tooltip>
+      </item>
+      <item url="Documents/ingestamediafilebund.htm">
+        <title><![CDATA[Ingest a Media File Bundled with Metadata (CSV, XML, API)]]></title>
+        <tooltip><![CDATA[Ingest a Media File Bundled with Metadata (CSV, XML, API)]]></tooltip>
+      </item>
+      <item url="Documents/prepareametadataonly.htm">
+        <title><![CDATA[Prepare a Metadata-only "Draft" Entry for Future Ingestion of Media Files]]></title>
+        <tooltip><![CDATA[Prepare a Metadata-only "Draft" Entry for Future Ingestion of Media Files]]></tooltip>
+      </item>
+    </item>
+    <item url="Documents/metadataandrelatedfi.htm">
+      <title><![CDATA[Metadata and Related Files]]></title>
+      <tooltip><![CDATA[Metadata and Related Files]]></tooltip>
+      <item url="Documents/kalturacustommetadat.htm">
+        <title><![CDATA[Kaltura Custom Metadata Functionality]]></title>
+        <tooltip><![CDATA[Kaltura Custom Metadata Functionality]]></tooltip>
+        <item url="Documents/usingcustomdataforen.htm" window="proc">
+          <title><![CDATA[Using Custom Data for Entries]]></title>
+          <tooltip><![CDATA[Using Custom Data for Entries]]></tooltip>
+        </item>
+        <item url="Documents/usingcustomdataforca.htm" window="proc">
+          <title><![CDATA[Using Custom Data for Categories]]></title>
+          <tooltip><![CDATA[Using Custom Data for Categories]]></tooltip>
+        </item>
+      </item>
+    </item>
+    <item url="Documents/managingschemas.htm">
+      <title><![CDATA[Managing Schemas]]></title>
+      <tooltip><![CDATA[Managing Schemas]]></tooltip>
+      <item url="Documents/addingaschema.htm">
+        <title><![CDATA[Adding a Schema]]></title>
+        <tooltip><![CDATA[Adding a Schema]]></tooltip>
+      </item>
+      <item url="Documents/addingcustomdatafiel.htm">
+        <title><![CDATA[Adding Custom Data Fields]]></title>
+        <tooltip><![CDATA[Adding Custom Data Fields]]></tooltip>
+      </item>
+      <item url="Documents/settingvaluesforcust.htm">
+        <title><![CDATA[Setting Values for Custom Metadata Fields - Per Entry]]></title>
+        <tooltip><![CDATA[Setting Values for Custom Metadata Fields - Per Entry]]></tooltip>
+      </item>
+      <item url="Documents/settingvaluesformeta.htm">
+        <title><![CDATA[Setting Values for Metadata Fields - Per Category]]></title>
+        <tooltip><![CDATA[Setting Values for Metadata Fields - Per Category]]></tooltip>
+      </item>
+    </item>
+    <item url="Documents/relatedvideosgallery1.htm">
+      <title><![CDATA[Related Videos Gallery]]></title>
+      <tooltip><![CDATA[Related Videos Gallery]]></tooltip>
+      <item url="Documents/relatedvideossource.htm">
+        <title><![CDATA[Related Videos Source]]></title>
+        <tooltip><![CDATA[Related Videos Source]]></tooltip>
+      </item>
+      <item url="Documents/configureautoplayfor.htm">
+        <title><![CDATA[Configure Autoplay for Related Videos]]></title>
+        <tooltip><![CDATA[Configure Autoplay for Related Videos]]></tooltip>
+      </item>
+    </item>
+  </item>
+  <item url="Documents/locatingcontentinthe.htm">
+    <title><![CDATA[Locating Content in the KMC]]></title>
+    <tooltip><![CDATA[Locating Content in the KMC]]></tooltip>
+    <item url="Documents/searchingthroughentr.htm">
+      <title><![CDATA[Searching Through Entries]]></title>
+      <tooltip><![CDATA[Searching Through Entries]]></tooltip>
+    </item>
+    <item url="Documents/filteringcontentinth.htm">
+      <title><![CDATA[Filtering Content in the Entries Table]]></title>
+      <tooltip><![CDATA[Filtering Content in the Entries Table]]></tooltip>
+      <item url="Documents/usingcategoriesasfil.htm">
+        <title><![CDATA[Using Categories as Filters]]></title>
+        <tooltip><![CDATA[Using Categories as Filters]]></tooltip>
+      </item>
+      <item url="Documents/usingadditionalfilte.htm">
+        <title><![CDATA[Using Additional Filters]]></title>
+        <tooltip><![CDATA[Using Additional Filters]]></tooltip>
+      </item>
+      <item url="Documents/performingasearchbas.htm">
+        <title><![CDATA[Performing a Search Based on Metadata Fields]]></title>
+        <tooltip><![CDATA[Performing a Search Based on Metadata Fields]]></tooltip>
+      </item>
+      <item url="Documents/entriestablefilterin.htm">
+        <title><![CDATA[Entries Table Filter Indications]]></title>
+        <tooltip><![CDATA[Entries Table Filter Indications]]></tooltip>
+      </item>
+    </item>
+    <item url="Documents/searchingthroughcate.htm">
+      <title><![CDATA[Searching Through Categories]]></title>
+      <tooltip><![CDATA[Searching Through Categories]]></tooltip>
+    </item>
+    <item url="Documents/filteringcategoriesi.htm">
+      <title><![CDATA[Filtering Categories in the Categories Table]]></title>
+      <tooltip><![CDATA[Filtering Categories in the Categories Table]]></tooltip>
+      <item url="Documents/usingcategoriesasfil1.htm">
+        <title><![CDATA[Using Categories as Filters]]></title>
+        <tooltip><![CDATA[Using Categories as Filters]]></tooltip>
+      </item>
+      <item url="Documents/usingadditionalfilte1.htm">
+        <title><![CDATA[Using Additional Filters]]></title>
+        <tooltip><![CDATA[Using Additional Filters]]></tooltip>
+      </item>
+      <item url="Documents/categoriestablefilte.htm">
+        <title><![CDATA[Categories Table Filter Indications]]></title>
+        <tooltip><![CDATA[Categories Table Filter Indications]]></tooltip>
+      </item>
+    </item>
+    <item url="Documents/searchingplaylists.htm">
+      <title><![CDATA[Searching Playlists]]></title>
+      <tooltip><![CDATA[Searching Playlists]]></tooltip>
+    </item>
+  </item>
+  <item url="Documents/managingaccesscontro.htm">
+    <title><![CDATA[Managing Access Control Profiles]]></title>
+    <tooltip><![CDATA[Managing Access Control Profiles]]></tooltip>
+    <item url="Documents/accesscontrolprofile.htm">
+      <title><![CDATA[Access Control Profiles]]></title>
+      <tooltip><![CDATA[Access Control Profiles]]></tooltip>
+    </item>
+    <item url="Documents/creatinganaccessprof.htm">
+      <title><![CDATA[Creating an Access Profile]]></title>
+      <tooltip><![CDATA[Creating an Access Profile]]></tooltip>
+    </item>
+    <item url="Documents/editinganaccessprofi.htm">
+      <title><![CDATA[Editing an Access Profile]]></title>
+      <tooltip><![CDATA[Editing an Access Profile]]></tooltip>
+      <item url="Documents/restrictingdomains.htm">
+        <title><![CDATA[Restricting Domains]]></title>
+        <tooltip><![CDATA[Restricting Domains]]></tooltip>
+        <item url="Documents/addingorremovingadom.htm" window="proc">
+          <title><![CDATA[Adding or Removing a Domain]]></title>
+          <tooltip><![CDATA[Adding or Removing a Domain]]></tooltip>
+        </item>
+      </item>
+      <item url="Documents/restrictingcountries.htm">
+        <title><![CDATA[Restricting Countries for Viewing]]></title>
+        <tooltip><![CDATA[Restricting Countries for Viewing]]></tooltip>
+        <item url="Documents/addingorremovinggeog.htm" window="proc">
+          <title><![CDATA[Adding or Removing Geographic Regions (Countries)]]></title>
+          <tooltip><![CDATA[Adding or Removing Geographic Regions (Countries)]]></tooltip>
+        </item>
+      </item>
+      <item url="Documents/restrictingviewsbyip.htm">
+        <title><![CDATA[Restricting Views by IP Address]]></title>
+        <tooltip><![CDATA[Restricting Views by IP Address]]></tooltip>
+        <item url="Documents/addingorremovingipad.htm" window="proc">
+          <title><![CDATA[Adding or Removing IP Addresses]]></title>
+          <tooltip><![CDATA[Adding or Removing IP Addresses]]></tooltip>
+        </item>
+      </item>
+    </item>
+    <item url="Documents/restrictingviewswith.htm">
+      <title><![CDATA[Restricting Views with a Kaltura Session]]></title>
+      <tooltip><![CDATA[Restricting Views with a Kaltura Session]]></tooltip>
+      <item url="Documents/payperview.htm">
+        <title><![CDATA[Pay-Per-View]]></title>
+        <tooltip><![CDATA[Pay-Per-View]]></tooltip>
+      </item>
+    </item>
+    <item url="Documents/assigninganaccesscon.htm">
+      <title><![CDATA[Assigning an Access Control Profile to an Entry]]></title>
+      <tooltip><![CDATA[Assigning an Access Control Profile to an Entry]]></tooltip>
+      <item url="Documents/assigninganaccesspro.htm">
+        <title><![CDATA[Assigning an Access Profile to a Bulk Upload]]></title>
+        <tooltip><![CDATA[Assigning an Access Profile to a Bulk Upload]]></tooltip>
+      </item>
+    </item>
+    <item url="Documents/contentscheduling.htm">
+      <title><![CDATA[Content Scheduling]]></title>
+      <tooltip><![CDATA[Content Scheduling]]></tooltip>
+    </item>
+  </item>
+  <item url="Documents/managingcontententit.htm">
+    <title><![CDATA[Managing Content Entitlement]]></title>
+    <tooltip><![CDATA[Managing Content Entitlement]]></tooltip>
+    <item url="Documents/kalturasentitlementm.htm">
+      <title><![CDATA[Kaltura’s Entitlement Model]]></title>
+      <tooltip><![CDATA[Kaltura’s Entitlement Model]]></tooltip>
+    </item>
+    <item url="Documents/categorysentitlement.htm">
+      <title><![CDATA[Category’s Entitlements Tab]]></title>
+      <tooltip><![CDATA[Category’s Entitlements Tab]]></tooltip>
+      <item url="Documents/settingtheentitlemen.htm">
+        <title><![CDATA[Setting the Entitlement Settings]]></title>
+        <tooltip><![CDATA[Setting the Entitlement Settings]]></tooltip>
+      </item>
+      <item url="Documents/contentprivacy.htm">
+        <title><![CDATA[Content Privacy]]></title>
+        <tooltip><![CDATA[Content Privacy]]></tooltip>
+      </item>
+      <item url="Documents/visibilityofcontenta.htm">
+        <title><![CDATA[Visibility of Content Associated with Multiple Categories]]></title>
+        <tooltip><![CDATA[Visibility of Content Associated with Multiple Categories]]></tooltip>
+        <item url="Documents/examples1.htm" window="proc">
+          <title><![CDATA[Examples]]></title>
+          <tooltip><![CDATA[Examples]]></tooltip>
+        </item>
+      </item>
+      <item url="Documents/visibilityofcontenti.htm">
+        <title><![CDATA[Visibility of Content in Outside of the Application]]></title>
+        <tooltip><![CDATA[Visibility of Content in Outside of the Application]]></tooltip>
+      </item>
+      <item url="Documents/categorylisting.htm">
+        <title><![CDATA[Category Listing]]></title>
+        <tooltip><![CDATA[Category Listing]]></tooltip>
+      </item>
+      <item url="Documents/contributionpolicy.htm">
+        <title><![CDATA[Contribution Policy]]></title>
+        <tooltip><![CDATA[Contribution Policy]]></tooltip>
+      </item>
+      <item url="Documents/specificenduserpermi.htm">
+        <title><![CDATA[Specific End-User Permissions]]></title>
+        <tooltip><![CDATA[Specific End-User Permissions]]></tooltip>
+        <item url="Documents/enduserpermissionatt.htm" window="proc">
+          <title><![CDATA[End-User Permission Attributes]]></title>
+          <tooltip><![CDATA[End-User Permission Attributes]]></tooltip>
+        </item>
+      </item>
+      <item url="Documents/managingcategoriessp.htm">
+        <title><![CDATA[Managing Categories Specific End-User Permissions]]></title>
+        <tooltip><![CDATA[Managing Categories Specific End-User Permissions]]></tooltip>
+      </item>
+      <item url="Documents/bulkactionsformanagi.htm">
+        <title><![CDATA[Bulk Actions for Managing Categories Specific End-User Permissions]]></title>
+        <tooltip><![CDATA[Bulk Actions for Managing Categories Specific End-User Permissions]]></tooltip>
+      </item>
+      <item url="Documents/additionalcategoryen.htm">
+        <title><![CDATA[Additional Category Entitlement Settings]]></title>
+        <tooltip><![CDATA[Additional Category Entitlement Settings]]></tooltip>
+      </item>
+    </item>
+  </item>
+  <item url="Documents/managingcategories.htm">
+    <title><![CDATA[Managing Categories]]></title>
+    <tooltip><![CDATA[Managing Categories]]></tooltip>
+    <item url="Documents/definingandassigning.htm">
+      <title><![CDATA[Defining and Assigning Entry Categories]]></title>
+      <tooltip><![CDATA[Defining and Assigning Entry Categories]]></tooltip>
+    </item>
+    <item url="Documents/categoriestable.htm">
+      <title><![CDATA[Categories Table]]></title>
+      <tooltip><![CDATA[Categories Table]]></tooltip>
+      <item url="Documents/addingeditingaspecif.htm">
+        <title><![CDATA[Adding/Editing a Specific Category]]></title>
+        <tooltip><![CDATA[Adding/Editing a Specific Category]]></tooltip>
+      </item>
+      <item url="Documents/addingmetadatatoacat.htm">
+        <title><![CDATA[Adding Metadata to a Category]]></title>
+        <tooltip><![CDATA[Adding Metadata to a Category]]></tooltip>
+      </item>
+      <item url="Documents/editingtheentitlemen.htm">
+        <title><![CDATA[Editing the Entitlement Settings of a Category]]></title>
+        <tooltip><![CDATA[Editing the Entitlement Settings of a Category]]></tooltip>
+      </item>
+      <item url="Documents/reorderingsubcategor.htm">
+        <title><![CDATA[Reordering Sub Categories]]></title>
+        <tooltip><![CDATA[Reordering Sub Categories]]></tooltip>
+      </item>
+      <item url="Documents/editingmultiplecateg.htm">
+        <title><![CDATA[Editing Multiple Categories in Bulk]]></title>
+        <tooltip><![CDATA[Editing Multiple Categories in Bulk]]></tooltip>
+      </item>
+      <item url="Documents/addtagstocategories.htm">
+        <title><![CDATA[Add Tags to Categories]]></title>
+        <tooltip><![CDATA[Add Tags to Categories]]></tooltip>
+      </item>
+      <item url="Documents/removetagsfromcatego.htm">
+        <title><![CDATA[Remove Tags from Categories]]></title>
+        <tooltip><![CDATA[Remove Tags from Categories]]></tooltip>
+      </item>
+      <item url="Documents/movecategories.htm">
+        <title><![CDATA[Move Categories]]></title>
+        <tooltip><![CDATA[Move Categories]]></tooltip>
+      </item>
+      <item url="Documents/changecontentprivacy.htm">
+        <title><![CDATA[Change Content Privacy]]></title>
+        <tooltip><![CDATA[Change Content Privacy]]></tooltip>
+      </item>
+      <item url="Documents/changecontributionpo.htm">
+        <title><![CDATA[Change Contribution Policy]]></title>
+        <tooltip><![CDATA[Change Contribution Policy]]></tooltip>
+      </item>
+      <item url="Documents/changecategorylistin.htm">
+        <title><![CDATA[Change Category Listing]]></title>
+        <tooltip><![CDATA[Change Category Listing]]></tooltip>
+      </item>
+      <item url="Documents/changecategoryowner.htm">
+        <title><![CDATA[Change Category Owner]]></title>
+        <tooltip><![CDATA[Change Category Owner]]></tooltip>
+      </item>
+      <item url="Documents/deletecategories.htm">
+        <title><![CDATA[Delete Categories]]></title>
+        <tooltip><![CDATA[Delete Categories]]></tooltip>
+      </item>
+      <item url="Documents/updatingcategoriesst.htm">
+        <title><![CDATA[Updating Categories’ State]]></title>
+        <tooltip><![CDATA[Updating Categories’ State]]></tooltip>
+      </item>
+    </item>
+  </item>
+  <item url="Documents/kmcusersandroles.htm">
+    <title><![CDATA[KMC Users and Roles]]></title>
+    <tooltip><![CDATA[KMC Users and Roles]]></tooltip>
+    <item url="Documents/rolesandpermissions.htm">
+      <title><![CDATA[Roles and Permissions]]></title>
+      <tooltip><![CDATA[Roles and Permissions]]></tooltip>
+      <item url="Documents/addingauser.htm">
+        <title><![CDATA[Adding a User]]></title>
+        <tooltip><![CDATA[Adding a User]]></tooltip>
+      </item>
+      <item url="Documents/editingauser.htm">
+        <title><![CDATA[Editing a User]]></title>
+        <tooltip><![CDATA[Editing a User]]></tooltip>
+      </item>
+      <item url="Documents/deletingandblockingu.htm">
+        <title><![CDATA[Deleting and Blocking Users]]></title>
+        <tooltip><![CDATA[Deleting and Blocking Users]]></tooltip>
+      </item>
+      <item url="Documents/purchasingalicensefo.htm">
+        <title><![CDATA[Purchasing a License for Additional Users]]></title>
+        <tooltip><![CDATA[Purchasing a License for Additional Users]]></tooltip>
+      </item>
+      <item url="Documents/creatingcustomroles.htm">
+        <title><![CDATA[Creating Custom Roles]]></title>
+        <tooltip><![CDATA[Creating Custom Roles]]></tooltip>
+      </item>
+      <item url="Documents/rolemanagement.htm">
+        <title><![CDATA[Role Management]]></title>
+        <tooltip><![CDATA[Role Management]]></tooltip>
+      </item>
+    </item>
+  </item>
+  <item url="Documents/moderationandeditori.htm">
+    <title><![CDATA[Moderation and Editorial Workflows]]></title>
+    <tooltip><![CDATA[Moderation and Editorial Workflows]]></tooltip>
+    <item url="Documents/contentmoderationwor.htm">
+      <title><![CDATA[Content Moderation Workflows]]></title>
+      <tooltip><![CDATA[Content Moderation Workflows]]></tooltip>
+    </item>
+    <item url="Documents/themoderationtab.htm">
+      <title><![CDATA[The Moderation Tab]]></title>
+      <tooltip><![CDATA[The Moderation Tab]]></tooltip>
+      <item url="Documents/previewingcontentusi.htm">
+        <title><![CDATA[Previewing Content using the Moderation Tab]]></title>
+        <tooltip><![CDATA[Previewing Content using the Moderation Tab]]></tooltip>
+      </item>
+      <item url="Documents/rejectingcontentusin.htm">
+        <title><![CDATA[Rejecting Content using the Moderation Tab]]></title>
+        <tooltip><![CDATA[Rejecting Content using the Moderation Tab]]></tooltip>
+      </item>
+    </item>
+  </item>
+  <item url="Documents/usingsubtitlesandcap.htm">
+    <title><![CDATA[Using Subtitles and Captions]]></title>
+    <tooltip><![CDATA[Using Subtitles and Captions]]></tooltip>
+    <item url="Documents/captionfiletypes.htm">
+      <title><![CDATA[Caption File Types]]></title>
+      <tooltip><![CDATA[Caption File Types]]></tooltip>
+      <item url="Documents/searchingwithincapti.htm">
+        <title><![CDATA[Searching within Captions]]></title>
+        <tooltip><![CDATA[Searching within Captions]]></tooltip>
+      </item>
+    </item>
+    <item url="Documents/subtitlesandcaptions.htm">
+      <title><![CDATA[Subtitles and Captions Terminology]]></title>
+      <tooltip><![CDATA[Subtitles and Captions Terminology]]></tooltip>
+    </item>
+    <item url="Documents/addingcaptionstoanen.htm">
+      <title><![CDATA[Adding Captions to an Entry]]></title>
+      <tooltip><![CDATA[Adding Captions to an Entry]]></tooltip>
+      <item url="Documents/editingacaptionsfile.htm">
+        <title><![CDATA[Editing a Captions File]]></title>
+        <tooltip><![CDATA[Editing a Captions File]]></tooltip>
+      </item>
+    </item>
+    <item url="Documents/settingupcaptionsfor.htm">
+      <title><![CDATA[Setting Up Captions for Display]]></title>
+      <tooltip><![CDATA[Setting Up Captions for Display]]></tooltip>
+      <item url="Documents/viewinganentrywithca.htm">
+        <title><![CDATA[Viewing an Entry with Captions in a Player]]></title>
+        <tooltip><![CDATA[Viewing an Entry with Captions in a Player]]></tooltip>
+      </item>
+      <item url="Documents/captionsoptions.htm">
+        <title><![CDATA[Captions Options]]></title>
+        <tooltip><![CDATA[Captions Options]]></tooltip>
+      </item>
+    </item>
+  </item>
+  <item url="Documents/livestreaming.htm">
+    <title><![CDATA[Live Streaming]]></title>
+    <tooltip><![CDATA[Live Streaming]]></tooltip>
+    <item url="Documents/livestreamingusingth.htm">
+      <title><![CDATA[Live Streaming Using the KMC]]></title>
+      <tooltip><![CDATA[Live Streaming Using the KMC]]></tooltip>
+    </item>
+    <item url="Documents/workflowforsettingup.htm">
+      <title><![CDATA[Workflow for Setting up Live Streaming]]></title>
+      <tooltip><![CDATA[Workflow for Setting up Live Streaming]]></tooltip>
+      <item url="Documents/settingupthehardware.htm">
+        <title><![CDATA[Setting up the Hardware and Software]]></title>
+        <tooltip><![CDATA[Setting up the Hardware and Software]]></tooltip>
+      </item>
+      <item url="Documents/creatingalivestreami.htm">
+        <title><![CDATA[Creating a Live Streaming Entry in the KMC]]></title>
+        <tooltip><![CDATA[Creating a Live Streaming Entry in the KMC]]></tooltip>
+      </item>
+      <item url="Documents/multiplebitrateencod.htm">
+        <title><![CDATA[Multiple Bitrate Encoding]]></title>
+        <tooltip><![CDATA[Multiple Bitrate Encoding]]></tooltip>
+      </item>
+      <item url="Documents/configuringthelivest.htm">
+        <title><![CDATA[Configuring the Live Stream Parameters in the KMC]]></title>
+        <tooltip><![CDATA[Configuring the Live Stream Parameters in the KMC]]></tooltip>
+      </item>
+      <item url="Documents/settingupthebroadcas.htm">
+        <title><![CDATA[Setting up the Broadcasting Computer]]></title>
+        <tooltip><![CDATA[Setting up the Broadcasting Computer]]></tooltip>
+      </item>
+      <item url="Documents/viewingthebroadcasti.htm">
+        <title><![CDATA[Viewing the Broadcasting Setup (Optional)]]></title>
+        <tooltip><![CDATA[Viewing the Broadcasting Setup (Optional)]]></tooltip>
+      </item>
+      <item url="Documents/advancedlivestreamin.htm">
+        <title><![CDATA[Advanced Live Streaming Configuration Options]]></title>
+        <tooltip><![CDATA[Advanced Live Streaming Configuration Options]]></tooltip>
+      </item>
+    </item>
+  </item>
+  <item url="Documents/contentauthoringtool.htm">
+    <title><![CDATA[Content Authoring Tools]]></title>
+    <tooltip><![CDATA[Content Authoring Tools]]></tooltip>
+    <item url="Documents/thecontenttab.htm">
+      <title><![CDATA[The Content Tab]]></title>
+      <tooltip><![CDATA[The Content Tab]]></tooltip>
+    </item>
+    <item url="Documents/entriestab.htm">
+      <title><![CDATA[Entries Tab]]></title>
+      <tooltip><![CDATA[Entries Tab]]></tooltip>
+    </item>
+    <item url="Documents/entriestable.htm">
+      <title><![CDATA[Entries Table]]></title>
+      <tooltip><![CDATA[Entries Table]]></tooltip>
+      <item url="Documents/setscheduling.htm">
+        <title><![CDATA[Set Scheduling]]></title>
+        <tooltip><![CDATA[Set Scheduling]]></tooltip>
+      </item>
+      <item url="Documents/setaccesscontrol.htm">
+        <title><![CDATA[Set Access Control]]></title>
+        <tooltip><![CDATA[Set Access Control]]></tooltip>
+      </item>
+      <item url="Documents/editaddtagstoandentr.htm">
+        <title><![CDATA[Edit - Add Tags to and Entry]]></title>
+        <tooltip><![CDATA[Edit - Add Tags to and Entry]]></tooltip>
+      </item>
+      <item url="Documents/editremovetagsfroman.htm">
+        <title><![CDATA[Edit - Remove Tags from an Entry]]></title>
+        <tooltip><![CDATA[Edit - Remove Tags from an Entry]]></tooltip>
+      </item>
+      <item url="Documents/editaddcategories.htm">
+        <title><![CDATA[Edit - Add Categories]]></title>
+        <tooltip><![CDATA[Edit - Add Categories]]></tooltip>
+      </item>
+      <item url="Documents/editremovecategories.htm">
+        <title><![CDATA[Edit - Remove Categories]]></title>
+        <tooltip><![CDATA[Edit - Remove Categories]]></tooltip>
+      </item>
+      <item url="Documents/addtonewcategory.htm">
+        <title><![CDATA[Add to New Category]]></title>
+        <tooltip><![CDATA[Add to New Category]]></tooltip>
+      </item>
+      <item url="Documents/addtonewplaylist.htm">
+        <title><![CDATA[Add to New Playlist]]></title>
+        <tooltip><![CDATA[Add to New Playlist]]></tooltip>
+      </item>
+      <item url="Documents/changeentryowner.htm">
+        <title><![CDATA[Change Entry Owner]]></title>
+        <tooltip><![CDATA[Change Entry Owner]]></tooltip>
+      </item>
+      <item url="Documents/downloadfiles.htm">
+        <title><![CDATA[Download Files]]></title>
+        <tooltip><![CDATA[Download Files]]></tooltip>
+      </item>
+      <item url="Documents/deletemultipleentrie.htm">
+        <title><![CDATA[Delete Multiple Entries]]></title>
+        <tooltip><![CDATA[Delete Multiple Entries]]></tooltip>
+      </item>
+      <item url="Documents/previewandembed.htm">
+        <title><![CDATA[Preview and Embed]]></title>
+        <tooltip><![CDATA[Preview and Embed]]></tooltip>
+      </item>
+    </item>
+    <item url="Documents/editingentries.htm">
+      <title><![CDATA[Editing Entries]]></title>
+      <tooltip><![CDATA[Editing Entries]]></tooltip>
+      <item url="Documents/editentrytabs.htm">
+        <title><![CDATA[Edit Entry Tabs]]></title>
+        <tooltip><![CDATA[Edit Entry Tabs]]></tooltip>
+      </item>
+      <item url="Documents/clippingandtrimmingm.htm">
+        <title><![CDATA[Clipping and Trimming Media Files]]></title>
+        <tooltip><![CDATA[Clipping and Trimming Media Files]]></tooltip>
+      </item>
+      <item url="Documents/troubleshootingtrimm.htm">
+        <title><![CDATA[Troubleshooting Trimming and Clipping]]></title>
+        <tooltip><![CDATA[Troubleshooting Trimming and Clipping]]></tooltip>
+      </item>
+      <item url="Documents/userstab.htm">
+        <title><![CDATA[Users Tab]]></title>
+        <tooltip><![CDATA[Users Tab]]></tooltip>
+      </item>
+    </item>
+    <item url="Documents/choosingathumbnailfo.htm">
+      <title><![CDATA[Choosing a Thumbnail for your Video]]></title>
+      <tooltip><![CDATA[Choosing a Thumbnail for your Video]]></tooltip>
+    </item>
+  </item>
+  <item url="Documents/publishingtoyoursite.htm">
+    <title><![CDATA[Publishing to your Site]]></title>
+    <tooltip><![CDATA[Publishing to your Site]]></tooltip>
+    <item url="Documents/embeddingaplayerwith.htm">
+      <title><![CDATA[Embedding a Player with a Single Entry on your Site]]></title>
+      <tooltip><![CDATA[Embedding a Player with a Single Entry on your Site]]></tooltip>
+    </item>
+    <item url="Documents/embeddingaplayerwith1.htm">
+      <title><![CDATA[Embedding a Player with a Playlist on your Site]]></title>
+      <tooltip><![CDATA[Embedding a Player with a Playlist on your Site]]></tooltip>
+      <item url="Documents/videodeliverysetting.htm">
+        <title><![CDATA[Video Delivery Settings]]></title>
+        <tooltip><![CDATA[Video Delivery Settings]]></tooltip>
+      </item>
+      <item url="Documents/httpprogressivedownl.htm">
+        <title><![CDATA[HTTP Progressive Download Delivery]]></title>
+        <tooltip><![CDATA[HTTP Progressive Download Delivery]]></tooltip>
+      </item>
+      <item url="Documents/adaptivestreamingrtm.htm">
+        <title><![CDATA[Adaptive Streaming RTMP Delivery with Adaptive Bitrate]]></title>
+        <tooltip><![CDATA[Adaptive Streaming RTMP Delivery with Adaptive Bitrate]]></tooltip>
+      </item>
+      <item url="Documents/securetransportrtmpe.htm">
+        <title><![CDATA[Secure Transport RTMPE]]></title>
+        <tooltip><![CDATA[Secure Transport RTMPE]]></tooltip>
+      </item>
+      <item url="Documents/akamaihdnetworkallow.htm">
+        <title><![CDATA[Akamai HD Network – Allows adaptive bit-rate]]></title>
+        <tooltip><![CDATA[Akamai HD Network – Allows adaptive bit-rate]]></tooltip>
+      </item>
+    </item>
+    <item url="Documents/addingtheflavorselec.htm">
+      <title><![CDATA[Adding the Flavor Selector Module]]></title>
+      <tooltip><![CDATA[Adding the Flavor Selector Module]]></tooltip>
+      <item url="Documents/mobilesupport.htm">
+        <title><![CDATA[Mobile Support]]></title>
+        <tooltip><![CDATA[Mobile Support]]></tooltip>
+      </item>
+    </item>
+  </item>
+  <item url="Documents/distributionandsyndi.htm">
+    <title><![CDATA[Distribution and Syndication]]></title>
+    <tooltip><![CDATA[Distribution and Syndication]]></tooltip>
+    <item url="Documents/kalturadistributionm.htm">
+      <title><![CDATA[Kaltura Distribution Module]]></title>
+      <tooltip><![CDATA[Kaltura Distribution Module]]></tooltip>
+      <item url="Documents/keybenefits.htm">
+        <title><![CDATA[Key Benefits:]]></title>
+        <tooltip><![CDATA[Key Benefits:]]></tooltip>
+      </item>
+    </item>
+    <item url="Documents/howdoesdistributionw.htm">
+      <title><![CDATA[How Does Distribution Work?]]></title>
+      <tooltip><![CDATA[How Does Distribution Work?]]></tooltip>
+      <item url="Documents/addingadistributorto.htm">
+        <title><![CDATA[Adding a Distributor to an Entry]]></title>
+        <tooltip><![CDATA[Adding a Distributor to an Entry]]></tooltip>
+      </item>
+    </item>
+    <item url="Documents/schedulingavideopack.htm">
+      <title><![CDATA[Scheduling a Video Package]]></title>
+      <tooltip><![CDATA[Scheduling a Video Package]]></tooltip>
+      <item url="Documents/validatingavideopack.htm">
+        <title><![CDATA[Validating a Video Package]]></title>
+        <tooltip><![CDATA[Validating a Video Package]]></tooltip>
+      </item>
+      <item url="Documents/removingadistributor.htm">
+        <title><![CDATA[Removing a Distributor from a Video Package]]></title>
+        <tooltip><![CDATA[Removing a Distributor from a Video Package]]></tooltip>
+      </item>
+      <item url="Documents/managingdistributord.htm">
+        <title><![CDATA[Managing Distributor Details]]></title>
+        <tooltip><![CDATA[Managing Distributor Details]]></tooltip>
+      </item>
+    </item>
+  </item>
+  <item url="Documents/thesyndicationtab.htm">
+    <title><![CDATA[The Syndication Tab]]></title>
+    <tooltip><![CDATA[The Syndication Tab]]></tooltip>
+    <item url="Documents/contentsyndication.htm">
+      <title><![CDATA[Content Syndication]]></title>
+      <tooltip><![CDATA[Content Syndication]]></tooltip>
+    </item>
+    <item url="Documents/howdoessyndicationwo.htm">
+      <title><![CDATA[How Does Syndication Work?]]></title>
+      <tooltip><![CDATA[How Does Syndication Work?]]></tooltip>
+      <item url="Documents/syndicatingtoastanda.htm">
+        <title><![CDATA[Syndicating to a Standard MRSS Feed (Yahoo)]]></title>
+        <tooltip><![CDATA[Syndicating to a Standard MRSS Feed (Yahoo)]]></tooltip>
+      </item>
+      <item url="Documents/searchengineoptimiza.htm">
+        <title><![CDATA[Search Engine Optimization (SEO)]]></title>
+        <tooltip><![CDATA[Search Engine Optimization (SEO)]]></tooltip>
+      </item>
+      <item url="Documents/keybenefits1.htm">
+        <title><![CDATA[Key benefits]]></title>
+        <tooltip><![CDATA[Key benefits]]></tooltip>
+      </item>
+    </item>
+    <item url="Documents/settingupsyndication.htm">
+      <title><![CDATA[Setting Up Syndication]]></title>
+      <tooltip><![CDATA[Setting Up Syndication]]></tooltip>
+      <item url="Documents/syndicatingtogoogle.htm">
+        <title><![CDATA[Syndicating to Google]]></title>
+        <tooltip><![CDATA[Syndicating to Google]]></tooltip>
+      </item>
+      <item url="Documents/googlewebmastertasks.htm">
+        <title><![CDATA[Google Webmaster Tasks]]></title>
+        <tooltip><![CDATA[Google Webmaster Tasks]]></tooltip>
+      </item>
+      <item url="Documents/kmcpublishertasksfor.htm">
+        <title><![CDATA[KMC Publisher Tasks for Google Syndication]]></title>
+        <tooltip><![CDATA[KMC Publisher Tasks for Google Syndication]]></tooltip>
+        <item url="Documents/googlefeedparameters.htm" window="proc">
+          <title><![CDATA[Google: Feed Parameters]]></title>
+          <tooltip><![CDATA[Google: Feed Parameters]]></tooltip>
+        </item>
+      </item>
+      <item url="Documents/syndicatingtotubemog.htm">
+        <title><![CDATA[Syndicating to TubeMogul]]></title>
+        <tooltip><![CDATA[Syndicating to TubeMogul]]></tooltip>
+      </item>
+      <item url="Documents/kmcpublishertasksfor1.htm">
+        <title><![CDATA[KMC Publisher Tasks for TubeMogul Syndication]]></title>
+        <tooltip><![CDATA[KMC Publisher Tasks for TubeMogul Syndication]]></tooltip>
+        <item url="Documents/tubemogulfeedparamet.htm" window="proc">
+          <title><![CDATA[TubeMogul: Feed Parameters]]></title>
+          <tooltip><![CDATA[TubeMogul: Feed Parameters]]></tooltip>
+        </item>
+      </item>
+      <item url="Documents/tubemogulwebmasterta.htm">
+        <title><![CDATA[TubeMogul Webmaster Tasks]]></title>
+        <tooltip><![CDATA[TubeMogul Webmaster Tasks]]></tooltip>
+      </item>
+      <item url="Documents/syndicatingtoitunes.htm">
+        <title><![CDATA[Syndicating to iTunes]]></title>
+        <tooltip><![CDATA[Syndicating to iTunes]]></tooltip>
+      </item>
+      <item url="Documents/kmcpublishertasksfor2.htm">
+        <title><![CDATA[KMC Publisher Tasks for iTunes Syndication]]></title>
+        <tooltip><![CDATA[KMC Publisher Tasks for iTunes Syndication]]></tooltip>
+        <item url="Documents/itunesfeedparameters.htm" window="proc">
+          <title><![CDATA[iTunes: Feed Parameters]]></title>
+          <tooltip><![CDATA[iTunes: Feed Parameters]]></tooltip>
+        </item>
+      </item>
+      <item url="Documents/syndicatingtoyahoo.htm">
+        <title><![CDATA[Syndicating to Yahoo]]></title>
+        <tooltip><![CDATA[Syndicating to Yahoo]]></tooltip>
+      </item>
+      <item url="Documents/kmcpublishertasksfor3.htm">
+        <title><![CDATA[KMC Publisher Tasks for Yahoo Syndication]]></title>
+        <tooltip><![CDATA[KMC Publisher Tasks for Yahoo Syndication]]></tooltip>
+      </item>
+      <item url="Documents/yahoowebmastertasks.htm">
+        <title><![CDATA[Yahoo Webmaster Tasks]]></title>
+        <tooltip><![CDATA[Yahoo Webmaster Tasks]]></tooltip>
+        <item url="Documents/yahoofeedparameters.htm" window="proc">
+          <title><![CDATA[Yahoo: Feed Parameters]]></title>
+          <tooltip><![CDATA[Yahoo: Feed Parameters]]></tooltip>
+        </item>
+      </item>
+      <item url="Documents/flexiblefeedformat.htm">
+        <title><![CDATA[Flexible Feed Format]]></title>
+        <tooltip><![CDATA[Flexible Feed Format]]></tooltip>
+      </item>
+    </item>
+  </item>
+  <item url="Documents/advertisingandadnetw.htm">
+    <title><![CDATA[Advertising and Ad Networks]]></title>
+    <tooltip><![CDATA[Advertising and Ad Networks]]></tooltip>
+    <item url="Documents/playerbranding.htm">
+      <title><![CDATA[Player Branding]]></title>
+      <tooltip><![CDATA[Player Branding]]></tooltip>
+    </item>
+    <item url="Documents/connectingwithanadse.htm">
+      <title><![CDATA[Connecting with an Ad Server]]></title>
+      <tooltip><![CDATA[Connecting with an Ad Server]]></tooltip>
+      <item url="Documents/kalturaplayerandadpl.htm">
+        <title><![CDATA[Kaltura Player and Ad Plugins]]></title>
+        <tooltip><![CDATA[Kaltura Player and Ad Plugins]]></tooltip>
+      </item>
+      <item url="Documents/supportedadservers.htm">
+        <title><![CDATA[Supported Ad Servers]]></title>
+        <tooltip><![CDATA[Supported Ad Servers]]></tooltip>
+      </item>
+      <item url="Documents/adterminology.htm">
+        <title><![CDATA[Ad Terminology]]></title>
+        <tooltip><![CDATA[Ad Terminology]]></tooltip>
+      </item>
+    </item>
+    <item url="Documents/creatingkalturavideo.htm">
+      <title><![CDATA[Creating Kaltura Video Ads]]></title>
+      <tooltip><![CDATA[Creating Kaltura Video Ads]]></tooltip>
+    </item>
+    <item url="Documents/addingthevastadserve.htm">
+      <title><![CDATA[Adding the VAST Ad Server]]></title>
+      <tooltip><![CDATA[Adding the VAST Ad Server]]></tooltip>
+    </item>
+    <item url="Documents/configuringvastads.htm">
+      <title><![CDATA[Configuring VAST Ads]]></title>
+      <tooltip><![CDATA[Configuring VAST Ads]]></tooltip>
+      <item url="Documents/configuringvastprero.htm">
+        <title><![CDATA[Configuring VAST Pre-roll Ads]]></title>
+        <tooltip><![CDATA[Configuring VAST Pre-roll Ads]]></tooltip>
+      </item>
+      <item url="Documents/configuringvastpostr.htm">
+        <title><![CDATA[Configuring VAST Post Rolls]]></title>
+        <tooltip><![CDATA[Configuring VAST Post Rolls]]></tooltip>
+      </item>
+      <item url="Documents/addingamidroll.htm">
+        <title><![CDATA[Adding a Midroll]]></title>
+        <tooltip><![CDATA[Adding a Midroll]]></tooltip>
+      </item>
+      <item url="Documents/addinganoverlay.htm">
+        <title><![CDATA[Adding an Overlay]]></title>
+        <tooltip><![CDATA[Adding an Overlay]]></tooltip>
+      </item>
+    </item>
+    <item url="Documents/creatingbumperads.htm">
+      <title><![CDATA[Creating Bumper Ads]]></title>
+      <tooltip><![CDATA[Creating Bumper Ads]]></tooltip>
+    </item>
+    <item url="Documents/configuringthirdpart.htm">
+      <title><![CDATA[Configuring Third Party Ad Plugins]]></title>
+      <tooltip><![CDATA[Configuring Third Party Ad Plugins]]></tooltip>
+      <item url="Documents/tremormedia.htm">
+        <title><![CDATA[Tremor Media]]></title>
+        <tooltip><![CDATA[Tremor Media]]></tooltip>
+      </item>
+      <item url="Documents/tremormediaaddedfunc.htm">
+        <title><![CDATA[Tremor Media Added Functionality]]></title>
+        <tooltip><![CDATA[Tremor Media Added Functionality]]></tooltip>
+      </item>
+      <item url="Documents/adaptv.htm">
+        <title><![CDATA[AdapTV]]></title>
+        <tooltip><![CDATA[AdapTV]]></tooltip>
+      </item>
+    </item>
+    <item url="Documents/configuringcompanion.htm">
+      <title><![CDATA[Configuring Companion Ads]]></title>
+      <tooltip><![CDATA[Configuring Companion Ads]]></tooltip>
+      <item url="Documents/companionadsinhtml.htm">
+        <title><![CDATA[Companion Ads in HTML]]></title>
+        <tooltip><![CDATA[Companion Ads in HTML]]></tooltip>
+      </item>
+      <item url="Documents/companionadsinflash.htm">
+        <title><![CDATA[Companion Ads in Flash]]></title>
+        <tooltip><![CDATA[Companion Ads in Flash]]></tooltip>
+        <item url="Documents/tremor.htm" window="proc">
+          <title><![CDATA[Tremor]]></title>
+          <tooltip><![CDATA[Tremor]]></tooltip>
+        </item>
+        <item url="Documents/adaptvcompanionads.htm" window="proc">
+          <title><![CDATA[AdapTV Companion Ads]]></title>
+          <tooltip><![CDATA[AdapTV Companion Ads]]></tooltip>
+        </item>
+      </item>
+      <item url="Documents/targetingwithanadser.htm">
+        <title><![CDATA[Targeting with an Ad Server]]></title>
+        <tooltip><![CDATA[Targeting with an Ad Server]]></tooltip>
+      </item>
+      <item url="Documents/targetingperviewer.htm">
+        <title><![CDATA[Targeting per Viewer]]></title>
+        <tooltip><![CDATA[Targeting per Viewer]]></tooltip>
+      </item>
+      <item url="Documents/adtargetingviaadplug.htm">
+        <title><![CDATA[Ad Targeting via ad plugin]]></title>
+        <tooltip><![CDATA[Ad Targeting via ad plugin]]></tooltip>
+      </item>
+      <item url="Documents/adtargetingwithtremo.htm">
+        <title><![CDATA[Ad Targeting with Tremor]]></title>
+        <tooltip><![CDATA[Ad Targeting with Tremor]]></tooltip>
+      </item>
+      <item url="Documents/advertisingformobile.htm">
+        <title><![CDATA[Advertising for Mobile Devices]]></title>
+        <tooltip><![CDATA[Advertising for Mobile Devices]]></tooltip>
+      </item>
+      <item url="Documents/adaptvviavast.htm">
+        <title><![CDATA[AdapTV (via VAST)]]></title>
+        <tooltip><![CDATA[AdapTV (via VAST)]]></tooltip>
+      </item>
+      <item url="Documents/connectingwithadserv.htm">
+        <title><![CDATA[Connecting with Ad Servers and Networks via Adap.tv]]></title>
+        <tooltip><![CDATA[Connecting with Ad Servers and Networks via Adap.tv]]></tooltip>
+      </item>
+      <item url="Documents/connectingwithtremor.htm">
+        <title><![CDATA[Connecting with Tremor Media]]></title>
+        <tooltip><![CDATA[Connecting with Tremor Media]]></tooltip>
+      </item>
+      <item url="Documents/differenttypesofadse.htm">
+        <title><![CDATA[Different Types of Ad Servers]]></title>
+        <tooltip><![CDATA[Different Types of Ad Servers]]></tooltip>
+      </item>
+    </item>
+    <item url="Documents/kalturaplayeradditio.htm">
+      <title><![CDATA[Kaltura Player Additions Related to Ads]]></title>
+      <tooltip><![CDATA[Kaltura Player Additions Related to Ads]]></tooltip>
+    </item>
+    <item url="Documents/troubleshooting.htm">
+      <title><![CDATA[Troubleshooting]]></title>
+      <tooltip><![CDATA[Troubleshooting]]></tooltip>
+    </item>
+  </item>
+  <item url="Documents/creatingandtrackinga.htm">
+    <title><![CDATA[Creating and Tracking Analytics]]></title>
+    <tooltip><![CDATA[Creating and Tracking Analytics]]></tooltip>
+    <item url="Documents/contentreports.htm">
+      <title><![CDATA[Content Reports]]></title>
+      <tooltip><![CDATA[Content Reports]]></tooltip>
+      <item url="Documents/topcontentreports.htm">
+        <title><![CDATA[Top Content Reports]]></title>
+        <tooltip><![CDATA[Top Content Reports]]></tooltip>
+      </item>
+      <item url="Documents/specificentryreport.htm">
+        <title><![CDATA[Specific Entry Report]]></title>
+        <tooltip><![CDATA[Specific Entry Report]]></tooltip>
+      </item>
+      <item url="Documents/contentdropoffreport.htm">
+        <title><![CDATA[Content Drop-off Reports]]></title>
+        <tooltip><![CDATA[Content Drop-off Reports]]></tooltip>
+      </item>
+      <item url="Documents/specificentrycontent.htm">
+        <title><![CDATA[Specific Entry Content Drop-off Reports]]></title>
+        <tooltip><![CDATA[Specific Entry Content Drop-off Reports]]></tooltip>
+      </item>
+      <item url="Documents/contentinteractionsr.htm">
+        <title><![CDATA[Content Interactions Reports]]></title>
+        <tooltip><![CDATA[Content Interactions Reports]]></tooltip>
+      </item>
+      <item url="Documents/specificcontentinter.htm">
+        <title><![CDATA[Specific Content Interactions Report]]></title>
+        <tooltip><![CDATA[Specific Content Interactions Report]]></tooltip>
+      </item>
+      <item url="Documents/contentcontributions.htm">
+        <title><![CDATA[Content Contributions Reports]]></title>
+        <tooltip><![CDATA[Content Contributions Reports]]></tooltip>
+      </item>
+      <item url="Documents/specificentrymediaso.htm">
+        <title><![CDATA[Specific Entry Media Source Contributions Report]]></title>
+        <tooltip><![CDATA[Specific Entry Media Source Contributions Report]]></tooltip>
+      </item>
+    </item>
+    <item url="Documents/userandcommunityrepo.htm">
+      <title><![CDATA[User and Community Reports]]></title>
+      <tooltip><![CDATA[User and Community Reports]]></tooltip>
+      <item url="Documents/topcontributorsrepor.htm">
+        <title><![CDATA[Top Contributors Report]]></title>
+        <tooltip><![CDATA[Top Contributors Report]]></tooltip>
+      </item>
+      <item url="Documents/geographicdistributi.htm">
+        <title><![CDATA[Geographic Distribution Reports]]></title>
+        <tooltip><![CDATA[Geographic Distribution Reports]]></tooltip>
+      </item>
+      <item url="Documents/specificgeographicre.htm">
+        <title><![CDATA[Specific Geographic Region Distribution Reports]]></title>
+        <tooltip><![CDATA[Specific Geographic Region Distribution Reports]]></tooltip>
+      </item>
+      <item url="Documents/topsyndications.htm">
+        <title><![CDATA[Top Syndications]]></title>
+        <tooltip><![CDATA[Top Syndications]]></tooltip>
+      </item>
+      <item url="Documents/specificsyndicatorre.htm">
+        <title><![CDATA[Specific Syndicator Reports]]></title>
+        <tooltip><![CDATA[Specific Syndicator Reports]]></tooltip>
+      </item>
+      <item url="Documents/userengagementreport.htm">
+        <title><![CDATA[User Engagement Reports]]></title>
+        <tooltip><![CDATA[User Engagement Reports]]></tooltip>
+      </item>
+      <item url="Documents/specificuserengageme.htm">
+        <title><![CDATA[Specific User Engagement Report]]></title>
+        <tooltip><![CDATA[Specific User Engagement Report]]></tooltip>
+      </item>
+    </item>
+    <item url="Documents/bandwidthusagereport.htm">
+      <title><![CDATA[Bandwidth Usage Reports]]></title>
+      <tooltip><![CDATA[Bandwidth Usage Reports]]></tooltip>
+      <item url="Documents/publisherbandwidthan.htm">
+        <title><![CDATA[Publisher Bandwidth and Storage Report]]></title>
+        <tooltip><![CDATA[Publisher Bandwidth and Storage Report]]></tooltip>
+      </item>
+      <item url="Documents/endusersstoragerepor.htm">
+        <title><![CDATA[End Users Storage Report]]></title>
+        <tooltip><![CDATA[End Users Storage Report]]></tooltip>
+      </item>
+      <item url="Documents/storagereportforaspe.htm">
+        <title><![CDATA[Storage Report for a Specific User]]></title>
+        <tooltip><![CDATA[Storage Report for a Specific User]]></tooltip>
+      </item>
+      <item url="Documents/daterangesforanalyti.htm">
+        <title><![CDATA[Date Ranges for Analytical Reports]]></title>
+        <tooltip><![CDATA[Date Ranges for Analytical Reports]]></tooltip>
+      </item>
+    </item>
+    <item url="Documents/exportinganalyticsto.htm">
+      <title><![CDATA[Exporting Analytics to a CSV File]]></title>
+      <tooltip><![CDATA[Exporting Analytics to a CSV File]]></tooltip>
+      <item url="Documents/sendinganalyticseven.htm">
+        <title><![CDATA[Sending Analytics Events to Third Parties]]></title>
+        <tooltip><![CDATA[Sending Analytics Events to Third Parties]]></tooltip>
+      </item>
+      <item url="Documents/kalturaplayersupport.htm">
+        <title><![CDATA[Kaltura Player Supported Plug-ins]]></title>
+        <tooltip><![CDATA[Kaltura Player Supported Plug-ins]]></tooltip>
+      </item>
+    </item>
+  </item>
+  <item url="Documents/accountinformation.htm">
+    <title><![CDATA[Account Information]]></title>
+    <tooltip><![CDATA[Account Information]]></tooltip>
+    <item url="Documents/accountsettings.htm">
+      <title><![CDATA[Account Settings]]></title>
+      <tooltip><![CDATA[Account Settings]]></tooltip>
+    </item>
+    <item url="Documents/integrationsettings.htm">
+      <title><![CDATA[Integration Settings]]></title>
+      <tooltip><![CDATA[Integration Settings]]></tooltip>
+      <item url="Documents/accountinfo.htm">
+        <title><![CDATA[Account Info]]></title>
+        <tooltip><![CDATA[Account Info]]></tooltip>
+      </item>
+      <item url="Documents/entitlementsettings.htm">
+        <title><![CDATA[Entitlement Settings]]></title>
+        <tooltip><![CDATA[Entitlement Settings]]></tooltip>
+        <item url="Documents/addingentitlementtoc.htm" window="proc">
+          <title><![CDATA[Adding Entitlement to Categories]]></title>
+          <tooltip><![CDATA[Adding Entitlement to Categories]]></tooltip>
+        </item>
+      </item>
+      <item url="Documents/notifications.htm">
+        <title><![CDATA[Notifications]]></title>
+        <tooltip><![CDATA[Notifications]]></tooltip>
+      </item>
+    </item>
+    <item url="Documents/accesscontrol.htm">
+      <title><![CDATA[Access Control]]></title>
+      <tooltip><![CDATA[Access Control]]></tooltip>
+    </item>
+    <item url="Documents/transcodingsettings.htm">
+      <title><![CDATA[Transcoding Settings]]></title>
+      <tooltip><![CDATA[Transcoding Settings]]></tooltip>
+    </item>
+    <item url="Documents/customdata.htm">
+      <title><![CDATA[Custom Data]]></title>
+      <tooltip><![CDATA[Custom Data]]></tooltip>
+    </item>
+    <item url="Documents/myusersettings.htm">
+      <title><![CDATA[My User Settings]]></title>
+      <tooltip><![CDATA[My User Settings]]></tooltip>
+    </item>
+    <item url="Documents/accountupgrade.htm">
+      <title><![CDATA[Account Upgrade]]></title>
+      <tooltip><![CDATA[Account Upgrade]]></tooltip>
+    </item>
+  </item>
+</toc>

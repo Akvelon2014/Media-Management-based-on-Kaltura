@@ -1,0 +1,110 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <link id="c1themecss" rel="stylesheet" type="text/css" media="all" href="theme.css" />
+    <link id="c1screencss" rel="stylesheet" type="text/css" media="screen" href="screen.css" />
+    <link id="c1printcss" rel="stylesheet" type="text/css" media="print" href="print.css" />
+    <link id="c1topiccss" rel="stylesheet" type="text/css" media="all" href="topic.css" class="apply-to-frame" />
+    <link id="c1customiconscss" rel="stylesheet" type="text/css" media="all" href="custom-icons.css" class="apply-to-frame" />
+    <link id="c1usercss" rel="stylesheet" type="text/css" media="all" href="user.css" class="apply-to-frame" />
+    <script id="c1themejs" type="text/javascript" src="theme.js"></script>
+    <script id="c1searchaddonsjs" type="text/javascript" src="search-addons.js"></script>
+    <script id="c1userjs" type="text/javascript" src="user.js"></script>
+</head>
+<body>
+<div id="c1page" class="abs fill-h fill-v crop">
+    <div id="c1header" class="abs fill-h crop ui-widget ui-state-hover">
+        <table id="c1headerPanel" border="0" cellpadding="0" cellspacing="0"><tr id="c1headerPanelRow0">
+            <td id="c1headerLogoCell">
+                <img id="c1headerLogo" src="images/d2h_logo_placeholder.png" alt="Logo" class="logo" />
+            </td><td id="c1headerTextCell">
+                <h1 id="c1headerText"></h1>
+            </td>
+        </tr></table>
+    </div>
+    <div id="c1main" class="abs fill-h">
+        <div id="c1side" class="abs fill-v"><div id="c1sideInner">
+            <div id="c1sideTabs" class="abs fill-h fill-v">
+                <ul id="c1sideTabsHeader">
+                    <li id="c1tabTocItem"><a id="c1tabTocLabel" href="#c1tabToc">Contents</a></li>
+                    <li id="c1tabIndexItem"><a id="c1tabIndexLabel" href="#c1tabIndex">Index</a></li>
+                    <li id="c1tabSearchItem"><a id="c1tabSearchLabel" href="#c1tabSearch">Search</a></li>
+                </ul>
+                <div id="c1sideTabsPanel" class="abs">
+                    <div id="c1tabToc" class="abs fill-v fill-h scroll"><ul id="c1toc"></ul></div>
+                    <div id="c1tabIndex" class="abs fill-v fill-h">
+                        <div id="c1indexFilterPanel" class="abs fill-h">
+                            <div id="c1indexFilterBlock">
+                                <input id="c1indexFilter" type="text" title="Filter" class="ui-widget-content" />
+                            </div>
+                        </div>
+                        <ul id="c1index" class="abs fill-h scroll" data-filter="#c1indexFilter"></ul>
+                    </div>
+                    <div id="c1tabSearch" class="abs fill-v fill-h">
+                        <div id="c1searchFilterPanel" class="abs fill-h">
+                            <div id="c1searchFilterBlock">
+                                <input id="c1searchFilter" type="text" title="Filter" class="ui-widget-content" />
+                            </div>
+                            <img id="c1searchButtonGo" src="images/empty.gif" alt="Search" title="Search" class="ui-icon ui-icon-search" />
+                            <img id="c1searchButtonHelp" src="images/empty.gif" alt="Help" title="Help" class="ui-icon ui-icon-help" />
+                            <img id="c1searchButtonHighlight" src="images/empty.gif" alt="Highlight" title="Highlight search hits" class="ui-icon ui-icon-lightbulb" />
+                            <div id="c1searchHelpMessage" style="display:none;">You can use logical operations in the search string: AND, OR, NOT. Examples: football OR hockey, sports AND NOT baseball</div>
+                        </div>
+                        <ul id="c1search" class="abs fill-h scroll" data-filter="#c1searchFilter"></ul>
+                    </div>
+                </div>
+            </div>
+        </div></div>
+        <div id="c1splitter" class="c1-splitter abs fill-v">
+            <span id="c1splitterIcon" class="splitter-icon"></span>
+            <div id="c1splitterButton" class="splitter-button abs ui-corner-right">
+                <span id="c1splitterIconHide" class="splitter-icon-hide"></span>
+                <span id="c1splitterIconShow" class="splitter-icon-show"></span>
+            </div>
+        </div>
+        <div id="c1content" class="content abs fill-v"><div id="c1contentInner">
+            <div id="c1topBar" class="ui-widget ui-widget-header ui-corner-all">
+                <span id="c1group0" class="buttonset">
+                    <button id="c1buttonPrev">Previous</button>
+                    <button id="c1buttonNext">Next</button>
+                </span>
+                <span id="c1group1" class="buttonset">
+                    <button id="c1buttonHome">Home</button>
+                </span>
+                <span id="c1group2" class="buttonset">
+                    <button id="c1buttonPrint">Print</button>
+                    <button id="c1buttonEmail">Email</button>
+                </span>
+                <button id="c1buttonPoweredBy">Created&nbsp;with&nbsp;Doc-To-Help&nbsp;®</button>
+            </div>
+            <div id="c1topicPanel" class="content-topic abs fill-h ui-corner-all" style="display:none;">
+                <div id="c1topicPanelInner" class="abs fill-h fill-v scroll">
+                    <div id="c1topicBar">
+                        <div id="c1breadcrumbs" style="display:none;"></div>
+                        <div id="c1collapsiblePanel" style="display:none;">
+                            <button id="c1expandAll" class="flat ui-widget-content">
+                                <span id="c1expandAllIcon" class="icon"></span>
+                                <span id="c1expandAllLabel" class="label">Expand All</span>
+                            </button>
+                            <button id="c1collapseAll" class="flat ui-widget-content">
+                                <span id="c1collapseAllIcon" class="icon"></span>
+                                <span id="c1collapseAllLabel" class="label">Collapse All</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="c1topic"></div>
+                </div>
+            </div>
+            <div id="c1topicSpinner" class="abs fill-h fill-v">
+                <div id="c1topicSpinnerOverlay" class="ui-widget-overlay"></div>
+                <div id="c1topicSpinnerMessage" class="ui-corner-all ui-widget ui-widget-content spinner abs">
+                    <img id="c1topicSpinnerImage" src="images/spinner.gif" alt="Loading..." width="32" height="32" />
+                    <span id="c1topicSpinnerText">Loading...</span>
+                </div>
+            </div>
+        </div></div>
+    </div>
+</div>
+</body>
+</html>

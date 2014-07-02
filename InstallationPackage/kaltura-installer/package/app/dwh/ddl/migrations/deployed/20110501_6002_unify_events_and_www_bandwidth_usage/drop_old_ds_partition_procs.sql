@@ -1,0 +1,9 @@
+DROP PROCEDURE IF EXISTS `kalturadw_ds`.`add_file_partition`;
+DROP PROCEDURE IF EXISTS `kalturadw_ds`.`add_ods_partition`;
+DROP PROCEDURE IF EXISTS `kalturadw_ds`.`drop_ods_partition`;
+DROP PROCEDURE IF EXISTS `kalturadw_ds`.`drop_file_partition`;
+DROP PROCEDURE IF EXISTS `kalturadw_ds`.`empty_file_partition`;
+DROP PROCEDURE IF EXISTS `kalturadw_ds`.`empty_file_partition`;
+DROP PROCEDURE IF EXISTS `kalturadw_ds`.`empty_ods_partition`;
+DROP PROCEDURE IF EXISTS `kalturadw_ds`.`transfer_file_partition`;
+DROP PROCEDURE IF EXISTS `kalturadw_ds`.`transfer_ods_partition`;

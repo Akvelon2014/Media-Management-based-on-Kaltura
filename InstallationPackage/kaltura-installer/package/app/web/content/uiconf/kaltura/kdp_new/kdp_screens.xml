@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layouts>
+	<layout layoutId="full" skinPath="/content/uiconf/dev/skin_kdp_screens.swf‬">
+		<VBox height="100%" styleName="mlayout" width="100%">
+			<HBox height="30" styleName="TopTitle" width="100%">
+				<Label height="22" id="movieName" label="{myKplayer.kalturaShow.kshowName,myKplayer.kalturaEntry.entryName,''}" styleName="movieName" width="100%"/>
+				<Button height="20" id="kalturaLogo" k_click="navigate:http://www.kaltura.com" styleName="kalturaLogo" width="40"/>
+			</HBox>
+			<HBox height="100%" styleName="playerContainer" width="100%">
+				<Canvas height="100%" id="marginLeft" styleName="playerMarginLeft" width="5"/>
+				<Canvas height="100%" id="PlayerHolder" styleName="PlayerBackground" width="100%">
+					<KplayerModule height="100%" id="myKplayer" k_path="kplayer/KplayerModule.swf" styleName="centered" width="100%"/>
+					<waterMark height="100%" id="loadedWaterMark" k_path="watermarks/WaterMarkLoader.swf" k_watermark_path="http://flashvideo.sothinkmedia.com/flash-video-encoder-command-line/asp-demo/watermark.png" k_watermark_position="bottomLeft" styleName="centered" width="100%"/>
+					<plymedia height="100%" id="plyMedia" k_path="addons/PlyMediaModule.swf‬" maxHeight="450" maxWidth="600" styleName="centered" width="100%"/>
+					<Taboola height="100%" id="taboola" k_path="addons/Taboola.swf" maxWidth="600" styleName="centered" width="100%"/>
+					<screens height="100%" id="screens" k_end_screen_id="endScreen" k_end_screen_over_id="" k_path="screens/Screens.swf" k_pause_screen_id="" k_pause_screen_over_id="" k_play_screen_id="emptyScreen" k_play_screen_over_id="playScreenOver" k_start_screen_id="" k_start_screen_over_id="" styleName="centered" width="100%"/>
+					<adapTv height="100%" id="adapTv" k_adaptv_categories="sport" k_adaptv_debug="false" k_adaptv_key="test" k_adaptv_zone="default" k_path="adapTv/KdpAdapTvModule.swf" styleName="centered" width="100%"/>
+					<Gigya height="100%" id="Gigya" k_path="addons/Gigya.swf" width="100%"/>
+				</Canvas>
+				<Canvas height="100%" id="marginRight" styleName="playerMarginRight" width="5"/>
+			</HBox>
+			<HBox height="35" styleName="controllerBox" width="100%">
+				<Spacer width="1"/>
+				<VBox width="30">
+					<Button height="30" id="play" styleName="play" width="30"/>
+					<Spacer height="4"/>
+				</VBox>
+				<VBox height="100%" styleName="scrubberContainer" width="100%">
+					<Spacer height="2"/>
+					<Scrubber id="scrubber" styleName="scrubber" width="100%"/>
+					<Spacer height="4"/>
+					<HBox styleName="timerHolder">
+						<Spacer width="3"/>
+						<TimerCountdown height="8" id="timer" k_path="timertext/TimerCountdown.swf" styleName="timer" width="30"/>
+					</HBox>
+				</VBox>
+				<Spacer width="3"/>
+				<VolumeModule height="15" id="Volume" k_path="VolumeBars/VolumeBarA.swf" styleName="volumeIcon" width="15"/>
+				<Spacer width="3"/>
+				<Button command="fullScreen" height="17" id="pako" label="" styleName="fs" tooltip="Full Screen" width="20"/>
+				<Spacer width="5"/>
+				<Button height="20" id="addToReel" k_click="jsInject:gotoContribWizard,pauseMedia" label="UPLOAD" styleName="bottomButtonsSmall" width="60"/>
+				<Spacer width="4"/>
+				<Button height="20" id="editReel" k_click="jsInject:gotoEditorWindow,pauseMedia" label="REMIX" styleName="bottomButtonsSmall" width="60"/>
+			</HBox>
+		</VBox>
+		<popups>
+			<SharePop height="100%" id="SharePop1" k_path="popups/SharePopup.swf" k_uiconf_id="511" width="100%"/>
+			<module height="100%" id="report" k_path="popups/Report.swf" width="100%"/>
+			<credits height="100%" id="credits" k_path="credits/CreditsWindow.swf" width="100%"/>
+			<VBox height="100%" id="creditsw" styleName="screenBackground" width="100%">
+				<Spacer height="50" width="5"/>
+			</VBox>
+		</popups>
+		<screens>
+			<screen id="playScreenOver">
+				<VBox height="100%" id="startScreen" styleName="" width="100%">
+					<HBox height="100%" styleName="" width="100%">
+						<Button height="20" id="gigyaButton" label="Share" styleName="bottomButtonsSmall" width="60"/>
+						<Spacer width="5"/>
+						<Button height="20" id="credits" k_click="popup:credits" label="Credits" styleName="bottomButtonsSmall" width="60"/>
+						<Spacer width="5"/>
+						<Button height="20" id="openRerportScreen" k_click="popup:report" label="Report" styleName="bottomButtonsSmall" width="60"/>
+						<Spacer width="5"/>
+						<Button command="download" height="20" id="downloadThemovie" label="Download" styleName="bottomButtonsSmall" width="60"/>
+					</HBox>
+				</VBox>
+			</screen>
+			<screen id="unMuteScreen">
+				<VBox height="100%" id="startScreen" styleName="centered" width="100%">
+					<HBox height="100%" styleName="centered" width="100%">
+						<Button height="80" id="unMute" label="press here to enable sound" styleName="bottomButtonsSmall" width="150"/>
+					</HBox>
+				</VBox>
+			</screen>
+			<screen id="endScreen">
+				<VBox height="100%" id="endScreen" styleName="" width="100%">
+					<HBox height="100%" styleName="" width="100%">
+						<Spacer width="5"/>
+						<Button height="20" id="gigyaButton" label="Share" styleName="bottomButtonsSmall" width="60"/>
+						<Spacer width="5"/>
+						<Button height="20" id="credits" k_click="popup:credits" label="credits" styleName="bottomButtonsSmall" width="60"/>
+						<Spacer width="5"/>
+						<Button height="20" id="replay" label="replay" styleName="bottomButtonsSmall" width="60"/>
+					</HBox>
+				</VBox>
+			</screen>
+		</screens>
+		<javaScript>
+			<jsBlock functionName="downloadJs" id="downloadMedia" params=""/>
+			<jsBlock functionName="alertMe" id="gotoEditorWindow" params=""/>
+		</javaScript>
+		<extraData>
+			<GigyaUI>
+				<config>
+					<display networksWithCodeBox="*" showBookmark="true" showCloseButton="true" showDesktop="false" showEmail="true" useTransitions="true"/>
+					<body>
+						<controls corner-roundness="0;10;0;10">
+							<snbuttons type="textUnder"/>
+							<servicemarker gradient-color-begin="#F4F4F4" gradient-color-end="#D5D5D5"/>
+						</controls>
+					</body>
+				</config>
+			</GigyaUI>
+		</extraData>
+	</layout>
+</layouts>

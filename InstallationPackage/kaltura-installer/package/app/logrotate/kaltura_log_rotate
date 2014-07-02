@@ -1,0 +1,101 @@
+@LOG_DIR@/kaltura_apache_errors.log {
+ rotate 5
+ daily
+ missingok
+ compress
+ dateext
+ notifempty
+ sharedscripts
+ postrotate
+ @APACHE_RESTART_COMMAND@
+ endscript
+}
+
+@LOG_DIR@/kaltura_apache_access.log {
+ rotate 5
+ daily
+ missingok
+ compress
+ dateext
+ notifempty
+lastaction
+mv @LOG_DIR@/kaltura_apache_access.log-`/bin/date +%Y%m%d`.gz @LOG_DIR@/`hostname`-kaltura_apache_access.log-`/bin/date +%Y%m%d`.gz
+@APACHE_RESTART_COMMAND@
+ endscript
+}
+
+@LOG_DIR@/kaltura_api_v3.log {
+ rotate 5
+ daily
+ missingok
+ compress
+ dateext
+ notifempty
+}
+
+@LOG_DIR@/kaltura_api_v3_analytics.log {
+ rotate 5
+ daily
+ missingok
+ compress
+ dateext
+ notifempty
+}
+
+@LOG_DIR@/kaltura_api_v3_tests.log {
+ rotate 5
+ daily
+ missingok
+ compress
+ dateext
+ notifempty
+}
+
+@LOG_DIR@/kaltura_prod.log {
+ rotate 5
+ daily
+ missingok
+ compress
+ dateext
+ notifempty
+}
+
+@LOG_DIR@/admin_console.log {
+ rotate 5
+ daily
+ missingok
+ compress
+ dateext
+ notifempty
+}
+
+@LOG_DIR@/KGenericBatchMgr.log {
+ rotate 5
+ daily
+ missingok
+ compress
+ dateext
+ notifempty
+}
+
+@LOG_DIR@/kaltura_multi_publishers.log {
+ rotate 5
+ daily
+ missingok
+ compress
+ dateext
+ notifempty
+}
+
+@LOG_DIR@/cron.log {
+ rotate 5
+ daily
+ missingok
+ compress
+ dateext
+ notifempty
+ sharedscripts
+ postrotate
+ @APACHE_RESTART_COMMAND@
+ endscript
+}

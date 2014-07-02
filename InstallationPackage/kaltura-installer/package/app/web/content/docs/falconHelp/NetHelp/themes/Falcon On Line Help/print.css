@@ -1,0 +1,36 @@
+﻿html body {
+    background-color: white;
+	background-image: none;
+	color: black;
+}
+#c1topicPanel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: auto;
+    min-height: 80%;
+    background-color: white;
+    background-image: none;
+    color: black;
+}
+#c1topic a {
+    color: black;
+    text-decoration: none;
+}
+#c1content,
+#c1topicPanel {
+    border: none;
+}
+#c1header,
+#c1topBar,
+#c1statusBar,
+#c1topicBar,
+#c1side,
+#c1splitter,
+#c1topicSpinner {
+    display: none;
+	position: absolute;
+	width: 0;
+	left: -9999px;
+}

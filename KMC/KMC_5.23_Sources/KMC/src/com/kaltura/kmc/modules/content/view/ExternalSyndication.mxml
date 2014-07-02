@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!---
+	 "Syndicate" part of the content view stack.
+	 lists all syndications and presents a gateway to adding
+	 syndications and editing them.
+-->
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
+		 xmlns:es="com.kaltura.kmc.modules.content.view.window.externalsyndication.*"
+		 xmlns:controls="com.kaltura.controls.*" 
+		 implements="com.kaltura.kmc.modules.content.business.IContentPanel"
+		 width="100%" height="100%" creationComplete="applyPermissions(event)">
+
+	<mx:Script>
+		<![CDATA[
+			import com.adobe.cairngorm.control.CairngormEvent;
+			import com.kaltura.analytics.GoogleAnalyticsConsts;
+			import com.kaltura.analytics.GoogleAnalyticsTracker;
+			import com.kaltura.analytics.KAnalyticsTracker;
+			import com.kaltura.analytics.KAnalyticsTrackerConsts;
+			import com.kaltura.edw.business.permissions.PermissionManager;
+			import com.kaltura.kmc.modules.content.events.ConversionSettingsEvent;
+			import com.kaltura.kmc.modules.content.events.ExternalSyndicationEvent;
+			import com.kaltura.kmc.modules.content.events.KMCSearchEvent;
+			import com.kaltura.kmc.modules.content.events.PartnerEvent;
+			import com.kaltura.kmc.modules.content.events.SetSyndicationPagerEvent;
+			import com.kaltura.kmc.modules.content.model.ExtSynModel;
+			import com.kaltura.kmc.modules.content.view.window.externalsyndication.popupwindows.ExternalSyndicationPopUpWindow;
+			import com.kaltura.kmc.modules.content.vo.ExternalSyndicationVO;
+			import com.kaltura.types.KalturaStatsKmcEventType;
+			import com.kaltura.vo.KalturaBaseEntryFilter;
+			
+			import mx.binding.utils.BindingUtils;
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.core.Application;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+
+
+			[Bindable]
+			/**
+			 * the piece of the model required by this component
+			 * */
+			public var extSynModel:ExtSynModel;
+
+			/**
+			 * optional flavor params
+			 * */
+			public var flavorParams:ArrayCollection;
+
+			/**
+			 * application base url
+			 * */
+			public var rootUrl:String;
+
+			/**
+			 * a flag used to only bind properties once
+			 * */
+			private var watchersCreated:Boolean;
+
+
+
+			/**
+			 * this panel does not support initial filtering data, the kmef param is ignored.
+			 * @inheritDoc
+			 * */
+			public function init(kmef:KalturaBaseEntryFilter = null):void {
+				if (!watchersCreated) {
+					// only bind once
+					BindingUtils.bindSetter(onPlaylistReady, extSynModel, "generalPlayListdata");
+					watchersCreated = true;
+				}
+				// load playlists
+				var listPlayList:KMCSearchEvent = new KMCSearchEvent(KMCSearchEvent.SEARCH_PLAYLIST, null);
+				listPlayList.dispatch();
+				// external syndications are listed after the call for playlists returns
+				// list flavor params
+				var getFlavorParams:ConversionSettingsEvent = new ConversionSettingsEvent(ConversionSettingsEvent.LIST_FLAVOR_PARAMS);
+				getFlavorParams.dispatch();
+				// get partner info
+				var getPartnerInfoEvent:PartnerEvent = new PartnerEvent(PartnerEvent.GET_PARTNER_INFO);
+				getPartnerInfoEvent.dispatch();
+			}
+
+
+			private function onPlaylistReady(generalPlayListdata:ArrayCollection):void {
+				if (generalPlayListdata)
+					loadFeeds();
+			}
+
+			/**
+			 * list external syndications
+			 * */
+			private function loadFeeds():void {
+				if (paging.pageSize == 10) {
+					tableContainer.height = (feedsTable.rowHeight * 10) + feedsTable.headerHeight + paging.height + deleteExSynBtn.height + 20;
+					feedsTable.percentHeight = 100; //tableContainer.height - (paging.height + deleteExSynBtn.height);//entryTable.rowHeight*11+entryTable.headerHeight;
+					feedsTable.rowCount = 10;
+					actionsBox.height = tableContainer.height;
+				}
+				else {
+					tableContainer.percentHeight = 100;
+					feedsTable.percentHeight = 100;
+					feedsTable.rowCount = -1;
+					actionsBox.percentHeight = 100;
+				}
+				
+				// Added as a patch. The filter isuue needs some more research and refactoring. -Biton.
+				extSynModel.syndicationFeedsFilterPager.pageSize = paging.pageSize;
+				
+				var listExSynEvent:ExternalSyndicationEvent = new ExternalSyndicationEvent(ExternalSyndicationEvent.LIST_EXTERNAL_SYNDICATIONS);
+				listExSynEvent.data = paging.kalturaFilterPager;
+				listExSynEvent.dispatch();
+			}
+
+
+
+
+			private function showNewVideoFeedWindow(event:Event):void {
+				var extFeedPopUp:ExternalSyndicationPopUpWindow = new ExternalSyndicationPopUpWindow();
+				extFeedPopUp.flavorParams = flavorParams;
+				extFeedPopUp.extSynModel = extSynModel;
+				extFeedPopUp.rootUrl = rootUrl;
+//				extFeedPopUp.addEventListener(KmcHelpEvent.HELP, dispatchHelp);
+
+				PopUpManager.addPopUp(extFeedPopUp, Application.application as DisplayObject, true);
+				PopUpManager.centerPopUp(extFeedPopUp);
+			}
+
+//			/**
+//			 * pass the event to whomever is listening 
+//			 * (because events from popups don't naturally propagate to the main app, not the same displaylist)
+//			 * */
+//			private function dispatchHelp(e:KmcHelpEvent):void {
+//				dispatchEvent(e.clone());
+//			}
+
+			private function onDelete(event:Event):void {
+				var selectedFeeds:Array = feedsTable.selectedItems;
+				if (selectedFeeds.length == 0) {
+					Alert.show(resourceManager.getString('cms', 'noFeedSelected'));
+					return;
+				}
+
+				var delStr:String = "";
+				for each (var feed:ExternalSyndicationVO in selectedFeeds) {
+					delStr += '\n' + feed.kSyndicationFeed.name;
+				}
+
+				var msg:String = resourceManager.getString('cms', 'exsDeleteFeedsApprove', [delStr]);
+				var title:String = resourceManager.getString('cms', 'exsDeleteFeedsApproveTitle');
+
+				Alert.show(msg, title, Alert.YES | Alert.NO, null, responeFnc);
+			}
+
+
+			private function responeFnc(evt:CloseEvent):void {
+				if (evt.detail == Alert.YES) {
+					var selectedFeeds:Array = feedsTable.selectedItems;
+					var ids:Array = new Array();
+					for each (var feed:ExternalSyndicationVO in selectedFeeds) {
+						ids.push(feed.kSyndicationFeed.id);
+					}
+
+					var deletetFeedsEvent:ExternalSyndicationEvent = new ExternalSyndicationEvent(ExternalSyndicationEvent.DELETE_EXTERNAL_SYNDICATION);
+					deletetFeedsEvent.data = ids;
+					deletetFeedsEvent.dispatch();
+				}
+			}
+
+
+			private function gotoPage():void {
+				loadFeeds();
+				GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.GO_TO_PAGE, GoogleAnalyticsConsts.CONTENT);
+				KAnalyticsTracker.getInstance().sendEvent(KAnalyticsTrackerConsts.CONTENT, KalturaStatsKmcEventType.CONTENT_CONTENT_GO_TO_PAGE, "content>Show Rows");
+			}
+
+
+			private function onPagerCreationComplete(event:Event):void {
+				var e:CairngormEvent = new SetSyndicationPagerEvent(SetSyndicationPagerEvent.SET_PAGER, paging.kalturaFilterPager);
+				e.dispatch();
+				paging.selectedPage = 1;
+				paging.kalturaFilterPager.pageSize = paging.rowInPageCb.value as int;
+			}
+
+
+			protected function applyPermissions(event:FlexEvent):void {
+				PermissionManager.getInstance().applyAllAttributes(this, this.id);
+			}
+		]]>
+	</mx:Script>
+	<mx:Label styleName="filterTitleHeader" text="{resourceManager.getString('cms', 'syndicationFeeds')}"/>
+	
+	<mx:Text text="{resourceManager.getString('cms', 'externalSyndicationIntroText')}"
+			 width="100%" id="accessControlIntroText" styleName="pageDescription"/>
+
+	<mx:HBox width="100%" height="100%">
+		<mx:VBox id='tableContainer' width="100%" horizontalAlign="center" styleName="entriesTablePagerAndButtonsVbox">
+			<es:ExternalSyndicationTable id='feedsTable' dataProvider="{extSynModel.externalSyndications}"/>
+			
+			<mx:HBox width="100%" styleName="noPadding" horizontalGap="0" >
+				<mx:HBox styleName="DataGridActions" height="{paging.height}">
+					<mx:Button id='deleteExSynBtn'
+							   label="{resourceManager.getString('cms', 'deleteExternalSyndicationButton')}"
+							   useHandCursor="true" buttonMode="true" click="onDelete(event)"
+							   toolTip="{resourceManager.getString('cms', 'deleteExternalSyndicationButtonToolTip')}"/>
+				</mx:HBox>
+				
+				<controls:Paging id="paging" width="100%" styleName="paging" rowsInPageChange="gotoPage()" 
+								 kalturaFilterPager="{extSynModel.syndicationFeedsFilterPager}"
+								 totalCount="{extSynModel.externalSyndicationFeedsTotalCount}" nextPage="gotoPage()"
+								 prvPage="gotoPage()" getPageNum="gotoPage()" visible="true" showRowsInPage="true"
+								 creationComplete="{onPagerCreationComplete(event)}"/>
+			</mx:HBox>
+
+		</mx:VBox>
+		<mx:VBox id='actionsBox' height="100%" styleName="listActionsBox">
+			<mx:Button id="addBtn" label="{resourceManager.getString('cms', 'addExternalSyndicationButton')}"
+					   useHandCursor="true" buttonMode="true" click="showNewVideoFeedWindow(event)"
+					   styleName="listActionButton"/>
+		</mx:VBox>
+	</mx:HBox>
+
+</mx:VBox>

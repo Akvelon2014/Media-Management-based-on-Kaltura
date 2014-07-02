@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layouts>
+<layout skinPath="/content/uiconf/kaltura/demopages/demopages.swf">
+    <VBox width="100%" height="100%" styleName="mlayout" >
+      <HBox width="100%" height="46" styleName="TopTitle" >
+      	<VBox width="100%" height="100%" styleName="titels" >
+			<Label id="movieName" styleName="movieName" height="22" width="100%" label="{myKplayer.kalturaShow.kshowName,myKplayer.kalturaEntry.entryName,''}"/>
+<!--	      	<videoTitle id="vtitle" height="20" k_path="videotitle/VideoTitle.swf"/>
+	      	<videoDescript id="vDescript" height="15" k_path="videodescription/VideoDescription.swf" /> -->
+      	</VBox>
+      </HBox> 
+                         
+      <Canvas id="PlayerHolder" styleName="PlayerBackground" width="100%" height="100%" >
+	      <KplayerModule id="myKplayer" styleName="Kplayer"  k_path="kplayer/KplayerModule.swf" width="100%" height="100%" maxWidth="600" maxHeight="450"/>
+      </Canvas>
+      
+      <HBox styleName="controllerBox" height="30" width="100%">
+      	<Spacer width="4"/>
+      	<Button id="play" styleName="play" width="20" height="17" />
+      	<Spacer width="2"/>
+      	<Scrubber id="scrubber" styleName="scrubber" width="100%"/>
+      	<TimerCountdown  id="timer" styleName="timer" k_path="timertext/TimerCountdown.swf" />
+      	<Spacer width="2"/>
+      	<VolumeModule width="20" height="20" k_path="VolumeBars/VolumeBarA.swf" id="Volume" styleName="pp"/> 
+        <Button id="sharePopUp" width="42" height="17" styleName="share" label="Share" k_click="popup:SharePop"  />
+      	<Spacer width="4"/>       
+		<Button id="fullScreen" width="20" height="17" styleName="fs" label="" />
+      	<Spacer width="4"/>
+      </HBox>
+     
+      <HBox styleName="poweredBox" width="100%" height="18">
+      	<poweredBy id="poweredBy" k_path="poweredby/PoweredBy.swf" styleName="poweredBy" width="120" height="18"/>
+      </HBox>
+      
+    </VBox>
+</layout>
+</layouts>

@@ -1,0 +1,143 @@
+/* CSS file */
+@font-face 
+{
+	src: url("fonts/ARIAL.TTF");
+	fontFamily: "ArialEmbedded";
+	unicode-range:
+		U+0020-U+0040,  /*Punctuation, Numbers and Symbols */
+		U+0041-U+005A,  /*Upper-Case A-Z */
+		U+005B-U+0060,  /*Punctuation and Symbols */
+		U+0061-U+007A,  /*Lower-Case a-z */
+		U+007B-U+007E ; /*Punctuation and Symbols */
+}
+
+@font-face 
+{
+	src: url("fonts/ARIALBD.TTF");
+	fontFamily: "ArialEmbedded";
+	font-weight:bold;
+	unicode-range:
+		U+0020-U+0040,  /*Punctuation, Numbers and Symbols */
+		U+0041-U+005A,  /*Upper-Case A-Z */
+		U+005B-U+0060,  /*Punctuation and Symbols */
+		U+0061-U+007A,  /*Lower-Case a-z */
+		U+007B-U+007E ; /*Punctuation and Symbols */
+} 
+
+Application{
+	vertical-gap: 0;
+	disabled-color: #ffffff;
+	disabled-overlay-alpha:0;
+	theme-color: #aaaaaa;
+	modal-transparency: 0;
+	modal-transparency-blur:0;
+	font-family:ArialEmbedded;
+	font-anti-alias-type:advanced;
+	font-size:12;
+}
+
+TextInput{
+	theme-color: #78a3b2;
+	borderColor: #B5CBD3;
+	borderStyle: solid;
+	borderThickness: 1;
+	cornerRadius: 3;
+}
+
+Button{
+   textIndent: 0;
+   paddingLeft: 11;
+   paddingRight: 11;
+   paddingTop: 5;
+   paddingBottom: 5;
+   highlightAlphas: 0.13, 0;
+   fillAlphas: 1, 1, 0.5, 0.5;
+   fillColors: #7bb1c4, #568c9f, #7ec6df, #5aa2bb;
+   color: #ffffff;
+   textRollOverColor: #ffffff;
+   textSelectedColor: #ffffff;
+   borderColor: #6090a1;
+   themeColor: #6090a1;
+}
+
+LinkButton{ 
+	font-weight:normal;
+	skin:ClassReference(null); 
+	text-decoration:underline;
+	color:#009acc;
+	textRollOverColor: #66d1f4;
+   	textSelectedColor: #66d1f4;
+}
+
+Label{ color:#333; }
+CheckBox{
+	font-weight:bold;
+	color:#333;
+	text-selected-color:#333;
+	textRollOverColor: #333;
+	fillColors: #ddd, #fff, #ddd, #fff;
+	padding-top:1;
+	padding-bottom:1;
+	borderColor: #ccc;
+	themeColor: #888;
+	padding-bottom:-4;
+}
+
+/*RadioButton{ 
+	font-weight:bold; 
+	color:#333;
+	text-roll-over-color:#333;
+	text-selected-color:#333;
+	fillColors: #ddd, #fff, #ddd, #fff;
+	borderColor: #ccc;
+	themeColor: #888;
+	padding-bottom:-6;
+}*/
+
+/*ComboBox{
+	font-weight:bold; 
+	color:#333;
+	fillColors: #ddd, #fff, #ddd, #fff;
+	borderColor: #ccc;
+	themeColor: #888;
+}*/
+
+/*------------------------- 
+	Content - general stuff
+--------------------------*/
+/*VRule{
+   strokeColor: #7fa7b6;
+   shadowColor: #9cc0cc;
+   strokeWidth: 2;
+}*/
+
+
+
+/*------------------------- 
+	Popup window
+--------------------------*/
+TitleWindow{
+   borderColor: #ffffff;
+   borderAlpha: 1;
+   borderThicknessLeft: 10;
+   borderThicknessTop: 10;
+   borderThicknessBottom: 10;
+   borderThicknessRight: 10;
+   roundedBottomCorners: true;
+   horizontal-gap:0;
+   highlightAlphas: 0.33, 0;
+   headerColors: #e5ecf0, #d4dee2;
+   footerColors: #edf1f3, #d4dee2;
+   dropShadowEnabled: true;
+   shadowDistance: 0;
+   shadowDirection: center;
+   titleStyleName: "titleWindowTitle";
+}
+
+.titleWindowTitle{
+	color: #78a3b2;
+	fontSize: 16;
+	font-weight:bold;
+}
+
+/*ControlBar{ horizontal-align:center; horizontal-gap: 12; }*/

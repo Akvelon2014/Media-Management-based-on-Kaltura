@@ -1,0 +1,4 @@
+00 * * * * root /opt/kaltura/dwh/etlsource/execute/etl_hourly.sh
+00 * * * * root /opt/kaltura/dwh/etlsource/execute/etl_update_dims.sh
+59 0,4,8,12,16,20 * * * root /opt/kaltura/dwh/etlsource/execute/etl_daily.sh
+30 12 * * * root /opt/kaltura/dwh/etlsource/execute/etl_perform_retention_policy.sh

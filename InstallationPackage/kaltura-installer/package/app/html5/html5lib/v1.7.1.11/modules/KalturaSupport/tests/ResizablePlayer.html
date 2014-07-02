@@ -1,0 +1,40 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Resizable Player</title>
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="../../../modules/MwEmbedSupport/jquery/jquery.ui.touchPunch.js"></script>
+	<script type="text/javascript" src="../../../mwEmbedLoader.php"></script>
+	<script type="text/javascript" src="../../../docs/js/doc-bootstrap.js"></script>
+	<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/themes/base/jquery-ui.css" />
+</head>
+<body>
+<h2>Resizable Player</h2>	
+<div id="playbackModeSelector"></div>
+<br />
+		
+	<div id="resizable" style="width: 680px; height: 333px; padding: 1.5em;" class="ui-widget-content">
+		<div id="playerTarget" style="width: 100%; height: 100%;"></div>
+	</div>
+	<script>
+		kWidget.embed( 'playerTarget', {
+			'wid' : '_423851',
+			'uiconf_id' : '8145912',
+			'flashvars': {
+				'playlistAPI': {
+					'autoInsert': true,
+					'kpl0Name': 'My Awesome playlist',
+					'kpl0Url' : 'http://www.kaltura.com/index.php/partnerservices2/executeplaylist?uid=&partner_id=423851&subp_id=42385100&format=8&ks={ks}&playlist_id=1_um9qhytc&'
+				}
+			}
+		});
+	</script>
+	<script>
+	$(function() {
+		$( "#resizable" ).resizable();
+	});
+	</script>
+<br />
+</body>
+</html>

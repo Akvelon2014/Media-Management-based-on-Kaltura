@@ -1,0 +1,467 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+
+ Modified by Akvelon Inc.
+ 2014-06-30
+ http://www.akvelon.com/contact-us
+-->
+
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" 
+		 xmlns:view="com.kaltura.kmc.modules.admin.view.*" xmlns:controls="com.kaltura.controls.*"
+		 implements="com.kaltura.kmc.modules.admin.view.IAdminSubtab"
+		 creationComplete="creationCompleteHandler()">
+	<mx:Metadata >
+		[Event(name="enableHeader",type="com.kaltura.kmc.modules.admin.control.events.GeneralEvent")]
+	</mx:Metadata>
+	<mx:Script>
+		<![CDATA[
+			import com.adobe.cairngorm.control.CairngormEvent;
+			import com.kaltura.analytics.GoogleAnalyticsConsts;
+			import com.kaltura.analytics.GoogleAnalyticsTracker;
+			import com.kaltura.edw.business.permissions.PermissionManager;
+			import com.kaltura.kmc.events.KmcErrorEvent;
+			import com.kaltura.kmc.events.KmcNavigationEvent;
+			import com.kaltura.kmc.modules.admin.control.events.DrilldownEvent;
+			import com.kaltura.kmc.modules.admin.control.events.GeneralEvent;
+			import com.kaltura.kmc.modules.admin.control.events.ListItemsEvent;
+			import com.kaltura.kmc.modules.admin.control.events.PartnerEvent;
+			import com.kaltura.kmc.modules.admin.control.events.RoleEvent;
+			import com.kaltura.kmc.modules.admin.control.events.UserEvent;
+			import com.kaltura.kmc.modules.admin.model.DrilldownMode;
+			import com.kaltura.kmc.modules.admin.model.RolesModel;
+			import com.kaltura.kmc.modules.admin.model.UsersModel;
+			import com.kaltura.kmc.vo.UserVO;
+			import com.kaltura.types.KalturaUserStatus;
+			import com.kaltura.vo.KalturaFilterPager;
+			import com.kaltura.vo.KalturaUser;
+			import com.kaltura.vo.KalturaUserRole;
+			
+			import mx.binding.utils.BindingUtils;
+			import mx.collections.ArrayCollection;
+			import mx.core.Application;
+			import mx.managers.PopUpManager;
+			import mx.resources.IResourceManager;
+			import mx.resources.ResourceManager;
+			
+			[Bindable]
+			public var userInfo:UserVO;
+			
+			private var _isLoading:Boolean;
+			
+			[Bindable]
+			/**
+			 * users related part of the main model
+			 * */
+			public var model:UsersModel;
+			
+			[Bindable]
+			/**
+			 * roles related part of the main model
+			 * */
+			public var rolesModel:RolesModel;
+			
+			
+			/**
+			 * a popup window with user details
+			 * */
+			protected var _userDrilldown:UserDrilldown;
+			
+			
+			/**
+			 * a popup window with user details
+			 * */
+			protected var _roleDrilldown:RoleDrilldown;
+			
+			
+			/**
+			 * should data be refreshed. 
+			 * used to tell if data should be reloaded when closing user drilldown.
+			 * */
+			protected var _needToRefreshData:Boolean;
+			
+			[Bindable]
+			public function get isLoading():Boolean
+			{
+				return _isLoading;
+			}
+			
+			public function set isLoading(value:Boolean):void
+			{
+				_isLoading = value;
+			}
+			
+			/**
+			 * refresh subtab data
+			 * */
+			public function refreshData():void {
+				listRoles();
+				listUsers(0);
+				// reset selected user
+				var cg:CairngormEvent;
+				cg = new UserEvent(UserEvent.SELECT_USER, null);
+				cg.dispatch();
+				
+				cg = new ListItemsEvent(ListItemsEvent.LIST_PARTNER_PERMISSIONS);
+				cg.dispatch();
+				
+				// if account owner changed in settings panel
+				cg = new PartnerEvent(PartnerEvent.GET_PARTNER_DATA);
+				cg.dispatch();
+			}
+			
+			
+			/**
+			 * get all roles associated with the current partner
+			 * */
+			protected function listRoles():void {
+				var ce:ListItemsEvent;
+				ce = new ListItemsEvent(ListItemsEvent.LIST_ROLES, rolesModel.rolesFilter);
+				ce.dispatch();
+			}
+			
+			
+			/**
+			 * bind setters and apply permissions 
+			 * */
+			protected function creationCompleteHandler():void {
+				BindingUtils.bindSetter(onDrilldownStateChange, model, "drilldownMode");
+				BindingUtils.bindSetter(onRoleDrilldownStateChange, model, "roleDrilldownMode");
+				BindingUtils.bindSetter(onRolesListChange, rolesModel, "roles");
+				BindingUtils.bindSetter(onNewRoleChange, model, "newRole");
+				PermissionManager.getInstance().applyAllAttributes(this,id);
+			}
+			
+			
+			/**
+			 * if a user drilldown window is opened, update the user's role. 
+			 * */
+			protected function onNewRoleChange(value:KalturaUserRole):void {
+				if (value) {
+					if (_userDrilldown) {
+						_userDrilldown.setUserRole(value.id.toString());
+					}
+				}
+			}
+			
+			/**
+			 * if a user drilldown window is opened, update its roles list.
+			 * */
+			protected function onRolesListChange(value:ArrayCollection):void {
+				if (_userDrilldown) {
+					_userDrilldown.roles = value;
+				}
+			}
+			
+			/**
+			 * re-load data, close popup, etc.
+			 * */
+			protected function onDrilldownStateChange(value:String):void {
+				switch (value) {
+					case DrilldownMode.ADD:
+					case DrilldownMode.EDIT:
+						// do nothing
+						break;
+					case DrilldownMode.NONE:
+						// if we got here, data save completed successfuly
+						closeUserDrilldown(null);
+						if (_needToRefreshData) {
+							refreshData();
+							_needToRefreshData = false;
+						}
+						break;
+				}
+			}
+			
+			
+			/**
+			 * close popup.
+			 * */
+			protected function onRoleDrilldownStateChange(value:String):void {
+				switch (value) {
+					case DrilldownMode.ADD:
+					case DrilldownMode.EDIT:
+						// do nothing
+						break;
+					case DrilldownMode.NONE:
+						// if we got here, data save completed successfuly
+						closeRoleDrilldown(null);
+						listRoles();
+						break;
+				}
+			}
+			
+			
+			/**
+			 * dispatch Cairngorm event to raise a list users command 
+			 * */
+			protected function listUsers(pageNumber:int):void {
+				// set table size
+				if (paging) {
+					if (paging.pageSize == 10) {
+						superTanker.height = (table.rowHeight * 10) + table.headerHeight + paging.height;
+						table.rowCount = 10;
+					}
+					else {
+						superTanker.percentHeight = 100;
+						table.percentHeight = 100;
+					}
+				}
+				
+				// list
+				var kfp:KalturaFilterPager = new KalturaFilterPager();
+				if (paging.kalturaFilterPager.pageSize != int.MIN_VALUE) {
+					kfp.pageSize = paging.kalturaFilterPager.pageSize;
+				}
+				else {
+					kfp.pageSize = 10;
+				}
+				if (pageNumber) {
+					kfp.pageIndex = pageNumber;
+				}
+				else {
+					kfp.pageIndex = paging.kalturaFilterPager.pageIndex;
+				}
+				
+				var ce:ListItemsEvent = new ListItemsEvent(ListItemsEvent.LIST_USERS, model.usersFilter, kfp);
+				ce.dispatch();
+			}
+			
+			
+			/**
+			 * link to a .corp up-sell link
+			 * */
+			protected function getMoreUsers(event:MouseEvent):void {
+				navigateToURL(new URLRequest(model.usersUpgradeLink),"_blank"); 
+			}
+			
+			
+			/**
+			 * load users according to paging component value
+			 * */
+			protected function gotoPage():void {
+				listUsers(paging.selectedPage);
+			}
+			
+			
+			/**
+			 * get the edited user and update server
+			 * */
+			protected function saveUserData(e:Event):void {
+				var ue:UserEvent;
+				// need to know if new user or update user.
+				if (model.drilldownMode == DrilldownMode.ADD) {
+					// see if login data for this user already exist (add user will be triggered in the response)
+					ue = new UserEvent(UserEvent.CHECK_USER_EXIST, _userDrilldown.user);
+				}
+				else if (model.drilldownMode == DrilldownMode.EDIT) {
+					// edit user
+					ue = new UserEvent(UserEvent.UPDATE_USER, _userDrilldown.user);
+					var rm:IResourceManager = ResourceManager.getInstance();
+					
+				}
+				_needToRefreshData = true;
+				ue.dispatch();
+			}
+			
+			private function onNavigate(event:KmcNavigationEvent):void
+			{
+				// close drilldowns 
+				closeRoleDrilldown(null);
+				closeUserDrilldown(null);
+				// navigate
+				dispatchEvent(new KmcNavigationEvent(event.type, event.module, event.subtab, event.data, event.bubbles, event.cancelable));
+			}
+			
+			/**
+			 * hides and destroys the user drilldown window
+			 * */
+			protected function closeUserDrilldown(e:Event):void {
+				if (_userDrilldown) {
+					PopUpManager.removePopUp(_userDrilldown);
+					_userDrilldown.removeEventListener(UserDrilldown.SAVE, saveUserData);
+					_userDrilldown.removeEventListener(UserDrilldown.CLOSE, closeUserDrilldown);
+					_userDrilldown.removeEventListener(UserDrilldown.ADD_ROLE, openAddRoleDialog);
+					_userDrilldown = null;
+					var de:DrilldownEvent = new DrilldownEvent(DrilldownEvent.USERS_SET_STATE, DrilldownMode.NONE);
+					de.dispatch();
+					dispatchEvent(new GeneralEvent("enableHeader", true));
+				}
+			}
+			
+			
+			/**
+			 * popup the addrole window
+			 * */
+			protected function openAddRoleDialog(e:Event):void {
+				_roleDrilldown = new RoleDrilldown();
+				var kur:KalturaUserRole = new KalturaUserRole();
+				kur.tags = 'kmc';
+				kur.permissionNames = Roles.DEFAULT_KMC_PERMISSIONS;
+				_roleDrilldown.init(kur, model.drilldownMode, rolesModel.partnerPermissionsUiconf, rolesModel.partnerPermissions, rolesModel.roles);
+				_roleDrilldown.addEventListener(RoleDrilldown.SAVE, saveRoleData);
+				_roleDrilldown.addEventListener(RoleDrilldown.CLOSE, closeRoleDrilldown);
+				_roleDrilldown.addEventListener(KmcNavigationEvent.NAVIGATE, onNavigate);
+				PopUpManager.addPopUp(_roleDrilldown, Application.application as DisplayObject, true);
+				PopUpManager.centerPopUp(_roleDrilldown);
+			}
+			
+			
+			/**
+			 * hides and destroys the role drilldown window
+			 * */
+			protected function closeRoleDrilldown(e:Event):void {
+				if (!_roleDrilldown)
+					return;
+				PopUpManager.removePopUp(_roleDrilldown);
+				_roleDrilldown.removeEventListener(UserDrilldown.SAVE, saveRoleData);
+				_roleDrilldown.removeEventListener(UserDrilldown.CLOSE, closeRoleDrilldown);
+				_roleDrilldown.removeEventListener(KmcNavigationEvent.NAVIGATE, onNavigate);
+				_roleDrilldown = null;
+			}
+			
+			
+			/**
+			 * get the new role data and update server
+			 * */
+			protected function saveRoleData(e:Event):void {
+				var ue:RoleEvent = new RoleEvent(RoleEvent.ADD_ROLE_FROM_USERS, _roleDrilldown.role);
+				ue.dispatch();
+			}
+			
+			
+			
+			
+			/**
+			 * open drilldown window with data of currently selected user
+			 * @return the newly created popup window
+			 * */
+			protected function drillToSelectedUser():UserDrilldown {
+				dispatchEvent(new GeneralEvent("enableHeader", false));
+				var ud:UserDrilldown = new UserDrilldown();
+				BindingUtils.bindProperty(ud, "isLoading", this, "isLoading");
+				var allowSetRole:Boolean = model.selectedUser.id != model.adminUserId;
+				allowSetRole &&= model.selectedUser.id != model.currentUserInfo.user.id;
+				ud.init(rolesModel.roles, model.selectedUser, model.drilldownMode, allowSetRole);
+				ud.addEventListener(UserDrilldown.SAVE, saveUserData);
+				ud.addEventListener(UserDrilldown.CLOSE, closeUserDrilldown);
+				ud.addEventListener(UserDrilldown.ADD_ROLE, openAddRoleDialog);
+				//				ud.addEventListener(KmcHelpEvent.HELP, onHelpClickedInDrilldown);
+				PopUpManager.addPopUp(ud, Application.application as DisplayObject, true);
+				PopUpManager.centerPopUp(ud);
+				return ud;
+			}
+			
+			//			protected function onHelpClickedInDrilldown (e : KmcHelpEvent) : void
+			//			{
+			//				dispatchEvent(new KmcHelpEvent(KmcHelpEvent.HELP, e.anchor));
+			//			}
+			
+			/**
+			 * show the "add user" dialog
+			 * */
+			protected function openAddUserDialog(event:MouseEvent):void {
+				// set the selected user to a new KalturaUser.
+				var usr:KalturaUser = new KalturaUser();
+				// kmc user definitions:
+				usr.isAdmin = true;
+				usr.loginEnabled = true;
+				var ce:CairngormEvent = new UserEvent(UserEvent.SELECT_USER, usr);
+				ce.dispatch();
+				
+				ce = new DrilldownEvent(DrilldownEvent.USERS_SET_STATE, DrilldownMode.ADD);
+				ce.dispatch();
+				
+				// open drilldown for this user
+				_userDrilldown = drillToSelectedUser();
+				
+				// analytics:
+				GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.PAGE_VIEW + GoogleAnalyticsConsts.ADMIN_USER_ADD);
+			}
+			
+			
+			/**
+			 * show the "edit user" dialog
+			 * */
+			protected function openEditUserDialog(event:Event):void {
+				var ce:DrilldownEvent = new DrilldownEvent(DrilldownEvent.USERS_SET_STATE, DrilldownMode.EDIT);
+				ce.dispatch();
+				_userDrilldown = drillToSelectedUser();
+				
+				// analytics:
+				GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.PAGE_VIEW + GoogleAnalyticsConsts.ADMIN_USER_EDIT);
+			}
+			
+			
+			
+			/**
+			 * delete selected user, refresh quota data.
+			 * */
+			protected function deleteUser(event:Event):void {
+				var ce:UserEvent = new UserEvent(UserEvent.DELETE_USER, model.selectedUser);
+				ce.dispatch();
+				var cg:CairngormEvent = new ListItemsEvent(ListItemsEvent.LIST_PARTNER_PERMISSIONS);
+				cg.dispatch();
+				
+				// analytics:
+				GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.PAGE_VIEW + GoogleAnalyticsConsts.ADMIN_USER_DELETE);
+			}
+			
+			
+			/**
+			 * toggle between blocked / active stauses of the selected user 
+			 * */
+			protected function toggleUserStatus(event:Event):void {
+				if (model.selectedUser.status != KalturaUserStatus.ACTIVE &&
+					model.selectedUser.status != KalturaUserStatus.BLOCKED) {
+					// this user is not active or blocked (probably deleted and shouldn't 
+					// be in the table), so we can't toggle status
+					dispatchEvent(new KmcErrorEvent(KmcErrorEvent.ERROR, ResourceManager.getInstance().getString('admin', 'cant_toggle')));
+				}
+				var ce:UserEvent = new UserEvent(UserEvent.TOGGLE_USER_STATUS, model.selectedUser);
+				ce.dispatch();
+			}
+			
+			
+			/**
+			 * select a user
+			 * */
+			protected function setSelectedUser(event:Event):void {
+				var ce:UserEvent = new UserEvent(UserEvent.SELECT_USER, table.selectedUser);
+				ce.dispatch();
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:Label text="{ResourceManager.getInstance().getString('admin', 'authorized_users')}" styleName="filterTitleHeader"/>
+	
+	<mx:VBox styleName="usersTitleHbox" >
+		<mx:Text text="{ResourceManager.getInstance().getString('admin', 'usersPageDesc')}"/>
+	</mx:VBox>
+	
+	<mx:HBox width="100%" height="100%" id="superTanker" verticalScrollPolicy="off" horizontalScrollPolicy="off">
+		<mx:VBox id="tableContainer" width="100%" height="100%" styleName="entriesTablePagerAndButtonsVbox">
+			<mx:HBox id="tableHBox" width="100%" height="100%" >
+				<view:UsersTable id="table" width="100%" height="100%" dataProvider="{model.users}" roles="{rolesModel.roles}" 
+								 drillDown="openEditUserDialog(event)" deleteUser="deleteUser(event)" 
+								 toggleBlock="toggleUserStatus(event)" selectUser="setSelectedUser(event)" 
+								 crippledUsersIds="{model.crippledUsers}" sortableColumns="false"/>
+				
+			</mx:HBox>
+			<controls:Paging id="paging" width="{table.width}" styleName="paging" nextPage="gotoPage()"
+							 prvPage="gotoPage()" getPageNum="gotoPage()" rowsInPageChange="gotoPage()"
+							 showRowsInPage="{true}" totalCount="{model.totalUsers}" />
+			
+		</mx:VBox>
+		
+		<mx:VBox id="actionButtonsContainer" styleName="blueBox" height="100%" horizontalAlign="left">
+			<mx:Button id="addBtn" label="{resourceManager.getString('admin','add_user')}" styleName="addPlst" 
+					   width="100%" height="30" buttonMode="{addBtn.enabled}" click="openAddUserDialog(event)"/>
+		</mx:VBox>
+	</mx:HBox>
+</mx:VBox>

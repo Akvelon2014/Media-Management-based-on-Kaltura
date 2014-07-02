@@ -1,0 +1,675 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" 
+		 xmlns:playerlist="com.kaltura.kmc.modules.studio.business.playerlist.*"
+		 xmlns:view="com.kaltura.kmc.modules.studio.view.*" xmlns:controls="com.kaltura.controls.*"
+		 creationComplete="onCreationComplete()" styleName="studioPageStyle" >
+	<mx:Script>
+		<![CDATA[
+			import com.kaltura.analytics.GoogleAnalyticsConsts;
+			import com.kaltura.analytics.GoogleAnalyticsTracker;
+			import com.kaltura.commands.MultiRequest;
+			import com.kaltura.commands.uiConf.UiConfClone;
+			import com.kaltura.commands.uiConf.UiConfDelete;
+			import com.kaltura.commands.uiConf.UiConfList;
+			import com.kaltura.commands.uiConf.UiConfUpdate;
+			import com.kaltura.events.KalturaEvent;
+			import com.kaltura.kmc.events.KmcNavigationEvent;
+			import com.kaltura.kmc.modules.studio.events.ApsNavigationEvent;
+			import com.kaltura.kmc.modules.studio.events.ApsUiConfEvent;
+			import com.kaltura.kmc.modules.studio.model.types.UIConfType;
+			import com.kaltura.kmc.modules.studio.vo.PlayerUiConfVo;
+			import com.kaltura.kmc.vo.Context;
+			import com.kaltura.types.KalturaUiConfCreationMode;
+			import com.kaltura.types.KalturaUiConfObjType;
+			import com.kaltura.types.KalturaUiConfOrderBy;
+			import com.kaltura.vo.KalturaUiConf;
+			import com.kaltura.vo.KalturaUiConfFilter;
+			import com.kaltura.vo.KalturaUiConfListResponse;
+			
+			import modules.Studio;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.controls.Button;
+			import mx.controls.Label;
+			import mx.events.CloseEvent;
+			import mx.formatters.DateFormatter;
+			import mx.managers.CursorManager;
+
+			/**
+			 * @copy #appStudioTemplates
+			 * */
+			private var _appStudioTemplates:XML;
+
+			[Bindable]
+			/**
+			 * total number of players
+			 * */
+			private var _count:Number;
+
+
+			[Bindable]
+			/**
+			 * For RnP, we need to seperate the preview and the previewAndEmbed cases
+			 */
+			private var _previewOnly:Boolean = false;
+
+			/**
+			 * application context
+			 * */
+			private var _context:Context;
+
+			/**
+			 * date formatter
+			 * */
+			private var _dateFormatter:DateFormatter;
+
+			[Bindable]
+			/**
+			 * dataprovider for the combobox of player and playlists
+			 */
+			public var comboDataProviderNormal:ArrayCollection = new ArrayCollection();
+			[Bindable]
+			/**
+			 * dataprovider for the combobox of multi playlist
+			 */
+			protected var comboDataProviderMulti:ArrayCollection = new ArrayCollection();
+			
+			/**
+			 * Flag indicating whether user can preview&embed multi-playlist player from the appstudio.
+			 */
+			private var _canPreviewAndEmbed:Boolean = true;
+
+
+			private function onCreationComplete():void {
+				resourceManager.addEventListener(Event.CHANGE, setComboTexts, false, 0, true);
+				_dateFormatter = new DateFormatter();
+				_dateFormatter.formatString = "DD-MMM H:NN";
+
+				comboDataProviderNormal = new ArrayCollection();
+				comboDataProviderNormal.addItem({label: resourceManager.getString('aps', 'edit'), id: 'edit'});
+				comboDataProviderNormal.addItem({label: resourceManager.getString('aps', 'selectContent'), id: 'selectContent'});
+				comboDataProviderNormal.addItem({label: resourceManager.getString('aps', 'duplicate'), id: 'duplicate'});
+				comboDataProviderNormal.addItem({label: resourceManager.getString('aps', 'delete'), id: 'delete'});
+
+				comboDataProviderMulti = new ArrayCollection();
+				comboDataProviderMulti.addItem({label: resourceManager.getString('aps', 'edit'), id: 'edit'});
+				comboDataProviderMulti.addItem({label: resourceManager.getString('aps', 'previewAndEmbed'), id: 'previewAndEmbed'});
+				comboDataProviderMulti.addItem({label: resourceManager.getString('aps', 'duplicate'), id: 'duplicate'});
+				comboDataProviderMulti.addItem({label: resourceManager.getString('aps', 'delete'), id: 'delete'});
+				
+				
+				addEventListener('edit', onActionChange, false, 0, true);
+				addEventListener('selectContent', onActionChange, false, 0, true);
+				addEventListener('previewAndEmbed', onActionChange, false, 0, true);
+				addEventListener('duplicate', onActionChange, false, 0, true);
+				addEventListener('delete', onActionChange, false, 0, true);
+			}
+
+			/**
+			 * set values from locale when locale changes
+			 * */
+			private function setComboTexts(e:Event):void {
+				var o:Object;
+				for each (o in comboDataProviderNormal) {
+					o.label = resourceManager.getString('aps', o.id);
+				} 
+				for each (o in comboDataProviderMulti) {
+					o.label = resourceManager.getString('aps', o.id);
+				} 
+			}
+			
+			
+			/**
+			 * gets a list of existing players
+			 * */
+			public function refresh():void {
+				paging.selectedPage = 1;
+				loadList();
+			}
+			
+			[Bindable]
+			public function set canPreviewAndEmbed (value : Boolean) : void
+			{
+				removeItemById("previewAndEmbed");
+			}
+			
+			public function get canPreviewAndEmbed () : Boolean
+			{
+				return _canPreviewAndEmbed;
+			}
+			
+			/**
+			 * edit selected player
+			 * */
+			private function onEdit(uiconf:KalturaUiConf):void {
+				// player id:
+				var playerId:String = uiconf.id.toString();
+
+				// uiconf.xml contents
+				var ui:XML = XML(uiconf.confFile);
+
+				// player options + selected data
+				var snapshot:XML = XML(uiconf.confFileFeatures);
+
+				var playerUiConfVo:PlayerUiConfVo = new PlayerUiConfVo(playerId, ui, snapshot, uiconf.name);
+				dispatchEvent(new ApsNavigationEvent(ApsNavigationEvent.EDIT_PLAYER, playerUiConfVo));
+				
+				GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.STUDIO_EDIT_PLAYER, GoogleAnalyticsConsts.STUDIO);
+			}
+
+
+			/**
+			 * Clone selected entry
+			 */
+			private function onDuplicate(uiconf:KalturaUiConf):void {
+				this.enabled = false;
+				CursorManager.setBusyCursor();
+				//clone is actually 2 actions in a multirequest: clone & rename (update) 
+				var mr:MultiRequest = new MultiRequest();
+				//clone the selected uiConf
+				var cloneUiconf:UiConfClone = new UiConfClone(uiconf.id);
+				mr.addAction(cloneUiconf);
+				//take the cloned object from request 1 and update its name (this is request 2 - UiConfUpdate); 
+				var updateUiConf:UiConfUpdate = new UiConfUpdate(int.MIN_VALUE, new KalturaUiConf());
+				//map the keys from req' 1 to req' 2 
+				mr.mapMultiRequestParam(1, "id", 2, "id");
+				mr.addRequestParam("2:uiConf", "{1:result}");
+				mr.addRequestParam("2:uiConf:name", resourceManager.getString('aps', 'newPlayerPrefix') + uint(Math.random() * 1000));
+				mr.addAction(updateUiConf);
+				//complete the MultiRequest
+				mr.addEventListener(KalturaEvent.COMPLETE, duplicationComplete);
+				mr.addEventListener(KalturaEvent.FAILED, fault);
+				mr.queued = false;
+				Studio.kc.post(mr);
+				
+				GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.STUDIO_DUPLICATE_PLAYER, GoogleAnalyticsConsts.STUDIO);
+			}
+
+
+
+			private function onDelete(uiconf:KalturaUiConf):void {
+				Alert.show(resourceManager.getString('aps', 'deleteConfirmationQuestion', [uiconf.name, uiconf.id]), 
+					resourceManager.getString('aps', 'deletePlayer'), 
+					Alert.YES | Alert.NO, null, deleteUiconYesNo);
+				
+				function deleteUiconYesNo(event:CloseEvent):void {
+					if (event.detail == Alert.YES) {
+						var deleteUiConf:UiConfDelete = new UiConfDelete(uiconf.id);
+						deleteUiConf.addEventListener(KalturaEvent.COMPLETE, onDeleted);
+						deleteUiConf.addEventListener(KalturaEvent.FAILED, fault);
+						Studio.kc.post(deleteUiConf);
+						
+						GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.STUDIO_DELETE_PLAYER, GoogleAnalyticsConsts.STUDIO);
+						refresh();
+					}
+				}
+			}
+
+			
+			
+			
+			
+			private function onDeleted(evt:KalturaEvent):void {
+				loadList();
+				ExternalInterface.call("playlistAdded");
+				ExternalInterface.call("playerAdded");
+			}
+
+
+			
+
+			/**
+			 * Load a template from the template list
+			 */
+			private function createPlayer(evt:Event):void {
+				var selectedTemplateXml:XML = (evt.target as Button).data as XML;
+				var playerId:String = selectedTemplateXml.@id.toString();
+				var playerUiVo:PlayerUiConfVo = new PlayerUiConfVo(playerId, null, null);
+				if (selectedTemplateXml.@isSinglePlaylist.toString() == "true") {
+					playerUiVo.isSinglePlaylist = true;
+				}
+				if (selectedTemplateXml.@isMultiPlaylistTemplate.toString() == "true") {
+					playerUiVo.isMultiPlaylistTemplate = true;
+				}
+				
+				
+				if (selectedTemplateXml.@editableStyle.toString() == "true") {
+					playerUiVo.editableStyle = true;
+				}
+				
+				dispatchEvent(new ApsUiConfEvent(ApsUiConfEvent.NEW_PLAYER_CHOSEN, playerUiVo));
+				// analytics:
+				GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.STUDIO_NEW_PLAYER, GoogleAnalyticsConsts.STUDIO);
+			}
+
+
+
+
+			/**
+			 * populates onscreen players list.
+			 * */
+			private function onListComplete(evt:KalturaEvent):void {
+				this.enabled = true;
+				cursorManager.removeAllCursors();
+				_count = evt.data.totalCount;
+				var temp:ArrayCollection = new ArrayCollection(evt.data.objects);
+				
+				var uiconf:KalturaUiConf;
+				for (var i:int = temp.length-1; i>=0; i--) {
+					uiconf = temp.getItemAt(i) as KalturaUiConf;
+					try {
+						XML(uiconf.confFile);
+						XML(uiconf.confFileFeatures);
+					}
+					catch (e:Error) {
+						Alert.show(resourceManager.getString('aps', 'playerCorrupt', [uiconf.id]), resourceManager.getString('aps', 'warning'));
+						temp.removeItemAt(i);
+					}
+				}
+				
+				playerListDg.dataProvider = temp; 
+				_count = (evt.data as KalturaUiConfListResponse).totalCount;
+				makePaging();
+			}
+
+
+			private function fault(event:Object):void {
+				this.enabled = true;
+				cursorManager.removeAllCursors();
+				Alert.show(event.error.errorMsg, resourceManager.getString('aps', 'error'));
+			}
+
+
+			/**
+			 * allow paging
+			 * */
+			private function makePaging():void {
+				if (_count)
+					paging.totalCount = _count;
+			}
+
+
+
+			/**
+			 * reload players list and notify JS of the change.
+			 * */
+			private function duplicationComplete(evt:Event):void {
+				loadList();
+
+				//TODO: Remember what to refresh player or playlist and not to call both
+				ExternalInterface.call("playlistAdded");
+				ExternalInterface.call("playerAdded");
+
+			}
+
+
+			private function loadList():void {
+				var filter:KalturaUiConfFilter = new KalturaUiConfFilter();
+				filter.orderBy = KalturaUiConfOrderBy.UPDATED_AT_DESC;
+				filter.tagsMultiLikeOr = "kdp3";
+				filter.objTypeEqual = KalturaUiConfObjType.PLAYER;
+				filter.creationModeEqual = KalturaUiConfCreationMode.WIZARD;
+				var uiconfList:UiConfList = new UiConfList(filter, paging.kalturaFilterPager);
+				uiconfList.addEventListener(KalturaEvent.COMPLETE, onListComplete);
+				uiconfList.addEventListener(KalturaEvent.FAILED, fault);
+				Studio.kc.post(uiconfList);
+				CursorManager.setBusyCursor();
+				this.enabled = false;
+			}
+
+
+//			/**
+//			 * retreives a readble version of the player's creation mode
+//			 * (manual, wizard, advanced) for use in item renderer
+//			 * */
+//			public function getCreationModeLabel(item:Object, column:DataGridColumn):String {
+//				var creationType:String;
+//				switch (item.creationMode.toString()) {
+//					case "1":
+//						creationType = "Manual";
+//						break;
+//					case "2":
+//						creationType = "Wizard";
+//						break;
+//					case "3":
+//						creationType = "Advanced";
+//						break;
+//					default:
+//						creationType = "Manual";
+//						break;
+//				}
+//				return creationType;
+//			}
+
+
+			/**
+			 * @copy #_previewOnly
+			 */
+			public function set previewOnly(value:Boolean):void {
+				_previewOnly = value;
+			}
+
+
+			public function get previewOnly():Boolean {
+				return _previewOnly;
+			}
+
+
+			/**
+			 * perform selected action on selected player
+			 * (used in item renderer)
+			 * */
+			private function onActionChange(event:Event):void {
+				var uiconf:KalturaUiConf = event.target.data as KalturaUiConf;
+				switch (event.type) {
+					case 'edit':
+						onEdit(uiconf);
+						break;
+
+					case 'selectContent':
+						var playerId:String = uiconf.id.toString();
+						var confFileXml:XML = XML(uiconf.confFile);
+						var isPlaylist:Boolean = confFileXml.@isPlaylist.toString() == "true";
+						if (isPlaylist) {
+							dispatchEvent(new KmcNavigationEvent(KmcNavigationEvent.NAVIGATE, "content", "playlists", {previewUiconf: playerId, isPlaylist: confFileXml.@isPlaylist.toString()}));
+						}
+						else {
+							dispatchEvent(new KmcNavigationEvent(KmcNavigationEvent.NAVIGATE, "content", "manage", {previewUiconf: playerId, isPlaylist: confFileXml.@isPlaylist.toString()}));
+						}
+						GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.STUDIO_SELECT_CONTENT, GoogleAnalyticsConsts.STUDIO);
+						break;
+					
+					case 'previewAndEmbed':
+						ExternalInterface.call("openPlayer", uiconf.name, uiconf.width.toString(), uiconf.height.toString(), uiconf.id.toString(), _previewOnly);
+						GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.STUDIO_PNE, GoogleAnalyticsConsts.STUDIO);
+						break;
+					case 'duplicate':
+						onDuplicate(uiconf);
+						break;
+					case 'delete':
+						onDelete(uiconf);
+						break;
+				}
+
+			}
+
+
+
+			/**
+			 * Assign the proper array collection to the row in the table. A multiplaylist
+			 * data provider (with the p&e action) or normal for playlist & single (with select content)
+			 * @param data	player data
+			 * */
+			public function isMulti(data:Object):ArrayCollection {
+				if (data && data.confFile && data.confFileFeatures) {
+					var xml:XML = XML(data.confFile.toString());
+					if (xml.attribute('isPlaylist')[0] == 'multi') {
+						return comboDataProviderMulti;
+
+					}
+				}
+				return comboDataProviderNormal;
+			}
+
+
+
+			/**
+			 * retreive the locale version for uiconf type (player,
+			 * playlist, multiplaylist) for display in item renderer
+			 * */
+			private function getTemplateName(item:Object, column:DataGridColumn):String {
+				var result:String = ''
+				if (item) {
+					var confFileXml:XML = XML(item.confFile.toString());
+					var type:uint = 1;
+					if (confFileXml.@isPlaylist == "false")
+						type = 1;
+					else if (confFileXml.@isPlaylist == "true")
+						type = 2;
+					else if (confFileXml.@isPlaylist == "multi")
+						type = 3;
+
+					result = UIConfType.uiconfEnumToName(type);
+				}
+
+				return result;
+			}
+
+
+			/**
+			 * label function for uiconf date column
+			 * */
+			private function formatUiconfDate(item:Object, column:DataGridColumn):String {
+				var date:Date = new Date(Number(item.updatedAt) * 1000);
+				var str:String = gridDateFormatter.format(date);
+				return str;
+			}
+
+			/**
+			 * label function for Player Dimensions column
+			 * */
+			private function getPlayerDim(item:Object, column:DataGridColumn):String {
+				return resourceManager.getString('aps', 'dimensionFormat', [item.width, item.height]);
+			}
+
+
+			/**
+			 * @private
+			 * */
+			public function set context(context:Context):void {
+				_context = context;
+			}
+
+
+			/**
+			 * application context
+			 * */
+			public function get context():Context {
+				return _context;
+			}
+
+
+
+			[Bindable]
+			/**
+			 * a list of optional player templates. <br>
+			 */
+			public function get appStudioTemplates():XML {
+				return _appStudioTemplates;
+			}
+
+
+			/**
+			 * @private
+			 * */
+			public function set appStudioTemplates(value:XML):void {
+				_appStudioTemplates = value;
+
+				// build the buttons on the right menu. each template gets a button.
+				var playerTemplates:XMLList = _appStudioTemplates.children();
+				var btn:Button;
+				for each (var template:XML in playerTemplates) {
+					btn = new Button();
+					btn.label = template.Label[0].toString();
+					btn.styleName = "addPlst";
+					btn.addEventListener(MouseEvent.CLICK, createPlayer);
+					btn.setStyle("textAlign", "left");
+					btn.percentWidth = 100;
+					btn.height = 30;
+					btn.data = template;
+					btn.id = template.@id.toString();
+					btn.buttonMode = true;
+					templatesHolder.addChild(btn);
+				}
+			}
+
+
+			// removing items from the combo dataproviders 
+
+			/**
+			 * Remove single item from the combobox dataprovider by its id
+			 * @param id 	name of the id to remove
+			 */
+			private function removeItemById(id:String):void {
+				//find the index of the item
+				for (var i:uint = 0; i < comboDataProviderMulti.length; i++) {
+					if (comboDataProviderMulti.getItemAt(i).id == id)
+						break;
+				}
+				//protect from an ID it did not find - check if this is the last item 
+				// and if it has not the same id
+				if (comboDataProviderMulti.length != 0) {
+					if (i == comboDataProviderMulti.length && comboDataProviderMulti.getItemAt(i - 1) != id) {
+					}
+					else
+						comboDataProviderMulti.removeItemAt(i);
+				}
+
+				//find the index of the item
+				for (var j:uint = 0; j < comboDataProviderNormal.length; j++) {
+					if (comboDataProviderNormal.getItemAt(j).id == id)
+						break;
+				}
+				//protect from an ID it did not find - check if this is the last item 
+				// and if it has not the same id  
+
+				if (comboDataProviderNormal.length != 0) {
+					if (j == comboDataProviderNormal.length && comboDataProviderNormal.getItemAt(j - 1) != id) {
+					}
+					else
+						comboDataProviderNormal.removeItemAt(j);
+				}
+			}
+
+			
+			/**
+			 * remove the "edit" item from the actions combobox 
+			 */
+			public function set enableEdit(value:Boolean):void {
+				removeItemById("edit");
+			}
+			/**
+			 * @private
+			 */
+			public function get enableEdit():Boolean {
+				return false;
+			}
+			
+			/**
+			 * remove the "select Content" item from the actions combobox 
+			 */
+			public function set enableSelectContent(value:Boolean):void {
+				removeItemById("selectContent");
+			}
+			/**
+			 * @private
+			 */
+			public function get enableSelectContent():Boolean {
+				return false;
+			}
+			
+			/**
+			 * remove the "Duplicate" item from the actions combobox 
+			 */
+			public function set enableDuplicate(value:Boolean):void {
+				removeItemById("duplicate");
+			}
+			/**
+			 * @private
+			 */
+			public function get enableDuplicate():Boolean {
+				return false;
+			}
+			
+			/**
+			 * remove the "Delete" item from the actions combobox 
+			 */
+			public function set enableDelete(value:Boolean):void {
+				removeItemById("delete");
+			}
+			/**
+			 * @private
+			 */
+			public function get enableDelete():Boolean {
+				return false;
+			}
+			
+			/**
+			 * remove the "Preview And Embed" item from the actions combobox 
+			 */
+			public function set enablePreviewAndEmbed(value:Boolean):void {
+				removeItemById("previewAndEmbed");
+			}
+			/**
+			 * @private
+			 */
+			public function get enablePreviewAndEmbed():Boolean {
+				return false;
+			}
+			
+
+
+		]]>
+	</mx:Script>
+	<mx:Metadata>
+		[Event(name="newPlayerChosen", type="com.kaltura.kmc.modules.studio.events.ApsUiConfEvent")] 
+		[Event(name="editPlayer", type="com.kaltura.kmc.modules.studio.events.ApsNavigationEvent")] 
+	</mx:Metadata>
+	
+	<mx:DateFormatter id="gridDateFormatter" formatString="YYYY-MM-DD HH:NN:SS"/>
+	
+	<mx:Label text="{resourceManager.getString('aps', 'playersList')}" styleName="filterTitleHeader"/>
+	<mx:VBox width="100%">
+		<!--<mx:HBox width="100%">-->
+			<mx:Text width="100%" text="{resourceManager.getString('aps','playerListDecription')}"/>
+			<!--<mx:Spacer width="100%"/>
+			<mx:Button styleName="help" buttonMode="true" click="{help()}"/>
+		</mx:HBox>-->
+
+	</mx:VBox>
+	<mx:HBox width="100%" height="100%" styleName="moderationHBox">
+		<mx:VBox height="100%" width="100%" id="listContainer" verticalGap="0">
+			<mx:DataGrid id="playerListDg" width="100%" height="100%" verticalAlign="middle"
+						 draggableColumns="false" sortableColumns="false" rowHeight="36">
+				<mx:columns>
+					<mx:DataGridColumn id="playerName" paddingLeft="4" paddingRight="4" dataField="name"
+									   headerText="{resourceManager.getString('aps','playerNameColumn')}" />
+						
+					<mx:DataGridColumn id="playerId" paddingLeft="4" paddingRight="4" width="80" 
+									   headerText="{resourceManager.getString('aps','playeridColumn')}" >
+						<mx:itemRenderer>
+							<mx:Component>
+								<mx:VBox horizontalScrollPolicy="off" verticalScrollPolicy="off" >
+									<mx:Label text="{data.id}" selectable="true"/>
+								</mx:VBox>
+							</mx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn>
+					
+					<mx:DataGridColumn id="playerDate" paddingLeft="4" paddingRight="4" width="130"
+									   headerText="{resourceManager.getString('aps','playerDateColumn')}"
+									   labelFunction="formatUiconfDate" />
+					
+					<mx:DataGridColumn paddingLeft="4" paddingRight="4" width="80"
+									   headerText="{resourceManager.getString('aps','playerSizeColumn')}" 
+									   labelFunction="getPlayerDim" />
+						
+					<mx:DataGridColumn id="template" paddingLeft="4" paddingRight="4" width="100"
+									   headerText="{resourceManager.getString('aps','template')}" 
+									   labelFunction="getTemplateName" />
+					
+					<mx:DataGridColumn id="actions" paddingLeft="4" paddingRight="4" width="130"
+									   headerText="{resourceManager.getString('aps','actions')}"
+									   itemRenderer="com.kaltura.kmc.modules.studio.view.wizard.itemRenderers.StudioActionsIR" />
+				</mx:columns>
+			</mx:DataGrid>
+			
+			<controls:Paging id="paging" width="100%" styleName="paging" totalCount="{_count}" 
+							 rowsInPageChange="loadList()" nextPage="loadList()" prvPage="loadList()" getPageNum="loadList()" />
+		</mx:VBox>
+		<mx:Spacer width="5"/>
+		<mx:VBox height="100%" id="templatesHolder" styleName="blueBox" horizontalAlign="left" />
+	</mx:HBox>
+	
+</mx:VBox>

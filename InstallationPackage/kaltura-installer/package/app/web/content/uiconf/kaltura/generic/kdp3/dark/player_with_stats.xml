@@ -1,0 +1,18 @@
+<layout id="percentage" skinPath="/content/uiconf/kaltura/generic/kdp3/dark/skin.swf?r=1">
+	<VBox id="player" width="100%" height="100%" styleName="black">
+		<HBox id="player" width="100%" height="30" styleName="darkBg">
+			<Label height="22" id="movieName2" styleName="movieName" width="100%" text="{mediaProxy.entry.name}" />	
+			<Statistics k_path="plugins/StatisticsPlugin.swf" width="0" height="0"/>	
+		</HBox>	
+		<Canvas height="100%" width="100%" id="PlayerHolder" styleName="black" >
+			<Video id="video" width="100%" height="100%" />						
+		</Canvas>
+		<HBox id="ControllerScreen" width="100%" height="30" verticalAlign="middle" styleName="darkBg" >
+			<Button id="playBtnControllerScreen" command="play" width="40" styleName="playBtnController" />
+			<Scrubber id="testingScrubber" width="100%" height="30"  styleName="test"  />
+			<Timer id="testingTimer" width="80" styleName="timerProgress" format="hh:mm:ss"  />	
+			<VolumeBar id="testingVolumeBar" styleName="test" width="100" />
+			<Button id="fullScreenBtnControllerScreen" width = "40" command="fullScreen" label="" styleName="fsBtnController" />	
+		</HBox>
+	</VBox>
+</layout>

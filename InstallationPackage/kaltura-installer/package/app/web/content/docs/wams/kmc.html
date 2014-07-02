@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+
+<!--
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+
+ Copyright 2014 Akvelon Inc.
+ http://www.akvelon.com/contact-us
+-->
+
+<html xmlns="http://www.w3.org/1999/html">
+
+<head>
+    <meta charset="utf-8">
+    <link href="css/style.css" type="text/css" rel="stylesheet">
+    <title>Kaltura Management Console (KMC)</title>
+</head>
+
+<body>
+    <div class="contents">
+        <h3>Contents</h3>
+        <ul class="main_contents">
+            <li><a href="#preface">Preface</a></li>
+            <li>
+                <a href="#integration_overview">Microsoft Azure Integration Overview</a>
+                <ul class="sub_contents">
+                    <li><a href="#wire_wams">Wire Microsoft Azure Media Service</a></li>
+                </ul>
+            </li>
+            <li>
+                <a href="#upload">Upload Media</a>
+                <ul class="sub_contents">
+                    <li><a href="#source_formats">Supported Source Formats</a></li>
+                </ul>
+            </li>
+            <li>
+                <a href="#converting">Converting Media Files</a>
+                <ul class="sub_contents">
+                    <li><a href="#transcoding_settings">Transcoding Settings</a></li>
+                </ul>
+            </li>
+            <li><a href="#related_files">Related Files</a></li>
+            <li><a href="#embed">Preview and Embed</a></li>
+            <li><a href="#administration">Administration</a></li>
+            <li><a href="#unsupported">Unsupported Features</a></li>
+        </ul>
+    </div>
+
+    <div class="content">
+        <h1>Kaltura Management Console (KMC)</h1>
+        <p class="subtitle">User Manual</p>
+        <p class="subtitle">Microsoft Azure integration with Kaltura CE 6 (Falcon)</p>
+
+        <h2><a name="preface">Preface</a></h2>
+        <p>This manual describes only the specific additions made to the Kaltura Management Console (KMC) through integration with Microsoft Azure. Please refer to <a class="external_link" target="_blank" href="../pdf/KMC_User_Manual.pdf">Kaltura Management Console (KMC) user manual</a> for a complete listing of related features.</p>
+
+        <h2><a name="integration_overview">Microsoft Azure Integration Overview</a></h2>
+        <p>Integration between Kaltura Server and Microsoft Azure makes it possible to move the storage and encoding of media to the Microsoft Azure platform. For instance, a video or audio file that has been uploaded to KMC, can then be transmitted to Microsoft Azure Media Services and encoded. Kaltura player can also pull media content directly from Microsoft Azure, significantly decreasing, the network and operational load on the Kaltura Server.</p>
+
+        <h3><a name="wire_wams">Wire Microsoft Azure Media Service</a></h3>
+        <p>You’ll need Microsoft Azure Media Service up and running. Perform the following steps to wire Media Service to Kaltura:</p>
+        <ol>
+            <li>Open Microsoft Azure Portal and select the target Media Service</li>
+            <li>Click “Manage keys” link at the bottom of the page</li>
+            <img src="img/kmc/001.png">
+            <li>Copy Media Service Account Name</li>
+            <img src="img/kmc/002.png">
+            <li>Open KMC on “Settings” tab and “Account settings” section</li>
+            <img src="img/kmc/003.png">
+            <li>Paste Media Service Account Name into “Microsoft Azure Media Service Account Name” field.</li>
+            <img src="img/kmc/004.png">
+            <li>Repeat steps for “Microsoft Azure Media Service Access Key”, use “Primary” or “Secondary” Media Service Access Key</li>
+            <li>Press “Save changes” button.</li>
+        </ol>
+
+        <h2><a name="upload">Upload Media</a></h2>
+
+        <p>Using the traditional Kaltura server, there are three ways to upload media: upload from the desktop, record from a webcam, or import from the Web.</p>
+        <p>The latter two methods - recording from a webcam and importing from the Web – the use “flv” format, neither of which is not supported by Microsoft Azure Media Services. These features were removed in this version of Kaltura Server on Microsoft Azure. Instead, per the <a class="external_link" target="_blank" href="../pdf/KMC_User_Manual.pdf">KMC User Manual</a>, you are advised  to upload media from your desktop. Please note, however, that uploaded files will not be stored on the virtual machine hard disk. Rather, the uploaded files will stored within your Microsoft Azure Media Service.</p>
+        <p>This example below shows a video file upload from the desktop.</p>
+        <ol>
+            <li>Click “Upload” in top menu and select “Upload from Desktop” </li>
+            <img src="img/kmc/005.png">
+            <li>Select video file</li>
+            <li>Click upload button</li>
+            <img src="img/kmc/006.png">
+            <li>Wait the “Ready” status of the entry. </li>
+            <img src="img/kmc/007.png">
+            <li>You will see uploaded file at content list of your Microsoft Azure media service account.</li>
+            <img src="img/kmc/008.png">
+        </ol>
+
+        <h3><a name="source_formats">Supported Source Formats</a></h3>
+        <p>Microsoft Azure will perform the encoding of your media files. All Import Formats listed below are supported. You can find more info at <a class="external_link" target="_blank" href="http://msdn.microsoft.com/en-us/library/dn535852.aspx">Microsoft Azure documentation</a>. </p>
+        <p>On the other hand Kaltura Player uses only MP4 (*.mp4) format (H.264 (High and Main Profiles) video codec and AAC audio codec). So output format is limited to only one option.</p>
+        <table>
+        <caption>Video File Import Formats</caption>
+        <tr>
+            <th>File Format</th>
+            <th>File Extensions</th>
+        </tr>
+            <tr>
+                <td>
+                    3GPP, 3GPP2
+                </td>
+                <td>
+                    .3gp, .3g2, .3gp2
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Advanced Systems Format (ASF).
+                </td>
+                <td>
+                    asf
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Advanced Video Coding High Definition (AVCHD) [MPEG-2 Transport Stream]
+                </td>
+                <td>
+                    .mts, .m2ts
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Audio-Video Interleaved (AVI)
+                </td>
+                <td>
+                    .avi
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Digital camcorder MPEG-2 (MOD)
+                </td>
+                <td>
+                    .mod
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Digital video (DV) camera file
+                </td>
+                <td>
+                    .dv
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    DVD transport stream (TS) file
+                </td>
+                <td>
+                    .ts
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    DVD video object (VOB) file
+                </td>
+                <td>
+                    .vob
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    MP4
+                </td>
+                <td>
+                    .mp4
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    MPEG-1 System Stream
+                </td>
+                <td>
+                    .mpeg, .mpg
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    MPEG-2 video file
+                </td>
+                <td>
+                    .m2v
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Smooth Streaming File Format (PIFF 1.3)
+                </td>
+                <td>
+                    .ismv
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Windows Media Video (WMV)
+                </td>
+                <td>
+                    .wmv
+                </td>
+            </tr>
+        </table>
+
+        <table>
+            <caption>Audio File Import Formats</caption>
+            <tr>
+                <th>File Format</th>
+                <th>File Extensions</th>
+            </tr>
+            <tr>
+                <td>
+                    MP4 audio
+                </td>
+                <td>
+                    .m4A
+                </td>
+            </tr>
+        </table>
+
+        <h2><a name="converting">Converting Media Files</a></h2>
+        <p>Microsoft Azure Media Services also performs the conversion of media files. This is notable, in that it is the opposite from the traditional Kaltura CE process of converting files locally on the VM.</p>
+        <p>Here is an example of how this process works with Kaltura Server on Azure.</p>
+        <ol>
+            <li>Open “Edit Entry” window (click on the entry name).</li>
+            <img src="img/kmc/010.png">
+            <li>Go to “Flavors” tab. </li>
+            <img src="img/kmc/011.png">
+            <li>Within the “Action Tab”, select “Convert” or “Reconvert” within the drop down menu.</li>
+            <img src="img/kmc/012.png">
+            <li>The flavor status will change to “Converting”</li>
+            <img src="img/kmc/013.png">
+            <li>Microsoft Azure Media Services will then create a new Conversion Job. You can find it within the Jobs list within the Azure Management Portal. </li>
+            <img src="img/kmc/014.png">
+            <li>It may take a few seconds for the flavor status in KMC to change to “OK”.</li>
+            <li>The new file will appear within Microsoft Azure Media Services. You can find it within the “CONTENT” tab page.</li>
+            <img src="img/kmc/015.png">
+        </ol>
+
+        <h3><a name="transcoding_settings">Transcoding Settings</a></h3>
+        <p>Integration with Microsoft Azure altered some of the transcoding settings that traditional Kaltura Server admins may be used to. A full list of available options is outlined within the chart below. The “Default” column shows that the flavor will be converted automatically after video uploads (Note: you can change these default parameters). This list is posted on “Transcoding Settings” subsection of the KMC “Settings” tab.</p>
+        <img src="img/kmc/016.png">
+
+        <table>
+            <caption>List of transcoding flavors:</caption>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Default</th>
+            </tr>
+
+            <tr>
+                <td>
+                    H264 Adaptive Bitrate MP4 Set 1080p (6000)
+                </td>
+                <td>
+                    HD/1080 - WEB (H264/6000)
+                </td>
+                <td>
+                    -
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    H264 Adaptive Bitrate MP4 Set 1080p (4700)
+                </td>
+                <td>
+                    HD/1080 - WEB (H264/4700)
+                </td>
+                <td>
+                    -
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    H264 Adaptive Bitrate MP4 Set 720p (3400)
+                </td>
+                <td>
+                    HD/720 - WEB (H264/3400)
+                </td>
+                <td>
+                    -
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    H264 Adaptive Bitrate MP4 Set 720p (2250)
+                </td>
+                <td>
+                    SD/Large - WEB/MBL (H264/2250)
+                </td>
+                <td>
+                    -
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    H264 Adaptive Bitrate MP4 Set 720p (1500)
+                </td>
+                <td>
+                    SD/Large - WEB/MBL (H264/1500)
+                </td>
+                <td>
+                    -
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    H264 Adaptive Bitrate MP4 Set 720p (1000)
+                </td>
+                <td>
+                    SD/Large - WEB/MBL (H264/1000)
+                </td>
+                <td>
+                    -
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    H264 Adaptive Bitrate MP4 Set 720p (650)
+                </td>
+                <td>
+                    Basic/Large - WEB/MBL (H264/650)
+                </td>
+                <td>
+                    -
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    H264 Adaptive Bitrate MP4 Set 720p (400)
+                </td>
+                <td>
+                    Basic/Large - WEB/MBL (H264/400)
+                </td>
+                <td>
+                    +
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    H264 Adaptive Bitrate MP4 Set SD 16x9 (1900)
+                </td>
+                <td>
+                    SD/Large - WEB/MBL (H264/1900)
+                </td>
+                <td>
+                    -
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    H264 Adaptive Bitrate MP4 Set SD 16x9 (1300)
+                </td>
+                <td>
+                    SD/Large - WEB/MBL (H264/1300)
+                </td>
+                <td>
+                    -
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    H264 Adaptive Bitrate MP4 Set SD 16x9 (900)
+                </td>
+                <td>
+                    SD/Large - WEB/MBL (H264/900)
+                </td>
+                <td>
+                    -
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    H264 Adaptive Bitrate MP4 Set SD 16x9 (650)
+                </td>
+                <td>
+                    Basic/Large - WEB/MBL (H264/650)
+                </td>
+                <td>
+                    -
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    H264 Adaptive Bitrate MP4 Set SD 16x9 (400)
+                </td>
+                <td>
+                    Basic/Large - WEB/MBL (H264/400)
+                </td>
+                <td>
+                    -
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    H264 Adaptive Bitrate MP4 Set SD 4x3 (1900)
+                </td>
+                <td>
+                    SD/Small-WEB/MBL(H264/1900)
+                </td>
+                <td>
+                    -
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    H264 Adaptive Bitrate MP4 Set SD 4x3 (1300)
+                </td>
+                <td>
+                    SD/Small-WEB/MBL(H264/1300)
+                </td>
+                <td>
+                    -
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    H264 Adaptive Bitrate MP4 Set SD 4x3 (900
+                </td>
+                <td>
+                    SD/Small-WEB/MBL(H264/900)
+                </td>
+                <td>
+                    -
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    H264 Adaptive Bitrate MP4 Set SD 4x3 (650)
+                </td>
+                <td>
+                    Basic/Small-WEB/MBL(H264/650)
+                </td>
+                <td>
+                    -
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    H264 Adaptive Bitrate MP4 Set SD 4x3 (400)
+                </td>
+                <td>
+                    Basic/Small-WEB/MBL(H264/400)
+                </td>
+                <td>
+                    -
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    H264 Broadband 1080p
+                </td>
+                <td>
+                    HD/1080 - WEB (H264/6750)
+                </td>
+                <td>
+                    -
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    H264 Broadband 720p
+                </td>
+                <td>
+                    HD/720 - WEB (H264/4500)
+                </td>
+                <td>
+                    -
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    H264 Broadband SD 16x9
+                </td>
+                <td>
+                    SD/Large - WEB/MBL (H264/2200)
+                </td>
+                <td>
+                    -
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    H264 Broadband SD 4x3
+                </td>
+                <td>
+                    SD/Small-WEB/MBL(H264/1800)
+                </td>
+                <td>
+                    -
+                </td>
+            </tr>
+        </table>
+
+        <h2><a name="related_files">Related Files</a></h2>
+        <p>File processing for Kaltura Server on Microsoft Azure works in much the same way as Kaltura CE, with one difference: file formats supported by Microsoft Azure Media Services (i. e. file has extension: .3gp, .3g2, .3gp2, .asf, .mts, .m2ts, .avi, .mod, .dv, .ts, .vob, .mp4, .mpeg, .mpg, .m2v, .ismv, .wmv or .m4A)  are automatically upload to Microsoft Azure Media Services. Otherwise, the file will be uploaded to the Kaltura Server VM hard drive.</p>
+        <p>To upload a Related file to Microsoft Azure Media Services:</p>
+        <ol>
+            <li>Open “Edit Entry” window (click on the entry name).</li>
+            <img src="img/kmc/017.png">
+            <li>Go to “Related files” tab.</li>
+            <img src="img/kmc/018.png">
+            <li>Click “Add more files” button.</li>
+            <img src="img/kmc/019.png">
+            <li>Select a Microsoft Azure Media Services supported file format (<strong>*.mp4</strong> for instance).</li>
+            <li>Wait for file to finish uploading.</li>
+            <img src="img/kmc/020.png">
+            <li>Now you will be able to locate the uploaded files within the Microsoft Azure Media Services “CONTENT” tab.</li>
+            <img src="img/kmc/021.png">
+        </ol>
+
+        <h2><a name="embed">Preview and Embed</a></h2>
+        <p>Microsoft Azure performs direct content delivery. So content traffic will not load your VM. The “Preview and Embed” window was changed to make this possible.</p>
+        <p>Perform the following steps to open the “Preview and Embed” dialog:</p>
+        <ol>
+            <li>Click “Select action” on “Content” tab at entry list</li>
+            <img src="img/kmc/022.png">
+            <li>Select “Preview & Embed”</li>
+            <li>You will see “Preview and Embed” window</li>
+            <img src="img/kmc/023.png">
+        </ol>
+
+        <h2><a name="administration">Administration</a></h2>
+        <p>The process for creating and managing users within Kaltura Server on Azure is the same as in Kaltura CE.</p>
+        <p>Please note, however, that you and created publishers under the same partner use same Microsoft Azure Credentials. Users can see (or even modify) your Microsoft Azure Credentials, if you give them account settings access permissions.</p>
+
+        <h2><a name="unsupported">Unsupported Features</a></h2>
+        <p>There are some notable differences between KMC on the Microsoft Azure Platform as compared with the original Kaltura KMC, as this new integrated version contains features related to integration with Microsoft Azure Media Services. Also, some features have been suppressed within this version:</p>
+        <ol>
+            <li>
+                Uploading and ingestion
+                <ol  type="a">
+                    <li>Record form webcam</li>
+                    <li>Import from web</li>
+                    <li>Prepare Live Stream Entry</li>
+                </ol>
+            </li>
+            <li>
+                Transcoding and processing
+                <ol  type="a">
+                    <li>Link to Remote Storage</li>
+                </ol>
+            </li>
+            <li>
+                KMC Users and Roles
+                <ol  type="a">
+                    <li>Purchasing a License for Additional Users</li>
+                </ol>
+            </li>
+            <li>Live Streaming</li>
+            <li>
+                Content Authoring Tools
+                <ol  type="a">
+                    <li>Clipping and Trimming Media Files</li>
+                </ol>
+            </li>
+            <li>
+                Publishing to your Site
+                <ol  type="a">
+                    <li>Adaptive Streaming RTMP Delivery with Adaptive Bitrate</li>
+                    <li>Secure Transport RTMPE</li>
+                    <li>Akamai HD Network – Allows adaptive bit-rate</li>
+                </ol>
+            </li>
+            <li>Distribution and Syndication</li>
+            <li>
+                Account Information
+                <ol  type="a">
+                    <li>Account Upgrade </li>
+                </ol>
+            </li>
+        </ol>
+    </div>
+</body>
+
+</html>

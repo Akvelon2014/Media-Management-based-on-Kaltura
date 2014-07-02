@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-16"?>
+<!--
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+* Copyright 2014 Akvelon Inc.
+* http://www.akvelon.com/contact-us
+-->
+
+<Presets>
+ <Preset
+   Version="5.0">
+   <Job />
+   <MediaFile
+     DeinterlaceMode="AutoPixelAdaptive"
+     ResizeQuality="Super"
+     NormalizeAudio="True"
+     AudioGainLevel="1"
+     VideoResizeMode="Stretch">
+     <Metadata
+       MergeCollection="True">
+       <Item
+         Name="WM/EncodedBy"
+         Value="Windows Azure Media Encoder 3" />
+     </Metadata>
+     <OutputFormat>
+       <MP4OutputFormat
+         StreamCompatibility="Standard">
+         <AudioProfile Condition="SourceContainsAudio">
+           <AacAudioProfile
+             Codec="{AUDIO_CODEC}"
+             Channels="{AUDIO_CHANNELS}"
+             SamplesPerSecond="{AUDIO_SAMPLE_RATE}">
+             <Bitrate>
+               <ConstantBitrate
+                 Bitrate="{AUDIO_BITRATE}"
+                 IsTwoPass="False"
+                 BufferWindow="00:00:00" />
+             </Bitrate>
+           </AacAudioProfile>
+         </AudioProfile>
+         <VideoProfile Condition="SourceContainsVideo">
+           <{VIDEO_PROFILE_NAME}
+             BFrameCount="3"
+             EntropyMode="Cabac"
+             RDOptimizationMode="Speed"
+             HadamardTransform="False"
+             SubBlockMotionSearchMode="Speed"
+             MultiReferenceMotionSearchMode="Balanced"
+             ReferenceBFrames="False"
+             AdaptiveBFrames="True"
+             SceneChangeDetector="True"
+             FastIntraDecisions="False"
+             FastInterDecisions="False"
+             SubPixelMode="Quarter"
+             SliceCount="0"
+             InLoopFilter="True"
+             MEPartitionLevel="EightByEight"
+             ReferenceFrames="4"
+             SearchRange="64"
+             AutoFit="True"
+             Force16Pixels="False"
+             FrameRate="0"
+             SeparateFilesPerStream="True"
+             SmoothStreaming="False"
+             NumberOfEncoderThreads="0">
+             <Streams
+               AutoSize="False">
+               <StreamInfo
+                 Size="{VIDEO_WIDTH}, {VIDEO_HEIGHT}">
+                 <Bitrate>
+                   <ConstantBitrate
+                     Bitrate="{VIDEO_BITRATE}"
+                     IsTwoPass="False"
+                     BufferWindow="00:00:05" />
+                 </Bitrate>
+               </StreamInfo>
+             </Streams>
+           </{VIDEO_PROFILE_NAME}>
+         </VideoProfile>
+       </MP4OutputFormat>
+     </OutputFormat>
+   </MediaFile>
+    </Preset>
+</Presets>

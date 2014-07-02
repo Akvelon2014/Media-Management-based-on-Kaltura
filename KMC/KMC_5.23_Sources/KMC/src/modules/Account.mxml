@@ -1,0 +1,378 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+
+ Modified by Akvelon Inc.
+ 2014-06-30
+ http://www.akvelon.com/contact-us
+-->
+
+<modules:KmcModule xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:modules="com.kaltura.kmc.modules.*"
+				   xmlns:view="com.kaltura.kmc.modules.account.view.*"
+				   xmlns:business="com.kaltura.kmc.modules.account.business.*"
+				   xmlns:control="com.kaltura.kmc.modules.account.control.*"
+				   preloader="com.kaltura.preloaders.KmcPreloader" backgroundColor="#FFFFFF" layout="vertical"
+				   minHeight="520" minWidth="950" borderThickness="0" borderStyle="solid" paddingLeft="0"
+				   paddingRight="0" paddingTop="0" paddingBottom="0">
+
+	<mx:Metadata>
+		[ResourceBundle("account")]
+	</mx:Metadata>
+
+
+	<mx:Script>
+		<![CDATA[
+			import com.kaltura.analytics.GoogleAnalyticsConsts;
+			import com.kaltura.analytics.GoogleAnalyticsTracker;
+			import com.kaltura.analytics.KAnalyticsTracker;
+			import com.kaltura.analytics.KAnalyticsTrackerConsts;
+			import com.kaltura.kmc.business.JSGate;
+			import com.kaltura.kmc.events.KmcHelpEvent;
+			import com.kaltura.kmc.modules.account.model.AccountModelLocator;
+			import com.kaltura.kmc.modules.account.view.CustomData;
+			import com.kaltura.kmc.modules.account.view.interfaces.IAccountPanel;
+			import com.kaltura.kmc.modules.account.view.interfaces.IUndoable;
+			import com.kaltura.kmc.modules.account.vo.AdminVO;
+			import com.kaltura.types.KalturaStatsKmcEventType;
+			
+			import mx.binding.utils.BindingUtils;
+			import mx.controls.Alert;
+			import mx.core.Container;
+			import mx.events.CloseEvent;
+			import mx.events.IndexChangedEvent;
+			import mx.events.ItemClickEvent;
+
+			/**
+			 * KMC is responsible to use the value of
+			 * this const as the id of this module.
+			 * */
+			public static const NAME:String = "account";
+
+			[Bindable]
+			/**
+			 * application data
+			 * */
+			private var _model:AccountModelLocator = AccountModelLocator.getInstance();
+
+			/**
+			 * index of current showing tab
+			 * */
+			private var _oldSelectedTab:int = 0;
+
+			/**
+			 * index of tab to go to
+			 * */
+			private var _newSelectedTab:int = 0;
+
+			/**
+			 * urchin number for Google Analytics tracker
+			 * */
+			public var urchinNumber:String;
+
+			/**
+			 * in case we want to start from a tab other than the
+			 * first, name of the initial tab
+			 * */
+			private var _initialTab:String;
+
+
+			override public function getModuleName():String {
+				return NAME;
+			}
+
+
+			override public function showSubtab(subtab:String, data:Object = null):void {
+				_initialTab = subtab;
+				if (stage) {
+					switchToTab(_initialTab);
+				}
+			}
+
+
+			override public function checkForSaveSubTab():void {
+				if ((contentView.getChildAt(_oldSelectedTab) as IUndoable).isChanged()) {
+					Alert.show(resourceManager.getString('account', 'saveChangesQ'), "", Alert.YES | Alert.NO, null, saveBeforeChangingModule);
+				}
+				else {
+					dispatchEvent(new Event(KmcModule.FINISHED_SAVING, true));
+				}
+			}
+
+
+			private function switchToTab(tab:String):void {
+				var doc:Container = contentView.getChildByName(tab) as Container;
+				if (doc) {
+					contentView.selectedChild = doc;
+					// init the selected panel
+					if (doc == overview) {
+						// so far, this is the only panel that might need re-initing 
+						// (users may be added in admin module)
+						overview.init();
+					}
+				}
+				else {
+					// if couldn't find matching tab, show the user settings tab (which is always there).
+					contentView.selectedChild = user;
+				}
+				_oldSelectedTab = contentView.selectedIndex;
+				setModuleReady();
+			}
+
+
+			override protected function start():void {
+				Security.allowDomain('*');
+				BindingUtils.bindSetter(toggleLoading, _model, "loadingFlag");
+
+				urchinNumber = _flashvars.urchinnumber;
+				initModelContext(_flashvars);
+				_model.adminData.oldEmail = _model.adminData.newEmail = _flashvars.email;
+
+				var adminVo:AdminVO = new AdminVO();
+				adminVo.oldEmail = adminVo.newEmail = _flashvars.email;
+				_model.adminData = adminVo;
+
+
+				/// set Alert locale for all this application
+				Alert.yesLabel = resourceManager.getString('account', 'yes');
+				Alert.noLabel = resourceManager.getString('account', 'no');
+				Alert.okLabel = resourceManager.getString('account', 'ok');
+				Alert.cancelLabel = resourceManager.getString('account', 'cancel');
+
+				//// init analytics feature and Google Analytics
+				var ka:KAnalyticsTracker = KAnalyticsTracker.getInstance();
+				ka.init(_model.context.kc, "Account", "4.0", _model.context.userId);
+
+
+
+				//roles and permissions 
+				var tabsToHide:Array = permissionManager.getRelevantSubTabsToHide(NAME);
+				for each (var subtabName:String in tabsToHide) {
+					contentView.removeChild(this[subtabName]);
+				}
+				secTln.visible = true;
+				contentView.visible = true;
+
+
+				// after we have the client, initialize the different panels
+				// overview panel is initialized when switched to
+//				if (overview.parent) {
+//					overview.init();
+//				}
+//				if (integration.parent) {
+//					integration.init();
+//				}
+//				if (transcoding.parent) {
+//					transcoding.init();
+//				}
+//				if (metadata.parent) {
+//					metadata.init();
+//				}
+
+				if (stage) {
+					onAddedToStage();
+				}
+				else {
+					addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
+				}
+			}
+
+
+			private function onAddedToStage():void {
+				if (this.willTrigger(Event.ADDED_TO_STAGE)) {
+					removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
+				}
+				GoogleAnalyticsTracker.getInstance().setBasePath("KMC/Settings");
+				
+				if (_initialTab) {
+					switchToTab(_initialTab);
+				}
+			}
+
+
+
+			private function initModelContext(objParam:Object):void {
+				_model.context.userId = objParam.uid;
+				_model.context.subpId = objParam.subpid;
+				if (objParam.protocol) {
+					_model.context.rootUrl = objParam.protocol + objParam.host;
+				}
+				else {
+					_model.context.rootUrl = "http://" + objParam.host;
+				}
+				_model.context.kc = _kc;
+
+			}
+
+
+
+			/**
+			 * when a user asks to change tab (clicks another tab), track that change.
+			 * if the current page is changed, pop a "save changes" question,
+			 * otherwise switch to the new selected tab.
+			 * */
+			private function onTabChange(event:IndexChangedEvent):void {
+				switch (contentView.selectedChild) {
+					case overview:
+						KAnalyticsTracker.getInstance().sendEvent(KAnalyticsTrackerConsts.ACCOUNT, KalturaStatsKmcEventType.ACCOUNT_ACCOUNT_OVERVIEW, "Account>Account Overview");
+						GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.PAGE_VIEW + GoogleAnalyticsConsts.ACCOUNT_ACCOUNT_INFO, GoogleAnalyticsConsts.ACCOUNT);
+						break;
+					case integration:
+						KAnalyticsTracker.getInstance().sendEvent(KAnalyticsTrackerConsts.ACCOUNT, KalturaStatsKmcEventType.ACCOUNT_UPDATE_SERVER_SETTINGS, "Account>Update Server Settings");
+						GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.PAGE_VIEW + GoogleAnalyticsConsts.ACCOUNT_INTEGRATION, GoogleAnalyticsConsts.ACCOUNT);
+						break;
+					case accessControl:
+						KAnalyticsTracker.getInstance().sendEvent(KAnalyticsTrackerConsts.ACCOUNT, KalturaStatsKmcEventType.ACCOUNT_ACCESS_CONTROL, "Account>Access Control");
+						GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.PAGE_VIEW + GoogleAnalyticsConsts.ACCOUNT_ACCESS_CONTROL, GoogleAnalyticsConsts.ACCOUNT);
+						break;
+					case transcoding:
+						KAnalyticsTracker.getInstance().sendEvent(KAnalyticsTrackerConsts.ACCOUNT, KalturaStatsKmcEventType.ACCOUNT_TRANSCODING_SETTINGS, "Account>Transcoding Settings");
+						GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.PAGE_VIEW + GoogleAnalyticsConsts.ACCOUNT_TRANSCODING_SETTINGS, GoogleAnalyticsConsts.ACCOUNT);
+						break;
+					case metadata:
+						GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.PAGE_VIEW + GoogleAnalyticsConsts.ACCOUNT_CUTOM_DATA, GoogleAnalyticsConsts.ACCOUNT);
+						break;
+					case user:
+						GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.PAGE_VIEW + GoogleAnalyticsConsts.ACCOUNT_MY_USER, GoogleAnalyticsConsts.ACCOUNT);
+						break;
+
+				}
+
+				_newSelectedTab = event.newIndex;
+
+				if ((contentView.getChildAt(_oldSelectedTab) as IUndoable).isChanged()) {
+					Alert.show(resourceManager.getString('account', 'saveChangesQ'), "", Alert.YES | Alert.NO, null, saveChangesQ);
+					return;
+				}
+
+
+				_oldSelectedTab = _newSelectedTab;
+				contentView.selectedIndex = _newSelectedTab;
+				
+				(contentView.selectedChild as IAccountPanel).init();
+				JSGate.writeUrlHash("account", contentView.selectedChild.id);
+			}
+
+
+			/**
+			 * First handle the save result and only then dispatch event saying the save has finished.
+			 * */
+			private function saveBeforeChangingModule(event:CloseEvent):void {
+				handleSaveAlert(event);
+				dispatchEvent(new Event(KmcModule.FINISHED_SAVING, true));
+			}
+
+
+			/**
+			 * handles the save alert event - yes for "save", no for "undo"
+			 * */
+			private function handleSaveAlert(event:CloseEvent):void {
+				if (event.detail == Alert.YES)
+					(contentView.getChildAt(_oldSelectedTab) as IUndoable).saveChanges();
+				else
+					(contentView.getChildAt(_oldSelectedTab) as IUndoable).undo();
+
+				(contentView.getChildAt(_newSelectedTab) as IUndoable).resetClonedData();
+			}
+
+
+			/**
+			 * response handler for "save changes" question when switching subtabs.
+			 * */
+			private function saveChangesQ(event:CloseEvent):void {
+				handleSaveAlert(event);
+				_oldSelectedTab = _newSelectedTab;
+				contentView.selectedIndex = _newSelectedTab;
+			}
+
+
+			public function toggleLoading(isIt:Boolean):void {
+				this.enabled = !isIt;
+
+				if (isIt) {
+					cursorManager.setBusyCursor();
+				}
+				else {
+					cursorManager.removeBusyCursor();
+				}
+			}
+
+
+			protected function onHelp():void {
+				var anchor:String;
+				
+				if (contentView.selectedChild == overview) {
+					anchor = 'section_acc_overview';
+				}
+				else if (contentView.selectedChild == integration) {
+					anchor = 'section_acc_integration';
+				}
+				else if (contentView.selectedChild == accessControl) {
+					anchor = 'section_acc_access_control';
+				}
+				else if (contentView.selectedChild == transcoding) {
+					if (transcoding.viewStack.selectedIndex == 0) {
+						// default profile
+						anchor = 'section_acc_transcoding_def';
+					}
+					else {
+						// advanced
+						anchor = 'section_acc_transcoding_profiles';
+					}
+				}
+				else if (contentView.selectedChild == metadata) {
+					anchor = 'section_acc_custom_data';
+				}
+				else if (contentView.selectedChild == user) {
+					anchor = 'section_acc_user';
+				}
+
+				dispatchEvent(new KmcHelpEvent(KmcHelpEvent.HELP, anchor));
+			}
+		]]>
+	</mx:Script>
+
+
+	<!--- the FrontController, containing Commands specific to this application -->
+	<control:AccountController/>
+
+	<mx:VBox id="mainView" width="100%" height="100%" styleName="mainView">
+
+		<mx:HBox width="100%" styleName="tabsContainer">
+			<mx:TabBar id="secTln" styleName="tln" buttonMode="true"
+					   dataProvider="contentView" visible="false">
+			</mx:TabBar>
+			<mx:Spacer width="100%"/>
+			<mx:Button styleName="help" buttonMode="true" click="{onHelp()}"/>
+		</mx:HBox>
+
+		<mx:ViewStack id="contentView" width="100%" height="100%" styleName="contentViewStack" minWidth="900"
+					  minHeight="500" visible="false" change="onTabChange(event)">
+			<view:AccountOverview id="overview" width="100%"
+								  label="{resourceManager.getString('account','accountOverview')}" styleName="pageStyle"
+								  users="{_model.usersList}" partnerData="{_model.partnerData}"
+								  adminData="{_model.adminData}"/>
+			<view:Integration id="integration" width="100%"
+							  label="{resourceManager.getString('account','serverSettings')}" styleName="pageStyle"
+							  partnerData="{_model.partnerData}" categories="{_model.categoriesWithPrivacyContext}" />
+			<view:AccessControl id="accessControl" label="{resourceManager.getString('account','accessControl')}"
+								rootUrl="{_model.context.rootUrl}" accessControlsList="{_model.accessControls}"
+								styleName="pageStyle"/>
+			<view:Transcoding id="transcoding" label="{resourceManager.getString('account','transcodingSettings')}"
+							  conversionProfs="{_model.conversionData}" flavorParamData="{_model.flavorsData}"
+							  styleName="pageStyle"
+							  totalProfiles="{_model.totalConversionProfiles}"/>
+			<view:CustomData id="metadata" name="metadata" label="{resourceManager.getString('account', 'customData')}"
+							 styleName="pageStyle" width="100%" profilesArray="{_model.metadataProfilesArray}"
+							 profilesTotalCount="{_model.metadataProfilesTotalCount}"/>
+			<view:UserSettings id="user" userInfo="{_userInfo}" width="100%"
+							   label="{resourceManager.getString('account','user_settings')}"/>
+
+		</mx:ViewStack>
+
+	</mx:VBox>
+
+</modules:KmcModule>

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+	<!---
+	Detailed Navigation
+	-->
+	<mx:Script>
+		<![CDATA[
+			import mx.events.ItemClickEvent;
+			import mx.controls.List;
+			import mx.events.ListEvent;
+			import com.kaltura.kmc.modules.analytics.vo.ToggleLinkVo;
+			import mx.events.FlexEvent;
+			import mx.collections.ArrayCollection;
+			
+			private var _dataProvider : ArrayCollection;
+			private var _selectedIndex : int = 0;
+			
+			public function get selectedIndex() : int
+			{
+				return _selectedIndex;
+			}
+			
+			public function clearAllSelectedStlye() : void
+			{
+				for(var i:int=0; i<this.numChildren; i++)
+				{
+					(this.getChildAt( i ) as DTNItem).btn.styleName = "dtnButton";
+					(this.getChildAt( i ) as DTNItem).text.styleName = "dtnButton";
+				}
+			}
+			
+			public function set selectedIndex( index : int ) : void
+			{
+				if (_selectedIndex >= numChildren) return;
+				
+				clearAllSelectedStlye()
+				
+				if( _selectedIndex >= 0)
+				{
+					var a:DTNItem = this.getChildAt( _selectedIndex ) as DTNItem;
+					if (a.data) {
+						a.data.selected = false;
+					}
+					a.btn.styleName = "dtnButton";
+					a.text.styleName = "dtnButton";
+				}
+				
+				_selectedIndex = index;
+				clearAllSelectedStlye();
+				if(index >=0)
+				{
+					
+					var dtnItem : DTNItem =  this.getChildAt( index ) as DTNItem;
+					if (dtnItem.data) {
+						dtnItem.data.selected = true;
+					}
+					dtnItem.btn.styleName = "selectedDtnBtn";
+					dtnItem.text.styleName = "selectedDtnBtn";
+					var changeEvent : Event = new Event( Event.CHANGE );
+					dispatchEvent( changeEvent );
+				}
+			}
+			
+			public function get dataProvider() : ArrayCollection
+			{
+				return _dataProvider;
+			}
+			
+			public function set dataProvider( dp : ArrayCollection ) : void
+			{
+				this.removeAllChildren();
+					
+				_dataProvider = dp;
+				
+				if (!dp) return;
+				
+				for( var i:int=0; i<_dataProvider.length; i++)
+				{
+					var dtnItem : DTNItem = new DTNItem();
+					dtnItem.percentWidth = 100;
+					dtnItem.addEventListener( Event.ADDED_TO_STAGE , onDtnBtnCreationComplete );
+					this.addChild( dtnItem );
+				}
+			}
+			
+			private function onDtnBtnCreationComplete( event : Event ) :void
+			{
+				var dtnItem : DTNItem = event.target as DTNItem;
+				dtnItem.removeEventListener( Event.ADDED_TO_STAGE, onDtnBtnCreationComplete );
+				dtnItem.addEventListener( MouseEvent.CLICK , onItemClick );
+				
+				var index : int = this.getChildIndex(dtnItem);		
+				var tlVo : ToggleLinkVo = new ToggleLinkVo();
+				
+				tlVo.linkTxt = _dataProvider[index];
+				tlVo.selected = false;
+					
+				if( index == _selectedIndex ) 
+					tlVo.selected = true; 
+					
+				if( index == dataProvider.length-1)
+					tlVo.showHRule = false;
+					
+				dtnItem.data = tlVo;
+			}
+			
+			private function onItemClick( event : MouseEvent ) :void
+			{
+				var dtnItem : DTNItem =  event.target.parent as DTNItem;
+				
+				if(!dtnItem) return;
+				
+				if(this.contains(dtnItem))
+					selectedIndex = this.getChildIndex( dtnItem );
+							
+				var listEvent : ItemClickEvent = new ItemClickEvent( ItemClickEvent.ITEM_CLICK ,
+																	 false, 
+																	 false, 
+																	 dtnItem.data.linkTxt, 
+																	 _selectedIndex, 
+																	 dtnItem, 
+																	 dataProvider[_selectedIndex]);
+				dispatchEvent( listEvent );
+			}
+			
+		]]>	
+	</mx:Script>
+	<mx:Metadata>
+		[Event(name="itemClick", type="mx.events.ItemClickEvent")] 
+		[Event(name="change", type="flash.events.Event")] 
+	</mx:Metadata>
+</mx:VBox>

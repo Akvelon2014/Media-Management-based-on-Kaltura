@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layouts>
+	<layout layoutId="playlistLight" skinPath="/content/uiconf/kaltura/kmc/kdp_bright.swf?r=0">
+		<Canvas height="100%" styleName="mlayout" width="100%">
+			<HBox height="100%" styleName="noPaddings" width="100%">
+			<VBox height="100%" styleName="mlayout" width="100%">
+				<HBox height="100%" styleName="playerContainer" width="100%">
+					<Canvas width="100%" height="100%" id="PlayerHolder" styleName="PlayerBackground" >
+						<KplayerModule height="100%" id="myKplayer" k_path="kplayer/KplayerModule.swf" styleName="centered" width="100%"/>
+					</Canvas>
+				</HBox>
+				<HBox height="29" styleName="controllerBox" width="100%">
+					<VBox width="25" height="100%" styleName="noPadding" >
+						<Spacer height="2" />
+						<Button width="25" height="25" id="play" styleName="playBtnController" />
+					</VBox>
+					<VBox width="100%" height="100%" styleName="scrubberHolder" >
+						<Spacer height="2" />
+						<Scrubber width="100%" height="12" id="scrubber" styleName="scrubber" />
+						<Spacer height="1" />
+						<HBox width="100%" styleName="noPadding" >
+							<Spacer width="3" />
+							<TimerCountdown height="20" id="timer" k_path="timertext/TimerCountdown.swf" styleName="timer" width="40"/>
+						</HBox>
+					</VBox>
+				<VBox width="18" height="100%" styleName="noPadding" >
+					<Spacer height="6" />
+					<VolumeModule width="21" height="16" id="Volume" 
+						k_path="VolumeBars/VolumeBarA.swf" />
+				</VBox>
+					<Spacer width="3" />
+					<VBox width="30" height="100%" styleName="noPadding" >
+						<Spacer height="1" />
+						<Button id="poweredByController" width="40" k_click="navigate:http://www.kaltura.com" styleName="kalturaLogo" />
+					</VBox>
+					<Spacer width="5" />
+				</HBox>
+			</VBox>
+			<Playlist id="playlistApi" k_path="playlist/PlaylistAPI.swf" width="300" height="100%" />
+			</HBox>
+		</Canvas>
+			<screens>
+			<screen id="startScreen">
+					<Canvas width="100%" height="100%">
+						<VBox width="100%" height="100%" id="startScreenCont" styleName="overScreenWhite">
+							<Button id="onVideoPlayBtnStartScreen" command="play" styleName="playBtn" label="" labelPlacement="top" />
+						</VBox>
+					</Canvas>
+			</screen>
+			<screen id="pauseScreen">
+					<Canvas width="100%" height="100%">
+						<VBox width="100%" height="100%" id="startScreenCont" styleName="overScreenWhite">
+							<Button id="shareBtnPauseScreen" command="gigyaButton" styleName="shareBtn" label="Share" labelPlacement="top" />
+						</VBox>
+					</Canvas>
+			</screen>
+			<screen id="endScreen">
+					<HBox width="100%" height="100%" id="startScreenCont" styleName="overScreenWhite">
+						<Button id="shareBtnEndScreen" command="gigyaButton" styleName="shareBtn" label="Share" labelPlacement="top" />
+						<Button id="replayBtnEndScreen" command="replay"  styleName="replayBtn" label="replay" labelPlacement="top" />
+					</HBox>
+			</screen>
+		</screens>
+		<extraData>
+		</extraData>
+	</layout>	
+</layouts>

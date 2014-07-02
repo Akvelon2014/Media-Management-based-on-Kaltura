@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layouts>
+	<layout layoutId="gray" skinPath="/content/uiconf/kaltura/corp_new/kdp_1.1.11/bigThink_kdp_skin_gray.swf">
+		<VBox height="100%" styleName="topLevelVBox" width="100%">
+			<Canvas height="100%" id="PlayerHolder" styleName="PlayerBackground" width="100%">
+				<KplayerModule height="100%" id="myKplayer" k_path="kplayer/KplayerModule.swf" width="100%"/>
+				<plymedia height="100%" id="plyMedia" k_path="addons/PlyMediaModule.swf" styleName="centered" width="100%" />
+				<playerPlay width="100%" height="100%" styleName="centered" id="playerPlay" k_path="playerPlayPauseBtn/InitialPlayButton.swf"    />
+				<EndScreen height="100%" id="endScreen" k_path="endScreen/DynamicEndScreen.swf" k_ui_id="endScreenLayout"  styleName="centered" width="100%"/>
+				<Gigya height="100%" id="Gigya" k_share_email_body="Hi%2c%3cbr%3eI saw an idea on %3ca href%3d%22http%3a%2f%2fwww.bigthink.com%22%3eBig Think%3c%2fa%3e that I wanted to share with you.%3cbr%3eCheck it out - %24URL%24 %3cbr%3e %24sender%24"
+				k_share_email_subject="An Idea from Big Think"
+				k_path="addons/Gigya.swf" width="100%" k_uiconf_id="29111" />
+			</Canvas>
+			<HBox height="33" maxWidth="600" styleName="controller" width="100%">
+				<Button height="29" id="play" styleName="playBtn" width="29"/>
+				<VBox height="100%" styleName="scrubberBox" width="100%">
+					<Scrubber id="scrubber" styleName="scrubber" width="100%"/>
+					<TimerCountdown alpha="0.8" id="timer" k_path="timertext/TimerCountdown.swf" styleName="timer"/>
+				</VBox>
+				<VolumeModule height="13" id="Volume" k_path="VolumeBars/VolumeBarA.swf" width="15"/>
+				<Spacer width="1"/>
+				<Button height="13" id="fullScreen" styleName="fullscreen" tooltip="Full screen" width="15"/>
+				<Spacer width="3"/>
+				<LinkButton tooltip="Share" id="gigyaButton" styleName="shareButton" width="22" height="20" label="" />
+			</HBox>
+		</VBox>
+		<popups>
+			<HBox height="100%" id="endScreenLayout" width="100%">
+				<HBox height="100%" styleName="PlayerBackground" width="100%">
+					<Button height="30" id="play" label="REPLAY" styleName="endScreenButton" width="110"/>
+					<Spacer width="20"/>
+					<Button height="30" id="gigyaButton" label="SHARE" styleName="endScreenButton" width="110"/>
+				</HBox>
+			</HBox>
+		</popups>
+		<screens>
+			<HBox height="100%" id="endScreenLayout" width="100%">
+				<HBox height="100%" styleName="PlayerBackground" width="100%">
+					<Button height="30" id="play" label="REPLAY" styleName="endScreenButton" width="110"/>
+					<Spacer width="20"/>
+					<Button height="30" id="gigyaButton" label="SHARE" styleName="endScreenButton" width="110"/>
+				</HBox>
+			</HBox>
+		</screens>
+		<javaScript/>
+		<extraData>
+			<GigyaUI>
+				<config>
+					<display networksWithCodeBox="*" showBookmark="true" showCloseButton="true" showDesktop="false" showEmail="true" useTransitions="true"/>
+					<body>
+						<controls corner-roundness="0;10;0;10">
+							<snbuttons type="textUnder"/>
+							<servicemarker gradient-color-begin="#F4F4F4" gradient-color-end="#D5D5D5"/>
+						</controls>
+					</body>
+				</config>
+			</GigyaUI>
+		</extraData>
+	</layout>
+</layouts>

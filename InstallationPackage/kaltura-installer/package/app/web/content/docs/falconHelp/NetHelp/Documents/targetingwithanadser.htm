@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html><head><title>Targeting with an Ad Server</title><link rel="stylesheet" type="text/css" href="../LinksExt/Kaltura_Management_Console_(KMC)_User_Manual_Falcon_good.css" />
+<meta name="topicId" content="e252b90f-2488-4768-8246-85df813f6c6e" />
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<script src="../js/nethelp.redirector.js" type="text/javascript"></script>
+<link rel="prev" href="companionadsinflash.htm" /><link rel="next" href="targetingperviewer.htm" />
+<meta name="Generator" content="ComponentOne Doc-To-Help v.2012.2.0.723" />
+<meta name="D2HTheme" content="Falcon_theme" />
+</head>
+<body>
+<h3>Targeting with an Ad Server</h3>
+<p class="MsoNormal">While ads targeting is performed within the ad server, 
+Kaltura’s VAST advertising module is designed to pass all the relevant targeting 
+information to the ad server.</p>
+<p class="MsoNormal">Targeting information can be set in several levels:</p>
+<p style="TEXT-INDENT: -18.6pt; MARGIN-LEFT: 37.7pt; tab-stops: 37.7pt" class="MsoListBulletCxSpFirst"><span style="FONT-FAMILY: Verdana">•</span><span style="FONT-FAMILY: Symbol; VISIBILITY: hidden">      
+</span>Targeting per player and ad slot – you can add additional key value pairs 
+within the adtag URL. The ad server will use these for targeting. </p>
+<p style="TEXT-INDENT: -18.6pt; MARGIN-LEFT: 37.7pt; tab-stops: 37.7pt" class="MsoListBulletCxSpLast"><span style="FONT-FAMILY: Verdana">•</span><span style="FONT-FAMILY: Symbol; VISIBILITY: hidden">      
+</span>Targeting per content item - The Kaltura VAST module supports dynamic 
+pulling of metadata from the content item, and passes it to the ad 
+server.<br />For example for targeting a specific content category.</p>
+<p style="tab-stops: 36.0pt" class="Procedure"><img title="*" border="0" alt="*" src="../ImagesExt/image50_0.png" /><span style="FONT-WEIGHT: normal">  
+</span>To target information</p>
+<p style="MARGIN-LEFT: 36pt; tab-stops: 36.0pt" class="MsoListNumberCxSpFirst"><b>1.   </b>Drag content items into the 
+category within the KMC.<br /><img border="0" src="../ImagesExt/image50_192.png" alt="" /></p>
+<p style="MARGIN-LEFT: 36pt; tab-stops: 36.0pt" class="MsoListNumberCxSpMiddle"><b>2.   </b>Define the additional 
+parameter in your ad server. <br />For example, in OpenX set the “category” 
+parameter through “Site - Variable”<img border="0" src="../ImagesExt/image50_193.png" alt="" /></p>
+<p style="MARGIN-LEFT: 36pt; tab-stops: 36.0pt" class="MsoListNumberCxSpLast"><b>3.   </b>Add category template 
+category={mediaProxy.entry.categories} into the AdTag URL. At runtime this 
+template will be populated with the actual values for each video played. 
+<br /><img src="../ImagesExt/image50_194.png" alt="" /></p>
+<p class="MsoListContinue"><span class="BodyTextChar">The following targeting 
+templates are available for 
+targeting<br /></span>category={mediaProxy.entry.categories}<br />tags<span class="BodyTextChar">={mediaProxy</span>.entry.tags}<br />name={mediaProxy.entry.name}<br />id={mediaProxy.entry.id}</p><span id="related-topics"></span></body></html>

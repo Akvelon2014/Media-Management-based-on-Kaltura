@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin
+   id="MySQLInserterPlugin"
+   iconfile="TOP.png"
+   description="MySQL Inserter Plugin"
+   tooltip="This is table output plugin optimized for mysql"
+   category="Output"
+   classname="org.kaltura.mysql.MySQLTableOutputMeta">
+   <libraries>
+    <library name="mysqlinserter.jar"/>
+    </libraries>
+    
+   <localized_category>
+     <category locale="en_US">Output</category>
+   </localized_category>
+   <localized_description>
+     <description locale="en_US">MySQL Inserter Plugin</description>
+   </localized_description>
+   <localized_tooltip>
+     <tooltip locale="en_US">This is table output plugin optimized for mysql</tooltip>
+   </localized_tooltip>
+   
+</plugin>

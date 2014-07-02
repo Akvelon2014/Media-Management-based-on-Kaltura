@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layouts>
+	<layout layoutId="full" skinPath="/content/uiconf/kaltura/corp_demos/telenovela/kdp_kd_telenovela_skin.swf">
+		<VBox height="100%" styleName="topLayout" width="100%">
+			<Canvas height="100%" id="PlayerHolder" styleName="PlayerBackground" width="100%">
+				<KplayerModule height="240" id="myKplayer" k_path="kplayer/KplayerModule.swf" styleName="centered" width="320"/>
+				<waterMark height="100%" id="loadedWaterMark" k_path="watermarks/WaterMarkLoader.swf" k_watermark_path="/content/uiconf/kaltura/corp_demos/telenovela/telenovela_watermark.png" k_watermark_position="topRight" styleName="centered" width="100%"/>
+			</Canvas>
+			<VBox height="34" styleName="controllerBox" width="100%">
+				<Scrubber height="5" id="scrubber" styleName="scrubber" width="100%"/>
+				<Spacer height="2"/>
+				<HBox height="20" styleName="buttons" width="100%">
+					<Spacer width="6"/>
+					<Button height="18" id="play" styleName="play" width="18"/>
+					<Spacer width="4"/>
+					<VolumeModule height="18" id="Volume" k_path="VolumeBars/VolumeBarA.swf" styleName="pp" width="18"/>
+					<Spacer width="5"/>
+					<LinkButton height="17" id="remix" label="Remix" styleName="" tooltip="Remix and edit this movie." width="40" k_click="jsInject:gotoEditorWindow,pauseMedia"/>
+					<Spacer width="5"/>
+					<LinkButton height="18" id="add" label="Add Media" styleName="" tooltip="Add videos, photos and audio to this movie." width="68" k_click="jsInject:gotoContribWizard,pauseMedia"/>
+					<Spacer width="5"/>
+					<LinkButton height="18" id="fake_createThumbnail" label="Thumbnail" styleName="" tooltip="convert current frame to thumbnail" width="68" k_click="jsInject:gotoContribWizard,pauseMedia"/>
+					<Spacer width="5"/>
+					<poweredByIcon height="18" id="poweredByIcon" k_path="poweredby/Icon.swf" k_src="/content/uiconf/kaltura/generic/PoweredByLogo.png" width="16"/>
+					<poweredBy height="16" id="poweredBy" k_path="poweredby/PoweredByGeneric.swf" k_powered_by_text="POWERED BY KALTURA" width="52"/>
+					<Spacer width="6"/>
+				</HBox>
+			</VBox>
+		</VBox>
+
+	    <javaScript>
+			<jsBlock id="gotoContribWizard" functionName="demoAlert" params=""></jsBlock>
+			<jsBlock id="gotoEditorWindow" functionName="demoAlert" params=""></jsBlock>
+		</javaScript>
+	</layout>
+	<!-- ###################################################################### -->
+	<!-- ###################################################################### -->
+	<!-- ###################################################################### -->
+	<layout layoutId="minimal" skinPath="/content/uiconf/kaltura/corp_demos/telenovela/kdp_kd_telenovela_skin.swf">
+		<VBox height="100%" styleName="topLayout" width="100%">
+			<Canvas height="100%" id="PlayerHolder" styleName="PlayerBackground" width="100%">
+				<KplayerModule height="240" id="myKplayer" k_path="kplayer/KplayerModule.swf" styleName="centered" width="320"/>
+				<waterMark height="100%" id="loadedWaterMark" k_path="watermarks/WaterMarkLoader.swf" k_watermark_path="/content/uiconf/kaltura/corp_demos/telenovela/telenovela_watermark.png" k_watermark_position="topRight" styleName="centered" width="100%"/>
+			</Canvas>
+			<VBox height="34" styleName="controllerBox" width="100%">
+				<Scrubber height="5" id="scrubber" styleName="scrubber" width="100%"/>
+				<Spacer height="2"/>
+				<HBox height="20" styleName="buttons" width="100%">
+					<Spacer width="6"/>
+					<Button height="18" id="play" styleName="play" width="18"/>
+					<Spacer width="4"/>
+					<VolumeModule height="18" id="Volume" k_path="VolumeBars/VolumeBarA.swf" styleName="pp" width="18"/>
+					<Spacer width="100%"/>
+					<poweredByIcon height="18" id="poweredByIcon" k_path="poweredby/Icon.swf" k_src="/content/uiconf/kaltura/generic/PoweredByLogo.png" width="16"/>
+					<poweredBy height="16" id="poweredBy" k_path="poweredby/PoweredByGeneric.swf" k_powered_by_text="POWERED BY KALTURA" width="52"/>
+					<Spacer width="6"/>
+				</HBox>
+			</VBox>
+		</VBox>
+	</layout>
+	<!-- ###################################################################### -->
+	<!-- ###################################################################### -->
+	<!-- ###################################################################### -->
+	<layout layoutId="noEdit" skinPath="/content/uiconf/kaltura/corp_demos/telenovela/kdp_kd_telenovela_skin.swf">
+		<VBox height="100%" styleName="topLayout" width="100%">
+			<Canvas height="100%" id="PlayerHolder" styleName="PlayerBackground" width="100%">
+				<KplayerModule height="240" id="myKplayer" k_path="kplayer/KplayerModule.swf" styleName="centered" width="320"/>
+				<waterMark height="100%" id="loadedWaterMark" k_path="watermarks/WaterMarkLoader.swf" k_watermark_path="/content/uiconf/kaltura/corp_demos/telenovela/telenovela_watermark.png" k_watermark_position="topRight" styleName="centered" width="100%"/>
+			</Canvas>
+			<VBox height="34" styleName="controllerBox" width="100%">
+				<Scrubber height="5" id="scrubber" styleName="scrubber" width="100%"/>
+				<Spacer height="2"/>
+				<HBox height="20" styleName="buttons" width="100%">
+					<Spacer width="6"/>
+					<Button height="18" id="play" styleName="play" width="18"/>
+					<Spacer width="4"/>
+					<VolumeModule height="18" id="Volume" k_path="VolumeBars/VolumeBarA.swf" styleName="pp" width="18"/>
+					<Spacer width="6"/>
+					<LinkButton height="18" id="add" label="Add Media" styleName="" tooltip="Add videos, photos and audio to this movie." width="68" k_click="jsInject:gotoContribWizard,pauseMedia"/>
+					<Spacer width="6"/>
+					<LinkButton height="18" id="fake_createThumbnail" label="Thumbnail" styleName="" tooltip="convert current frame to thumbnail" width="68"/>
+					<Spacer width="100%"/>
+					<poweredByIcon height="18" id="poweredByIcon" k_path="poweredby/Icon.swf" k_src="/content/uiconf/kaltura/generic/PoweredByLogo.png" width="16"/>
+					<poweredBy height="16" id="poweredBy" k_path="poweredby/PoweredByGeneric.swf" k_powered_by_text="POWERED BY KALTURA" width="52"/>
+					<Spacer width="6"/>
+				</HBox>
+			</VBox>
+		</VBox>
+	    <javaScript>
+			<jsBlock id="gotoContribWizard" functionName="onPlayerAddClick" params="kshowId,pd_extraData"></jsBlock>
+		</javaScript>
+	</layout>
+</layouts>

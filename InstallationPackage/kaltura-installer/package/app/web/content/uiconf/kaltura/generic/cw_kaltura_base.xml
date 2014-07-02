@@ -1,0 +1,121 @@
+<?xml version="1.0"?>
+<xml>
+<provider id="upload" code="1">
+	<authMethodList>
+	  <authMethod id="1">1</authMethod>
+	  <authMethod id="2">1</authMethod>
+	</authMethodList>
+	<moduleUrl>com/kaltura/contributionWizard/view/importViews/upload/UploadView.swf</moduleUrl>
+	
+	<fileFilters>
+		<filter id="video">
+			<allowedTypes>flv,asf,qt,mov,mpg,avi,wmv</allowedTypes>	
+		</filter>
+		<filter id="audio">
+		  <allowedTypes>flv,asf,wmv,qt,mov,mpg,avi,mp3,wav</allowedTypes>
+		</filter>
+		<filter id="image">
+		  <allowedTypes>jpg,bmp,png,gif,tiff</allowedTypes>
+		</filter>
+	</fileFilters>
+</provider>
+
+
+<provider id="webcam" code="2">
+	<authMethodList>
+		<authMethod>1</authMethod>
+	</authMethodList>
+	<moduleUrl>com/kaltura/contributionWizard/view/importViews/webcam/WebcamView.swf</moduleUrl>
+	<logo/>
+	<customData>
+		<serverUrl>rtmp://{HOST_NAME}/oflaDemo</serverUrl>
+	</customData>
+</provider>
+
+<!--Search media providers-->
+	
+<provider id="flickr" code="3">
+	<authMethodList>
+	  <authMethod>1</authMethod>
+	</authMethodList>
+	<moduleUrl>com/kaltura/contributionWizard/view/importViews/search/SearchView.swf</moduleUrl>
+	<authMethodList>
+		<authMethod>1</authMethod>
+		<authMethod>3</authMethod>
+	</authMethodList>
+</provider>
+	
+
+
+<provider id="url" code="5">
+	<authMethodList>
+	  <authMethod>1</authMethod>
+	</authMethodList>
+	<moduleUrl>com/kaltura/contributionWizard/view/importViews/search/SearchView.swf</moduleUrl>
+</provider>
+
+
+
+
+
+	
+<provider id="jamendo" code="9">
+	<authMethodList>
+	  <authMethod>1</authMethod>
+	</authMethodList>
+	<moduleUrl>com/kaltura/contributionWizard/view/importViews/search/SearchView.swf</moduleUrl>
+	<authMethodList>
+		<authMethod>1</authMethod>
+		<authMethod>3</authMethod>
+	</authMethodList>
+</provider>
+  
+<provider id="ccmixter" code="10">
+	<authMethodList>
+	  <authMethod>1</authMethod>
+	</authMethodList>
+	<moduleUrl>com/kaltura/contributionWizard/view/importViews/search/SearchView.swf</moduleUrl>
+	<authMethodList>
+		<authMethod>1</authMethod>
+		<authMethod>3</authMethod>
+	</authMethodList>
+</provider>
+	
+<provider id="nypl" code="11">
+	<authMethodList>
+	  <authMethod>1</authMethod>
+	</authMethodList>
+	<moduleUrl>com/kaltura/contributionWizard/view/importViews/search/SearchView.swf</moduleUrl>
+	<authMethodList>
+		<authMethod>1</authMethod>
+		<authMethod>3</authMethod>
+	</authMethodList>
+</provider>
+
+
+
+<provider id="mediaCommons" code="13">
+	<authMethodList>
+	  <authMethod>1</authMethod>
+	</authMethodList>
+	<moduleUrl>com/kaltura/contributionWizard/view/importViews/search/SearchView.swf</moduleUrl>
+</provider>
+
+<provider id="metaCafe" code="24">
+	<authMethodList>
+	  <authMethod>1</authMethod>
+	</authMethodList>
+	<moduleUrl>com/kaltura/contributionWizard/view/importViews/search/SearchView.swf</moduleUrl>
+</provider>
+
+
+<UIConfigList id="uiConfList">
+	<UIConfig>
+		<target>
+			ContributionWizard.swf
+		</target>
+		<cssUrl>styles_ContributionWizard_RemixAmerica.swf</cssUrl>
+		<localeUrl>en_US_ContributionWizard_pepsi.swf</localeUrl>
+	</UIConfig>
+</UIConfigList>
+</xml>

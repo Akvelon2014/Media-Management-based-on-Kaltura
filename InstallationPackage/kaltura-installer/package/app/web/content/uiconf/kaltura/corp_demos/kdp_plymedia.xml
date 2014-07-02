@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layouts>
+	<layout layoutId="ads" skinPath="/content/uiconf/pbnation/pbnation_kdp_skin.swf">
+		<VBox height="100%" styleName="mlayout" width="100%">
+			<Canvas height="100%" id="PlayerHolder" styleName="PlayerBackground" width="100%">
+				<KplayerModule height="100%" id="myKplayer" k_path="kplayer/KplayerModule.swf" maxHeight="450" maxWidth="600" styleName="centered" width="100%"/>
+				<playerPlayBtn height="100%" id="playerPlayBtn" k_path="playerPlayPauseBtn/PlayerPlayPauseButton.swf" styleName="centered" width="100%"/>
+				<plymedia height="100%" id="plyMedia" k_path="addons/PlyMediaModule.swf‬" maxHeight="450" maxWidth="600" styleName="centered" width="100%"/>
+			</Canvas>
+			<HBox height="30" styleName="controllerBox" width="100%">
+				<Spacer width="4"/>
+				<Button height="17" id="play" styleName="play" width="20"/>
+				<Spacer width="4"/>
+				<VBox width="100%">
+					<Scrubber id="scrubber" styleName="scrubber" width="100%"/>
+					<Spacer height="3"/>
+				</VBox>
+				<TimerCountdown height="18" id="timer" k_path="timertext/TimerCountdown.swf" styleName="timer" width="35"/>
+				<Spacer width="2"/>
+				<VolumeModule height="20" id="Volume" k_path="VolumeBars/VolumeBarA.swf" styleName="pp" width="20"/>
+				<Button height="17" id="fullScreen" label="" styleName="fs" width="20"/>
+				<Spacer width="4"/>
+			</HBox>
+			<HBox height="18" styleName="poweredBox" width="100%">
+				<poweredBy height="18" id="poweredBy" k_path="poweredby/PoweredBy.swf" styleName="poweredBy" width="120"/>
+			</HBox>
+		</VBox>
+		<popups/>
+	</layout>
+</layouts>

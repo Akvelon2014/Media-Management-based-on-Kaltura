@@ -1,0 +1,24 @@
+<!--
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+
+ Modified by Akvelon Inc.
+ 2014-06-30
+ http://www.akvelon.com/contact-us
+-->
+
+<root>
+	<locale>
+		<path>locale/{locale}/dashboard_{locale}_ResourceModule.swf</path>
+		<language>en_US</language>
+	</locale>
+	<links>
+		<!-- pointers to matching anchors in quickstart guide -->
+		<link id="upload" path="/content/docs/wams/kmc.html#upload" />
+		<link id="embed" path="/content/docs/wams/kmc.html#embed" />
+		<link id="customize" path="/content/docs/pdf/KMC_User_Manual.pdf#page=53" />
+	</links>
+</root>

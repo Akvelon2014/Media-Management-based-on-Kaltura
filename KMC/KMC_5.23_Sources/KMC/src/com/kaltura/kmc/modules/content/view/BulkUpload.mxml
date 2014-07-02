@@ -1,0 +1,422 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:navigation="com.kaltura.kmc.modules.content.view.navigation.*"
+		 xmlns:controls="com.kaltura.controls.*"
+		 horizontalAlign="left" width="100%" height="100%" 
+		 creationComplete="{creationCompleteHandler(event)}" xmlns:indicators="com.kaltura.edw.components.fltr.indicators.*" xmlns:filter="com.kaltura.kmc.modules.content.view.bulk.filter.*">
+
+	<mx:Script>
+		<![CDATA[
+			import com.kaltura.analytics.GoogleAnalyticsConsts;
+			import com.kaltura.analytics.GoogleAnalyticsTracker;
+			import com.kaltura.analytics.KAnalyticsTracker;
+			import com.kaltura.analytics.KAnalyticsTrackerConsts;
+			import com.kaltura.edw.business.permissions.PermissionManager;
+			import com.kaltura.kmc.modules.content.business.FileManager;
+			import com.kaltura.kmc.modules.content.events.BulkEvent;
+			import com.kaltura.kmc.modules.content.model.BulkUploadModel;
+			import com.kaltura.kmc.modules.content.model.types.BulkTypes;
+			import com.kaltura.kmc.modules.content.vo.FilterVO;
+			import com.kaltura.types.KalturaBulkUploadObjectType;
+			import com.kaltura.types.KalturaBulkUploadType;
+			import com.kaltura.types.KalturaStatsKmcEventType;
+			import com.kaltura.utils.pager.Pager;
+			import com.kaltura.vo.KalturaBulkUpload;
+			import com.kaltura.vo.KalturaBulkUploadFilter;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.formatters.DateFormatter;
+			import mx.resources.ResourceManager;
+
+			public const actionsDP:ArrayCollection = new ArrayCollection([
+				{value:"delete", label:ResourceManager.getInstance().getString('cms', 'delete')},
+				{value:"dnldLog", label:ResourceManager.getInstance().getString('cms', 'dnldLog')},
+				{value:"dnldOrig", label:ResourceManager.getInstance().getString('cms', 'dnldOrig')}]);
+			
+			[Bindable]
+			/**
+			 * data that only bulkUpload tab uses
+			 * */
+			public var bulkUploadData:BulkUploadModel;
+			
+			[Bindable]
+			public var bulkUploadEnabled : Boolean = true; 
+
+
+			private var _pager:Pager;
+
+			private var _fm:FileManager = new FileManager();
+
+
+			public function initPaging():void {
+				if (paging && _pager && _pager.allEntries)
+					paging.totalCount = _pager.numPagesTotal * _pager.localPageSize;
+			}
+
+
+			/**
+			 * load bulkuploads list
+			 * */
+			public function loadEntries():void {
+				if (bulkUploadEnabled && filter && paging) {
+					// if there is no filter or pager there's no point in listing, and this call probably came from Content.refreshBulk.
+					// in this case, we'll get a "list" when we switch to this page.
+					var bulkEvent:BulkEvent = new BulkEvent(BulkEvent.LIST_BULK_UPLOAD);
+					bulkEvent.data = [filter.kalturaFilter, paging.kalturaFilterPager];
+					bulkEvent.dispatch();
+				}
+			}
+			
+			
+			/**
+			 * This is a new search called by an action on the filter vo
+			 */
+			private function newSearchFromFilter():void {
+				paging.selectedPage = 1;
+				loadEntries();
+			}
+
+
+
+			public function set pager(pager:Pager):void {
+				_pager = pager;
+				initPaging();
+			}
+
+
+			public function get pager():Pager {
+				return _pager;
+			}
+			
+			
+			// =============================================
+			// 			permissions stuff
+			// =============================================
+			public function get allowActions():Boolean {
+				return true;
+			}
+			
+			public function set allowActions(value:Boolean):void {
+				if (!value) {
+					var ar:Array = bulkTable.columns;
+					for (var i:int = 0; i<ar.length; i++) {
+						if (ar[i] == actions) {
+							ar.splice(i, 1);
+							break;
+						}
+					}
+					bulkTable.columns = ar;
+				}
+			}
+			
+			
+			
+			public function get allowDownload():Boolean {
+				return true;
+			}
+			
+			public function set allowDownload(value:Boolean):void {
+				if (!value) {
+					for (var i:int = 0; i<actionsDP.length; i++) {
+						if (actionsDP[i].value == "dnldLog") {
+							actionsDP.removeItemAt(i);
+						}
+						if (actionsDP[i].value == "dnldOrig") {
+							actionsDP.removeItemAt(i);
+						}
+					}
+					if (actionsDP.length == 0) {
+						allowActions = false;
+					}
+				}
+			}
+			
+			public function get allowDelete():Boolean {
+				return true;
+			}
+			
+			public function set allowDelete(value:Boolean):void {
+				if (!value) {
+					for (var i:int = 0; i<actionsDP.length; i++) {
+						if (actionsDP[i].value == "delete") {
+							actionsDP.removeItemAt(i);
+						}
+					}
+					if (actionsDP.length == 0) {
+						allowActions = false;
+					}
+				}
+			}
+			
+			
+			public function getStatus(status:String):String {
+				return BulkTypes.getTypeName(uint(status));
+			}
+
+
+			public function getDate(fileObj:Object):String {
+				var df:DateFormatter = new DateFormatter();
+				df.formatString = resourceManager.getString('cms', 'listdateformat');
+				var dt:Date = new Date();
+				dt.setTime(Number(fileObj.uploadedOn) * 1000);
+				return df.format(dt);
+			}
+
+
+			public function getEntriesNumber(fileObj:Object):String {
+				return (fileObj.numOfObjects == int.MIN_VALUE) ? '' : (fileObj.numOfObjects + '');
+			}
+
+
+
+			public function downloadFile(filePath:String, fileNmae:String):void {
+//				_fm.fr = new FileReference();
+//				_fm.downloadFile(filePath, "Download", fileNmae);
+				var request:URLRequest = new URLRequest(filePath);
+				var fr:FileReference = new FileReference();
+				fr.addEventListener(Event.CANCEL, downloadHandler);
+				fr.addEventListener(Event.COMPLETE, downloadHandler);
+				fr.addEventListener(IOErrorEvent.IO_ERROR, downloadHandler);
+				fr.addEventListener(SecurityErrorEvent.SECURITY_ERROR, downloadHandler);
+				fr.download(request, fileNmae);
+			}
+			
+			private function downloadHandler(e:Event):void {
+				e.target.removeEventListener(Event.CANCEL, downloadHandler);
+				e.target.removeEventListener(Event.COMPLETE, downloadHandler);
+				e.target.removeEventListener(IOErrorEvent.IO_ERROR, downloadHandler);
+				e.target.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, downloadHandler);
+				if (e is IOErrorEvent || e is SecurityErrorEvent) {
+					Alert.show(resourceManager.getString('cms', 'downloadFailed'));
+				}
+			}
+
+
+			/**
+			 * opens a file without separating path from name.
+			 * @param url 	path to file.
+			 * */
+			private function downloadFileDirect(url:String):void {
+				var req:URLRequest = new URLRequest(url);
+				navigateToURL(req);
+			}
+
+
+			private function onPagerCreationComplete(event:Event):void {
+				paging.selectedPage = 1;
+				paging.pageSize = paging.rowInPageCb.value as int;
+			}
+
+
+			private function gotoPage():void {
+				GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.GO_TO_PAGE, GoogleAnalyticsConsts.CONTENT);
+				KAnalyticsTracker.getInstance().sendEvent(KAnalyticsTrackerConsts.CONTENT, KalturaStatsKmcEventType.CONTENT_CONTENT_GO_TO_PAGE, "content>Show Rows");
+				loadEntries();
+			}
+
+
+			protected function creationCompleteHandler(event:FlexEvent):void {
+				PermissionManager.getInstance().applyAllAttributes(this, this.id);
+				addEventListener("delete", handleBulkAction);
+				addEventListener("dnldLog", handleBulkAction);
+				addEventListener("dnldOrig", handleBulkAction);
+				filter.kalturaFilter = new KalturaBulkUploadFilter();
+				loadEntries();
+			}
+			
+			protected function handleBulkAction(e:Event):void {
+				var bulk:KalturaBulkUpload = e.target.data as KalturaBulkUpload;
+				var fileName:String;
+				switch (e.type) {
+					case "delete":
+						var be:BulkEvent = new BulkEvent(BulkEvent.DELETE_BULK_UPLOAD);
+						be.data = bulk.id;
+						be.dispatch();
+						loadEntries();
+						break;
+					case "dnldLog":
+						if (bulk.fileName) {
+							fileName = bulk.fileName + '_log.' + getUploadType(bulk, null); 
+						}
+						else {
+							fileName = bulk.id + '_log.' + getUploadType(bulk, null);
+						}
+						downloadFile(bulk.logFileUrl, fileName);
+						break;
+					case "dnldOrig":
+						if (bulk.fileName) {
+							fileName = bulk.fileName/*  + '.' + getUploadType(bulk, null) */; 
+						}
+						else {
+							fileName = bulk.id + '.' + getUploadType(bulk, null);
+						}
+						downloadFile(bulk.bulkFileUrl, fileName);
+						break;
+				}
+			}
+			
+			/**
+			 * get uploader name to display.
+			 * if no screen name (uploadedBy) use user id (uploadedByUserId)
+			 * */
+			protected function getScreenNameOrUserId(item:Object, column:DataGridColumn):String {
+				if (item.uploadedBy) {
+					return item.uploadedBy;
+				}
+				else return item.uploadedByUserId;
+			}
+			
+			/**
+			 * get upload type (csv / xml) by file extension
+			 * */
+			protected function getUploadType(item:Object, column:DataGridColumn):String {
+				var ext:String = item.bulkUploadType == KalturaBulkUploadType.CSV ? 'csv' : 'xml';
+				var res:String = resourceManager.getString('cms', ext);
+				if (res) {
+					return res;
+				}
+				return ext;
+			}
+			
+			
+			/**
+			 * replace '&lt;' and '&gt;' with '<' and '>', respectfuly.
+			 * @param str 	a string that might contain the above chars
+			 * @return	string after replacement.
+			 * */
+			public function replaceBrackets(str:String):String {
+				return str.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+			}
+			
+			
+			public function getUploadObjectType(str:String):String {
+				var result:String = '';
+				switch (str) {
+					case KalturaBulkUploadObjectType.CATEGORY:
+						result = resourceManager.getString('cms', 'categories');
+						break;
+					case KalturaBulkUploadObjectType.CATEGORY_USER:
+						result = resourceManager.getString('cms', 'categoryUsers');
+						break;
+					case KalturaBulkUploadObjectType.ENTRY:
+						result = resourceManager.getString('cms', 'entries');
+						break;
+					case KalturaBulkUploadObjectType.USER:
+						result = resourceManager.getString('cms', 'endusers');
+						break;
+				}
+				return result;
+			}
+			
+		]]>
+	</mx:Script>
+
+	
+	<mx:HBox width="100%" verticalAlign="middle">
+		<mx:VBox styleName="noPadding" >
+			<mx:Label id="pageLabel" text="{resourceManager.getString('cms', 'importFromExistingHosting')}" styleName="filterTitleHeader" 
+					  width="{filter.width}" />
+			<mx:Text htmlText="{resourceManager.getString('cms', 'importFromExistingHostingText')}" />
+		</mx:VBox>
+		<indicators:Indicators id="indicators" width="100%" height="60"
+							   dataProvider="{filter.indicators}"
+							   boxClicked="filter.removeFilter(event.data)"/>
+		<mx:VBox styleName="noPadding">
+			<mx:LinkButton click="loadEntries()" label="{resourceManager.getString('cms','refresh')}"
+						   styleName="recycleIcon"/>
+			<mx:Label text="{resourceManager.getString('filter', 'indicatorsLabel', [indicators.numExceeded])}" 
+					  visible="{indicators.numExceeded > 0}" styleName="indicatorsLabel"/>
+		</mx:VBox>
+	</mx:HBox>
+	<mx:HDividedBox id="topContainer" width="100%" height="100%">
+		
+	
+		<filter:BulkLogFilter id="filter" height="100%" width="245"
+							  filterChanged="newSearchFromFilter()"/>
+		
+		<mx:VBox styleName="vGapBox" width="100%" height="100%">
+			<mx:DataGrid id="bulkTable" width="100%" height="100%" sortableColumns="false" verticalAlign="middle"
+						 dataProvider="{bulkUploadData.bulkUploads}" headerRelease="{event.preventDefault()}">
+				<mx:columns>
+					<!-- file type -->
+					<mx:DataGridColumn width="50" labelFunction="getUploadType" 
+									   headerText="{resourceManager.getString('cms', 'uploadType')}" />
+					
+					<!-- object type -->
+					<mx:DataGridColumn width="100" headerText="{resourceManager.getString('cms', 'objectType')}" >
+						<mx:itemRenderer>
+							<mx:Component>
+								<mx:Label paddingLeft="7" text="{outerDocument.getUploadObjectType(data.bulkUploadObjectType)}"
+										  toolTip="{this.text}"/>
+							</mx:Component>
+						</mx:itemRenderer>	
+					</mx:DataGridColumn>
+					
+					<!-- file name -->
+					<mx:DataGridColumn width="110" dataField="fileName" dataTipField="fileName"
+									   headerText="{resourceManager.getString('cms', 'originalFileName')}" />
+					
+					<!-- uploaded by -->
+					<mx:DataGridColumn labelFunction="getScreenNameOrUserId"
+									   headerText="{resourceManager.getString('cms', 'uploadedBy')}"
+									   showDataTips="true" />
+					
+					<!-- uploaded on -->
+					<mx:DataGridColumn dataField="uploadedOn" width="100"
+									   headerText="{resourceManager.getString('cms', 'uploadedOn')}"
+									   showDataTips="true" >
+						<mx:itemRenderer>
+							<mx:Component>
+								<mx:Label paddingLeft="7" text="{outerDocument.getDate(data)}" />
+							</mx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn>
+					
+					<!-- number of items -->
+					<mx:DataGridColumn dataField="numOfObjects" width="110"
+									   headerText="{resourceManager.getString('cms', 'numOfItems')}">
+						<mx:itemRenderer>
+							<mx:Component>
+								<mx:HBox width="100%" horizontalAlign="center">
+									<mx:Label id="entriesLabel" text="{outerDocument.getEntriesNumber(data)}" />
+								</mx:HBox>
+							</mx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn>
+					
+					<!-- status -->
+					<mx:DataGridColumn width="134" headerText="{resourceManager.getString('cms', 'status')}">
+						<mx:itemRenderer>
+							<mx:Component>
+								<mx:Label paddingLeft="7" text="{outerDocument.getStatus(data.status)}" />
+							</mx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn>
+					
+					<!-- error -->
+					<mx:DataGridColumn headerText="{resourceManager.getString('cms', 'notification')}" >
+						<mx:itemRenderer>
+							<mx:Component>
+								<mx:Label paddingLeft="7" text="{outerDocument.replaceBrackets(data.error)}"
+										  toolTip="{this.text}"/>
+							</mx:Component>
+						</mx:itemRenderer>	
+					</mx:DataGridColumn>
+					
+					<!-- actions -->
+					<mx:DataGridColumn id="actions" width="200" paddingLeft="7" paddingRight="7"
+									   itemRenderer="com.kaltura.kmc.modules.content.view.itemrenderers.uploads.LogActionsIR"
+									   headerText="{resourceManager.getString('cms', 'action')}" />
+					
+				</mx:columns>
+			</mx:DataGrid>
+			<controls:Paging id="paging" width="100%" styleName="paging" rowsInPageChange="gotoPage()"
+							 nextPage="gotoPage()" prvPage="gotoPage()" getPageNum="gotoPage()"
+							 showRowsInPage="true" 
+							 creationComplete="onPagerCreationComplete(event)"
+							 totalCount="{bulkUploadData.bulkUploadTotalCount}"/>
+		</mx:VBox>
+	</mx:HDividedBox>
+	
+</mx:VBox>

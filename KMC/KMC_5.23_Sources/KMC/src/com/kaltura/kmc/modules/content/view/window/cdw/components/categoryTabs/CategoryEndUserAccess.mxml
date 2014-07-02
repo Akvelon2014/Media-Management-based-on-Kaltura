@@ -1,0 +1,594 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="initCategoryEndUserAcessTab(event)"
+		 implements="com.kaltura.kmc.modules.content.view.window.cdw.ICategoryDrilldownPanel">
+	<mx:Metadata>
+		[Event(name="validationComplete", type="com.kaltura.edw.events.ValidationResultEvent")] 
+		[Event(name="panelDataSaved", type="com.kaltura.edw.events.InternalKedEvent")] 
+	</mx:Metadata>
+	<mx:Script>
+		<![CDATA[
+			import com.kaltura.KalturaClient;
+			import com.kaltura.edw.events.InternalKedEvent;
+			import com.kaltura.edw.events.ValidationResultEvent;
+			import com.kaltura.kmc.modules.content.events.CategoryEvent;
+			import com.kaltura.kmc.modules.content.model.CategoriesModel;
+			import com.kaltura.kmc.modules.content.view.window.cdw.users.EndUsersPermissionsWin;
+			import com.kaltura.kmc.modules.content.view.window.cdw.users.SetCatOwnerWindow;
+			import com.kaltura.types.KalturaAppearInListType;
+			import com.kaltura.types.KalturaCategoryUserPermissionLevel;
+			import com.kaltura.types.KalturaContributionPolicyType;
+			import com.kaltura.types.KalturaInheritanceType;
+			import com.kaltura.types.KalturaNullableBoolean;
+			import com.kaltura.types.KalturaPrivacyType;
+			import com.kaltura.vo.KalturaCategory;
+			import com.kaltura.vo.KalturaUser;
+			
+			import flash.utils.setTimeout;
+			
+			import mx.binding.utils.BindingUtils;
+			import mx.binding.utils.ChangeWatcher;
+			import mx.controls.Alert;
+			import mx.core.Application;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.events.ListEvent;
+			import mx.events.PropertyChangeEvent;
+			import mx.managers.PopUpManager;
+
+			private const TEXT_WIDTH:Number = 264;
+			private const LABEL_WIDTH:Number = 150;
+			
+			[Bindable]
+			/**
+			 * RnP: allow making changes to settings in this tab
+			 * */
+			public var changesEnabled:Boolean = true;
+
+			
+			/**
+			 * watches the value in category.inheritanceType so we set inherited values correctly
+			 * */
+			private var _inheritanceTypeWatcher:ChangeWatcher; 
+			
+			[Bindable]
+			public var model:CategoriesModel;
+			
+			/**
+			 * allows knowing when the inherited category is loaded so we can use its values
+			 * */
+			private var _inheritCatWatcher:ChangeWatcher;
+			
+			/**
+			 * wathces the load of the current category's owner
+			 * */
+			private var _ownerWatcher:ChangeWatcher;
+			
+			/**
+			 * the id of the owner as saved on server
+			 * */
+			private var _originalOwner:String;
+			
+			/**
+			 * inheritance value as saved on server
+			 * */
+			private var _originalInheritance:int;
+			
+			
+			[Bindable]
+			/**
+			 * @copy #category
+			 * */
+			private var _category:KalturaCategory;
+			
+			public function get category():KalturaCategory {
+				return _category;
+			}
+
+			[Bindable]
+			/**
+			 * the currently edited category
+			 * */
+			public function set category(value:KalturaCategory):void {
+				_category = value;
+				_originalOwner = value.owner;
+				_originalInheritance = _category.inheritanceType;
+			}
+			
+			
+			[Bindable]
+			/**
+			 * the category from which values for inherited fields are taken,
+			 * either the edited category or its parent.
+			 * */
+			private var _categoryForInheritedFields:KalturaCategory;
+			
+
+			private function bind(value:int):void {
+				if (_category.inheritanceType == KalturaInheritanceType.INHERIT) {
+					if (model.inheritedParentCategory) {
+						setCatForInheritedFields(model.inheritedParentCategory);
+					}
+					else {
+						if (_inheritCatWatcher) {
+							_inheritCatWatcher.unwatch();
+						}
+						_inheritCatWatcher = BindingUtils.bindSetter(setCatForInheritedFields, model, "inheritedParentCategory");
+					}
+				}
+				else {
+					if (!_category.owner || model.categoryOwner) {
+						setCatForInheritedFields(_category);
+					}
+					else {
+						_ownerWatcher = BindingUtils.bindSetter(setCatAfterOwnerLoaded, model, "categoryOwner");
+					}
+				}
+				
+			}
+			
+			
+			/**
+			 * show correct values after receiving category owner 
+			 * */
+			private function setCatAfterOwnerLoaded(value:KalturaUser):void {
+				if (value) {
+					setCatForInheritedFields(_category);
+				}
+			}
+			
+			
+			private function setCatForInheritedFields(value:KalturaCategory):void {
+				if (value) {
+					_categoryForInheritedFields = value;
+					setCBValuesFromCategory(value);
+					txtOwner.text = getOwnerName(value);
+				}
+			}
+			
+
+			private function initCategoryEndUserAcessTab(event:FlexEvent):void {
+//				// join policy:
+//				policyCb.dataProvider = [{label: resourceManager.getString('cms', 'jpNotAllowd'), data: KalturaUserJoinPolicyType.NOT_ALLOWED},
+//					{label: resourceManager.getString('cms', 'jpAutoJoin'), data: KalturaUserJoinPolicyType.AUTO_JOIN},
+//					{label: resourceManager.getString('cms', 'jpRequestToJoin'), data: KalturaUserJoinPolicyType.REQUEST_TO_JOIN}];
+//				if (_category && _category.userJoinPolicy == int.MIN_VALUE) {
+//					_category.userJoinPolicy = KalturaUserJoinPolicyType.NOT_ALLOWED;
+//				}
+				
+				// default permissions
+				levelCb.dataProvider = [{label: resourceManager.getString('cms', 'permLvlMember'), data: KalturaCategoryUserPermissionLevel.MEMBER},
+					{label: resourceManager.getString('cms', 'permLvlContributor'), data: KalturaCategoryUserPermissionLevel.CONTRIBUTOR},
+					{label: resourceManager.getString('cms', 'permLvlModerator'), data: KalturaCategoryUserPermissionLevel.MODERATOR},
+					{label: resourceManager.getString('cms', 'permLvlManager'), data: KalturaCategoryUserPermissionLevel.MANAGER}];
+				if (_category && _category.defaultPermissionLevel == int.MIN_VALUE) {
+					_category.defaultPermissionLevel = KalturaCategoryUserPermissionLevel.MEMBER;
+				}
+				
+				if (_category && (_category.moderation == int.MIN_VALUE || _category.moderation == KalturaNullableBoolean.NULL_VALUE)) {
+					_category.moderation = KalturaNullableBoolean.FALSE_VALUE;
+				}
+				
+			}
+
+			private function setCBValuesFromCategory(category:KalturaCategory):void {
+				if (!_category) return;
+//				switch (_category.userJoinPolicy) {
+//					case KalturaUserJoinPolicyType.NOT_ALLOWED:
+//						policyCb.selectedIndex = 0;
+//						break;
+//					case KalturaUserJoinPolicyType.AUTO_JOIN:
+//						policyCb.selectedIndex = 1;
+//						break;
+//					case KalturaUserJoinPolicyType.REQUEST_TO_JOIN:
+//						policyCb.selectedIndex = 2;
+//						break;
+//				}
+
+				switch (_category.defaultPermissionLevel) {
+					case KalturaCategoryUserPermissionLevel.MEMBER:
+						levelCb.selectedIndex = 0;
+						break;
+					case KalturaCategoryUserPermissionLevel.CONTRIBUTOR:
+						levelCb.selectedIndex = 1;
+						break;
+					case KalturaCategoryUserPermissionLevel.MODERATOR:
+						levelCb.selectedIndex = 2;
+						break;
+					case KalturaCategoryUserPermissionLevel.MANAGER:
+						levelCb.selectedIndex = 3;
+						break;
+				}
+				
+			}
+
+			/**
+			 * open the end user permissions popup
+			 * */
+			protected function openEndUserPermissions():void {
+				if (_category.id == int.MIN_VALUE || _category.owner != _originalOwner || _category.inheritanceType != _originalInheritance) {
+					Alert.show(resourceManager.getString('cms', 'saveBeforeUsers'), resourceManager.getString('cms', 'error'));
+					return;
+				}
+				var cowin:EndUsersPermissionsWin = new EndUsersPermissionsWin();
+				cowin.category = _category;
+				cowin.model = model;
+				PopUpManager.addPopUp(cowin, Application.application as DisplayObject, true);
+				PopUpManager.centerPopUp(cowin);
+			}
+
+			
+			protected function changeOwner():void {
+				var cowin:SetCatOwnerWindow = new SetCatOwnerWindow();
+				cowin.addEventListener("apply", handleChangeOwnerEvent);
+				cowin.addEventListener(CloseEvent.CLOSE, handleChangeOwnerEvent);
+				PopUpManager.addPopUp(cowin, this, true);
+				PopUpManager.centerPopUp(cowin);
+			}
+
+			private function handleChangeOwnerEvent(e:Event):void {
+				var tgt:SetCatOwnerWindow = e.target as SetCatOwnerWindow;
+				switch (e.type) {
+					case "apply":
+						model.categoryOwner = tgt.ownerUser;
+						if (tgt.ownerUser) {
+							_category.owner = tgt.ownerUser.id;
+						}
+						else {
+							_category.owner = KalturaClient.NULL_STRING;
+						}
+						txtOwner.text = getOwnerName(_categoryForInheritedFields);
+						break;
+					case CloseEvent.CLOSE:
+						PopUpManager.removePopUp(tgt);
+						break;
+					
+				}
+			}
+
+			public function validate():void {
+				var ivre:ValidationResultEvent = new ValidationResultEvent(ValidationResultEvent.VALIDATION_COMPLETE, true); 
+				dispatchEvent(ivre);
+			}
+
+
+			public function save():void {
+				if (category.inheritanceType == KalturaInheritanceType.INHERIT) {
+					// make sure we don't send inherited fields
+//					category.userJoinPolicy = int.MIN_VALUE;
+					category.owner = null;
+					category.defaultPermissionLevel = int.MIN_VALUE;
+				}
+				dispatchEvent(new InternalKedEvent(InternalKedEvent.PANEL_DATA_SAVED));
+			}
+
+
+			public function destroy():void {
+
+			}
+
+
+			public function clear():void {
+				if (_inheritCatWatcher) {
+					_inheritCatWatcher.unwatch();
+				}
+				if (_ownerWatcher) {
+					_ownerWatcher.unwatch();
+				}
+				if (_inheritanceTypeWatcher) {
+					_inheritanceTypeWatcher.unwatch();
+				}
+				
+				var cgEvent:CategoryEvent = new CategoryEvent(CategoryEvent.CLEAR_PARENT_CATEGORY);
+				cgEvent.dispatch();
+				cgEvent = new CategoryEvent(CategoryEvent.RESET_CATEGORY_USER_LIST);
+				cgEvent.dispatch();
+				cgEvent = new CategoryEvent(CategoryEvent.CLEAR_CATEGORY_OWNER);
+				cgEvent.dispatch();
+			}
+
+
+			public function initData():void {
+				if (!_category.privacyContexts) {
+					if (this.parent) {
+						this.parent.removeChild(this);
+					}
+					return;
+				}
+				
+				_inheritanceTypeWatcher = BindingUtils.bindSetter(bind, _category, "inheritanceType");
+				
+				var cgEvent:CategoryEvent;
+				if (_category.inheritanceType == KalturaInheritanceType.INHERIT) {
+					cgEvent = new CategoryEvent(CategoryEvent.GET_INHERITED_PARENT_CATEGORY);
+					cgEvent.data = _category;
+					cgEvent.dispatch();
+				}
+				else if (_category.parentId > 0) {
+					cgEvent = new CategoryEvent(CategoryEvent.GET_PARENT_CATEGORY);
+					cgEvent.data = _category;
+					cgEvent.dispatch();
+				}
+				
+				if (_category.owner) {
+					cgEvent = new CategoryEvent(CategoryEvent.GET_CATEGORY_OWNER);
+					cgEvent.data = _category;
+					cgEvent.dispatch();
+				}
+				else {
+					
+				}
+			}
+
+
+			public function init():void {
+
+			}
+
+
+			public function isChanged():Boolean {
+				// we only change values on the actual category, and the check if these have changed is in CategoryDetailsWin
+				return false;
+			}
+			
+			private function levelCb_changeHandler(event:ListEvent):void {
+				_category.defaultPermissionLevel = levelCb.selectedItem.data;
+			}
+
+
+//			private function policyCb_changeHandler(event:ListEvent):void {
+//				_category.userJoinPolicy = policyCb.selectedItem.data;
+//			}
+
+			
+			private function inheritNo_changeHandler(event:Event):void {
+				if((event.target as RadioButton).selected) {
+					_category.inheritanceType = KalturaInheritanceType.MANUAL; 
+					if (_originalInheritance == KalturaInheritanceType.INHERIT) {
+						// reset values:
+						_category.membersCount = 0;
+						_category.owner = '';
+						txtOwner.text = getOwnerName(_category);
+					} 
+				}
+			}
+
+
+			
+			private function inheritYes_changeHandler(event:Event):void {
+				if((event.target as RadioButton).selected) {
+//					if (_orginalInheritanceValue == KalturaInheritanceType.MANUAL) {
+//						// show alert
+//						var action:String = resourceManager.getString('cms', 'catBatchInherit');
+//						Alert.show(resourceManager.getString('cms', 'catBatchNotice', [action]), resourceManager.getString('cms', 'attention'), Alert.OK|Alert.CANCEL, null, approveInherit);
+//					}
+//					else {
+						approveInherit();	
+//					}
+				}
+			}
+			
+			private function approveInherit(e:CloseEvent = null):void {
+				if (!e || e.detail == Alert.OK) {
+					_category.inheritanceType = KalturaInheritanceType.INHERIT;
+				}
+				else {
+					inheritYes.selected = false;
+					inheritNo.selected = true;
+				}
+			}
+			
+			
+			private function getOwnerName(kCat:KalturaCategory):String {
+				var str:String = '';
+				if (!kCat.owner) {
+					str = resourceManager.getString('cms', 'notSpec');
+				}
+				else if (kCat.id == _category.id) {
+					str = model.categoryOwner.screenName;
+					if (!str) {
+						str = model.categoryOwner.fullName;
+					}
+					if (!str) {
+						str = model.categoryOwner.id;
+					}
+				}
+				else {
+					str = model.inheritedOwner.screenName;
+					if (!str) {
+						str = model.inheritedOwner.fullName;
+					}
+					if (!str) {
+						str = model.inheritedOwner.id;
+					}
+				}
+				return str;
+			}
+
+		]]>
+	</mx:Script>
+	<mx:Label text="{resourceManager.getString('cms', 'endUserAccessTitle')}"/>
+	
+	<!-- privacy contexts -->
+	<mx:HBox width="100%">
+		<mx:Image source="{StyleManager.getStyleDeclaration('.imageBank').getStyle('helpImg')}" id="helpIco"
+				  toolTip="{resourceManager.getString('cms', 'integrationPrivacyKeyTooltip')}"/>
+		<mx:Label width="{LABEL_WIDTH}" text="{resourceManager.getString('cms', 'integrationPrivacyKey')}"
+				  styleName="drillDownLabel" toolTip="{resourceManager.getString('cms', 'integrationPrivacyKeyTooltip')}"/>
+		<mx:Text width="{TEXT_WIDTH}" styleName="drillDownSubLabel" text="{_category.privacyContexts}"/>
+	</mx:HBox>
+	<mx:HRule width="90%"/>
+	
+	<!-- privacy -->
+	<mx:HBox width="100%">
+		<mx:Image source="{StyleManager.getStyleDeclaration('.imageBank').getStyle('helpImg')}"
+				  toolTip="{resourceManager.getString('cms', 'contentPrivacyTooltip')}"/>
+		<mx:Label text="{resourceManager.getString('cms', 'contentPrivacy')}" width="{LABEL_WIDTH}"
+				  styleName="drillDownLabel" toolTip="{resourceManager.getString('cms', 'contentPrivacyTooltip')}"/>
+		<mx:VBox width="100%">
+			<mx:HBox styleName="plstAddRemoveCont">
+				<mx:RadioButtonGroup enabled="{changesEnabled}" id="contentPrivacy" />
+				<mx:RadioButton label="{resourceManager.getString('cms','noRestriction')}"
+								selected="{_category.privacy == KalturaPrivacyType.ALL}"
+								change="{ if((event.target as RadioButton).selected)_category.privacy = KalturaPrivacyType.ALL }"
+								groupName="contentPrivacy"/>
+				<mx:Label width="100%" text="{resourceManager.getString('cms', 'cp_noRestrictionDesc')}"
+						  styleName="smallLabel"/>
+			</mx:HBox>
+			<mx:HBox styleName="plstAddRemoveCont">
+				<mx:RadioButton label="{resourceManager.getString('cms','requiresAuthentication')}"
+								selected="{_category.privacy == KalturaPrivacyType.AUTHENTICATED_USERS}"
+								change="{ if((event.target as RadioButton).selected)_category.privacy = KalturaPrivacyType.AUTHENTICATED_USERS }"
+								groupName="contentPrivacy"/>
+				<mx:Label width="100%" text="{resourceManager.getString('cms', 'cp_requiresAuthenticationDesc')}"
+						  styleName="smallLabel"/>
+			</mx:HBox>
+			<mx:HBox styleName="plstAddRemoveCont">
+				<mx:RadioButton label="{resourceManager.getString('cms','private')}" groupName="contentPrivacy"
+								selected="{_category.privacy == KalturaPrivacyType.MEMBERS_ONLY}"
+								change="{ if((event.target as RadioButton).selected)_category.privacy = KalturaPrivacyType.MEMBERS_ONLY }"/>
+				<mx:Label width="100%" text="{resourceManager.getString('cms', 'cp_privateDesc')}" styleName="smallLabel"/>
+			</mx:HBox>
+		</mx:VBox>
+	</mx:HBox>
+	<mx:HRule width="90%"/>
+	
+	<!-- appear in list (listing) -->
+	<mx:HBox width="100%">
+		<mx:Image source="{StyleManager.getStyleDeclaration('.imageBank').getStyle('helpImg')}"
+				  toolTip="{resourceManager.getString('cms', 'categoryListingTooltip')}"/>
+		<mx:Label text="{resourceManager.getString('cms', 'categoryListing')}" width="{LABEL_WIDTH}"
+				  styleName="drillDownLabel" toolTip="{resourceManager.getString('cms', 'categoryListingTooltip')}"/>
+		<mx:VBox width="100%">
+			<mx:HBox styleName="plstAddRemoveCont">
+				<mx:RadioButtonGroup enabled="{changesEnabled}" id="categoryListing" />
+				<mx:RadioButton label="{resourceManager.getString('cms','noRestriction')}"
+								selected="{_category.appearInList == KalturaAppearInListType.PARTNER_ONLY}"
+								change="{ if((event.target as RadioButton).selected)_category.appearInList = KalturaAppearInListType.PARTNER_ONLY }"
+								groupName="categoryListing"/>
+				<mx:Label width="100%" text="{resourceManager.getString('cms', 'cl_noRestrictionDesc')}"
+						  styleName="smallLabel"/>
+			</mx:HBox>
+			<mx:HBox styleName="plstAddRemoveCont">
+				<mx:RadioButton label="{resourceManager.getString('cms','private')}"
+								selected="{_category.appearInList == KalturaAppearInListType.CATEGORY_MEMBERS_ONLY}"
+								change="{ if((event.target as RadioButton).selected)_category.appearInList = KalturaAppearInListType.CATEGORY_MEMBERS_ONLY }"
+								groupName="categoryListing"/>
+				<mx:Label width="100%" text="{resourceManager.getString('cms', 'cl_privateDesc')}" styleName="smallLabel"/>
+			</mx:HBox>
+		</mx:VBox>
+	</mx:HBox>
+	<mx:HRule width="90%"/>
+	
+	<!-- contribution policy (who can add content) -->
+	<mx:HBox width="100%">
+		<mx:Image source="{StyleManager.getStyleDeclaration('.imageBank').getStyle('helpImg')}" 
+				  toolTip="{resourceManager.getString('cms', 'whoCanAddContentTooltip')}"/>
+		<mx:Text text="{resourceManager.getString('cms', 'whoCanAddContent')}" width="{LABEL_WIDTH}"
+				 styleName="drillDownLabel" toolTip="{resourceManager.getString('cms', 'whoCanAddContentTooltip')}"/>
+		<mx:VBox width="100%">
+			<mx:HBox styleName="plstAddRemoveCont">
+				<mx:RadioButtonGroup enabled="{changesEnabled}" id="whoCanAddContent" />
+				<mx:RadioButton label="{resourceManager.getString('cms','noRestriction')}"
+								selected="{_category.contributionPolicy == KalturaContributionPolicyType.ALL}"
+								change="{ if((event.target as RadioButton).selected)_category.contributionPolicy = KalturaContributionPolicyType.ALL }"
+								groupName="whoCanAddContent"/>
+				<mx:Label width="100%" text="{resourceManager.getString('cms', 'wa_noRestrictionDesc')}"
+						  styleName="smallLabel"/>
+			</mx:HBox>
+			<mx:HBox styleName="plstAddRemoveCont">
+				<mx:RadioButton label="{resourceManager.getString('cms','private')}"
+								selected="{_category.contributionPolicy == KalturaContributionPolicyType.MEMBERS_WITH_CONTRIBUTION_PERMISSION}"
+								change="{ if((event.target as RadioButton).selected)_category.contributionPolicy = KalturaContributionPolicyType.MEMBERS_WITH_CONTRIBUTION_PERMISSION }"
+								groupName="whoCanAddContent"/>
+				<mx:Label width="100%" text="{resourceManager.getString('cms', 'wa_privateDesc')}" styleName="smallLabel"/>
+			</mx:HBox>
+		</mx:VBox>
+	</mx:HBox>
+	<mx:HRule width="90%" visible="{_category.parentId > 0}" includeInLayout="{_category.parentId > 0}" />
+	
+	<!-- inheritance type (inherit end user specific permissions) -->
+	<mx:HBox width="100%" visible="{_category.parentId > 0}" includeInLayout="{_category.parentId > 0}" >
+		<mx:Image source="{StyleManager.getStyleDeclaration('.imageBank').getStyle('helpImg')}"
+				  toolTip="{resourceManager.getString('cms', 'inheritEndUserSpecificTooltip')}"/>
+		<mx:Text text="{resourceManager.getString('cms', 'inheritEndUserSpecific')}" width="{LABEL_WIDTH}"
+				 styleName="drillDownLabel" toolTip="{resourceManager.getString('cms', 'inheritEndUserSpecificTooltip')}"/>
+		<mx:VBox width="100%">
+			<mx:HBox styleName="plstAddRemoveCont">
+				<mx:RadioButtonGroup enabled="{changesEnabled}" id="inheritEndUserSpecific" />
+				<mx:RadioButton label="{resourceManager.getString('cms','no')}" id="inheritNo"
+								selected="{_category.inheritanceType == KalturaInheritanceType.MANUAL}"
+								change="inheritNo_changeHandler(event)"
+								groupName="inheritEndUserSpecific"/>
+				<mx:Label width="100%" text="{resourceManager.getString('cms', 'inheritEndUserSpecificNoDesc')}"
+						  styleName="smallLabel"/>
+			</mx:HBox>
+			<mx:HBox styleName="plstAddRemoveCont">
+				<mx:RadioButton label="{resourceManager.getString('cms','yes')}" id="inheritYes"
+								selected="{_category.inheritanceType == KalturaInheritanceType.INHERIT}"
+								change="inheritYes_changeHandler(event)"
+								groupName="inheritEndUserSpecific" />
+				<mx:Label width="100%" text="{resourceManager.getString('cms', 'inheritEndUserSpecificYesDesc')}"
+						  styleName="smallLabel"/>
+			</mx:HBox>
+		</mx:VBox>
+	</mx:HBox>
+	
+	<mx:Spacer height="10"/>
+	
+	<!-- inheritance details -->
+	<mx:VBox width="90%" styleName="flavorsReplacementVBox">
+		<mx:HBox width="100%" verticalAlign="middle">
+			<mx:Label text="{resourceManager.getString('cms', 'endUserSpecificActionPer')}" styleName="drillDownLabel"/>
+			<mx:HBox styleName="noPadding" visible="{_category.inheritanceType == KalturaInheritanceType.INHERIT}">
+				<mx:Label text="{resourceManager.getString('cms', 'inheritedFrom')}" styleName="drillDownLabel"/>	
+				<mx:Label styleName="drillDownSubLabel" maxWidth="{TEXT_WIDTH}" 
+						  text="{model.inheritedParentCategory.fullName}" />
+			</mx:HBox>
+		</mx:HBox>
+		<mx:HBox width="100%" verticalAlign="middle">
+			<mx:Label text="{resourceManager.getString('cms', 'owner')}:" styleName="drillDownLabel"/>
+			<mx:Label id="txtOwner" maxWidth="{LABEL_WIDTH}" styleName="drillDownSubLabel" />
+			<mx:LinkButton label="{resourceManager.getString('cms', 'change')}" click="changeOwner()"
+						   enabled="{_category.inheritanceType == KalturaInheritanceType.MANUAL &amp;&amp; changesEnabled}" />
+			<mx:VRule height="10"/>
+			<mx:Label text="{resourceManager.getString('cms', 'users')}:" styleName="drillDownLabel"/>
+			<mx:Text styleName="drillDownSubLabel"
+					 text="{resourceManager.getString('cms', 'membersCount', [_categoryForInheritedFields.membersCount])}"/>
+			<mx:LinkButton label="{resourceManager.getString('cms', 'manage')}" click="openEndUserPermissions()" />
+		</mx:HBox>
+	</mx:VBox>
+
+	<mx:Spacer height="10"/>
+	<!--<mx:HBox width="100%" styleName="noPadding">
+		<mx:Label width="{LABEL_WIDTH + helpIco.width + 10}" styleName="drillDownLabel"
+				  text="{resourceManager.getString('cms', 'joinGroupPolicy')}"/>
+		<mx:ComboBox id="policyCb" change="policyCb_changeHandler(event)" width="250"
+					 enabled="{_category.inheritanceType == KalturaInheritanceType.MANUAL &amp;&amp; changesEnabled}"/>
+	</mx:HBox>-->
+	<mx:HBox width="100%" styleName="noPadding">
+		<mx:Label width="{LABEL_WIDTH + helpIco.width + 10}" styleName="drillDownLabel"
+				  text="{resourceManager.getString('cms', 'defaultPermissionLevel')}"/>
+		<mx:ComboBox id="levelCb" change="levelCb_changeHandler(event)" width="250"
+					 enabled="{_category.inheritanceType == KalturaInheritanceType.MANUAL &amp;&amp; changesEnabled}"/>
+	</mx:HBox>
+	
+	<mx:HBox width="100%">
+		<mx:Label width="{LABEL_WIDTH + helpIco.width + 10}" styleName="drillDownLabel"
+				  text="{resourceManager.getString('cms', 'moderateContent')}" toolTip="{resourceManager.getString('cms', 'moderateContentTooltip')}"/>
+		<mx:VBox width="100%">
+			<mx:HBox styleName="plstAddRemoveCont">
+				<mx:RadioButtonGroup enabled="{changesEnabled}" id="categoryModeration" />
+				<mx:RadioButton label="{resourceManager.getString('cms','no')}"
+								selected="{_category.moderation == KalturaNullableBoolean.FALSE_VALUE}"
+								change="{ if((event.target as RadioButton).selected)_category.moderation = KalturaNullableBoolean.FALSE_VALUE }"
+								groupName="categoryModeration"/>
+			</mx:HBox>
+			<mx:HBox styleName="plstAddRemoveCont">
+				<mx:RadioButton label="{resourceManager.getString('cms','yes')}"
+								selected="{_category.moderation == KalturaNullableBoolean.TRUE_VALUE}"
+								change="{ if((event.target as RadioButton).selected)_category.moderation = KalturaNullableBoolean.TRUE_VALUE }"
+								groupName="categoryModeration"/>
+			</mx:HBox>
+		</mx:VBox>
+	</mx:HBox>
+</mx:VBox>

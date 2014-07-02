@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layouts>
+	<layout layoutId="weplay" skinPath="/content/uiconf/weplay/weplay.swf">
+		<VBox height="100%" width="100%">
+			<VBox height="100%" styleName="topLevelVbox" width="100%">
+				<Canvas height="100%" id="PlayerHolder" styleName="PlayerBackground" width="100%">
+					<KplayerModule height="100%" id="myKplayer" k_path="kplayer/KplayerModule.swf" styleName="centered" width="100%"/>
+					<playerPlayBtn height="100%" id="playerPlayBtn" k_path="playerPlayPauseBtn/PlayerPlayPauseButton.swf" styleName="centered" width="100%"/>
+					<waterMark height="100%" id="kalturaWaterMark" k_path="watermarks/WaterMarkLoader.swf" styleName="centered" width="100%" k_watermark_position="bottomRight"/>
+				</Canvas>
+				<HBox height="29" styleName="controllerBox" width="100%">
+					<Spacer width="2"/>
+					<Button height="20" id="play" styleName="play" width="20"/>
+					<Spacer width="3"/>
+					<VBox height="20" width="100%">
+						<Scrubber height="16" id="scrubber" styleName="scrubber" width="100%"/>
+						<Spacer height="6"/>
+					</VBox>
+					<TimerCountdown id="timer" k_path="timertext/SimpleTimer.swf" width="35"/>
+					<Spacer width="6"/>
+					<VolumeModule height="20" id="volume" k_path="VolumeBars/VolumeBarA.swf" width="20"/>
+					<Spacer width="3"/>
+					<Button height="20" id="fullScreen" label="" styleName="fs" width="20"/>
+					<Spacer width="5"/>
+				</HBox>
+			</VBox>
+		</VBox>
+		<popups></popups>
+		<javaScript></javaScript>
+	</layout>
+</layouts>

@@ -1,0 +1,808 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layouts>
+	<layout layoutId="full" 
+		skinPath="/content/uiconf/kaltura/aps/skin_kdp_screens.swf">
+		<VBox height="100%" styleName="mlayout" width="100%">
+			<HBox height="30" id="TopTitle" styleName="a" k_theme_change="true" 
+				width="100%">
+				<Label height="22" id="movieName111" 
+					label="{myKplayer.kalturaShow.kshowName,myKplayer.kalturaEntry.entryName,''}" 
+					styleName="movieName" width="100%"/>
+				<Button height="20" id="kalturaLogo" 
+					k_click="navigate:http://www.kaltura.com" 
+					styleName="kalturaLogo" width="40"/>
+			</HBox>
+			<HBox height="100%" styleName="playerContainer" 
+				id="playerContainer" width="100%">
+				<Canvas height="100%" id="PlayerHolder" 
+					styleName="PlayerBackground" width="100%">
+					<KplayerModule height="100%" id="myKplayer" 
+						k_path="kplayer/KplayerModule.swf" styleName="centered" 
+						width="100%"/>
+					<waterMark height="100%" id="loadedWaterMark" 
+						k_path="watermarks/WaterMarkLoader.swf" 
+						k_watermark_path="/content/uiconf/qa/kdp/kaltura_watermark.png?" 
+						k_watermark_position="bottomLeft" styleName="centered" 
+						width="100%"/>
+					<screens height="100%" id="screens" styleName="centered" 
+						width="100%" k_path="screens/Screens.swf" 
+						k_end_screen_id="startScreen" 
+						k_end_screen_over_id="startScreen" 
+						k_pause_screen_id="startScreen" 
+						k_pause_screen_over_id="startScreen" 
+						k_play_screen_id="emptyScreen" 
+						k_play_screen_over_id="startScreen" 
+						k_start_screen_id="startScreen" 
+						k_start_screen_over_id="startScreen" />
+					<Gigya height="100%" id="Gigya" 
+						k_share_email_link="http://www.poli.com" 
+						k_share_email_body="Hi%2c%3cbr%3eI watched this video and thought you'd enjoy it too %24URL%24 to watch.%3cbr%3e%0d%0a%24sender%24%0d%0a" 
+						k_share_email_subject="Take a look at this video" 
+						k_path="addons/Gigya.swf" width="100%" 
+						k_uiconf_id="19105" />
+				</Canvas>
+			</HBox>
+			<HBox height="35" id="controllerBox" styleName="a" 
+				k_theme_change="true" width="100%">
+				<Button k_buttonType="buttonControllerArea" height="30" 
+					id="play" styleName="play" width="30"/>
+				<VBox width="100%" id="scrubberContainer" height="100%">
+					<Spacer height="1"/>
+					<Scrubber id="scrubber" styleName="scrubber" width="100%" 
+						k_color_change="true" height="12" />
+				</VBox>
+				<TimerCountdown height="10" id="timer" 
+					k_path="timertext/TimerCountdown.swf" styleName="timer" 
+					width="30"/>
+				<Spacer width="3"/>
+				<VolumeModule height="15" id="Volume" 
+					k_path="VolumeBars/VolumeBarB.swf" styleName="volumeIcon" 
+					width="15"/>
+				<Spacer width="3"/>
+				<Button k_buttonType="buttonIconControllerArea" 
+					command="fullScreen" id="fullScreen" height="17" label="" 
+					styleName="fs" tooltip="Toggle Full Screen Mode" 
+					width="20"/>
+				<Spacer width="4"/>
+				<Button k_buttonType="buttonControllerArea" height="20" 
+					id="button1" k_click="jsInject:gotoEditorWindow,pauseMedia" 
+					label="Edit" styleName="bottomButtonsSmall" 
+					width="autoSize"/>
+				<Spacer width="4"/>
+				<Button k_buttonType="buttonControllerArea" height="20" 
+					id="button2" k_click="jsInject:gotoEditorWindow,pauseMedia" 
+					label="Edit" styleName="bottomButtonsSmall" 
+					width="autoSize"/>
+				<Spacer width="4"/>
+				<Button height="19" id="createThumbnail" label="Thumb" 
+					k_buttonType="buttonControllerArea" 
+					styleName="bottomButtonsSmall" width="autoSize"/>
+			</HBox>
+		</VBox>
+		<visual>
+			<theme id="theme1">
+				<primaryColor>0xFF6600</primaryColor>
+				<secondaryColor>0x00FF99</secondaryColor>
+				<cssSelector componentId="TopTitle" newClass="a" />
+				<cssSelector componentId="controllerBox" newClass="a" />
+			</theme>
+			<theme id="theme2">
+				<primaryColor>0xFF6600</primaryColor>
+				<secondaryColor>0x00FF99</secondaryColor>
+				<cssSelector componentId="TopTitle" newClass="b" />
+				<cssSelector componentId="controllerBox" newClass="b" />
+			</theme>
+			<theme id="theme3">
+				<primaryColor>0xFF6600</primaryColor>
+				<secondaryColor>0x00FF99</secondaryColor>
+				<cssSelector componentId="TopTitle" newClass="c" />
+				<cssSelector componentId="controllerBox" newClass="c" />
+			</theme>
+			<theme id="theme4">
+				<primaryColor>0xFF6600</primaryColor>
+				<secondaryColor>0x00FF99</secondaryColor>
+				<cssSelector componentId="TopTitle" newClass="d" />
+				<cssSelector componentId="controllerBox" newClass="d" />
+			</theme>
+			<theme id="theme5">
+				<primaryColor>0xFF6600</primaryColor>
+				<secondaryColor>0x00FF99</secondaryColor>
+				<cssSelector componentId="TopTitle" newClass="e" />
+				<cssSelector componentId="controllerBox" newClass="e" />
+			</theme>
+			<theme id="currentTheme">
+				<primaryColor>0x000000</primaryColor>
+				<secondaryColor>0x33FF33</secondaryColor>
+				<cssSelector componentId="TopTitle" newClass="c" />
+				<cssSelector componentId="controllerBox" newClass="e" />
+				<font>Georgia</font>
+				<fontSize>12</fontSize>
+			</theme>
+		</visual>
+		<popups>
+			<module height="100%" id="report" k_path="popups/Report.swf" 
+				width="100%"/>
+			<credits height="100%" id="credits" 
+				k_path="credits/CreditsWindow.swf" width="100%"/>
+		</popups>
+		<screens>
+			<screen id="endScreen" styleName="screenContainer">
+				<HBox height="100%" styleName="centered" width="100%">
+					<Button labelPlacement="top" k_buttonType="buttonVideoArea" 
+						command="gigyaButton" id="start_share" label="Share" 
+						styleName="shareBtn" />
+				</HBox>
+			</screen>
+			<screen id="pauseScreen">
+				<VBox height="100%" id="screenContainer" 
+					styleName="screenContainer" width="100%">
+					<HBox height="100%" styleName="centered" width="100%">
+						<Button labelPlacement="top" height="20" 
+							k_buttonType="buttonVideoArea" id="pause_report" 
+							k_click="popup:report" label="Report" 
+							styleName="bottomButtonsSmall" />
+					</HBox>
+				</VBox>
+			</screen>
+			<screen id="playScreen">
+				<VBox height="100%" id="screenContainer" 
+					styleName="screenContainer" width="100%">
+					<Spacer height="100%" />
+					<Tile>
+						<Button labelPlacement="top" 
+							k_buttonType="buttonVideoArea" id="end_related1" 
+							label="related1" styleName="relatedBtn" 
+							minWidth="60" />
+						<Button labelPlacement="top" 
+							k_buttonType="buttonVideoArea" id="end_related" 
+							label="related" styleName="relatedBtn" 
+							minWidth="60" />
+						<Button labelPlacement="top" 
+							k_buttonType="buttonVideoArea" id="end_related2" 
+							label="related2" styleName="relatedBtn" 
+							minWidth="60" />
+						<Button labelPlacement="top" command="replay" 
+							k_buttonType="buttonVideoArea" id="end_replay" 
+							label="replay" styleName="replayBtn" minWidth="60"/>
+						<Button labelPlacement="top" 
+							k_buttonType="buttonVideoArea" id="end_related3" 
+							label="related3" styleName="relatedBtn" 
+							minWidth="60" />
+						<Button labelPlacement="top" command="gigyaButton" 
+							k_buttonType="buttonVideoArea" id="end_share" 
+							label="Share" styleName="shareBtn" minWidth="60"/>
+					</Tile>
+					<Spacer height="100%" />
+				</VBox>
+			</screen>
+			<screen id="startScreen">
+				<VBox height="100%" id="screenContainer" 
+					styleName="screenContainer" width="100%">
+					<Spacer height="100%" />
+					<Tile>
+						<Button labelPlacement="top" command="gigyaButton" 
+							k_buttonType="buttonVideoArea" id="end_share" 
+							label="Share" styleName="shareBtn" minWidth="60"/>
+						<Button labelPlacement="top" command="replay" 
+							k_buttonType="buttonVideoArea" id="end_replay" 
+							label="replay" styleName="replayBtn" minWidth="60"/>
+						<Button labelPlacement="top" 
+							k_buttonType="buttonVideoArea" id="end_related" 
+							label="related" styleName="relatedBtn" 
+							minWidth="60" />
+						<Button labelPlacement="top" 
+							k_buttonType="buttonVideoArea" id="end_related1" 
+							label="related1" styleName="relatedBtn" 
+							minWidth="60" />
+						<Button labelPlacement="top" 
+							k_buttonType="buttonVideoArea" id="end_related2" 
+							label="related2" styleName="relatedBtn" 
+							minWidth="60" />
+						<Button labelPlacement="top" 
+							k_buttonType="buttonVideoArea" id="end_related3" 
+							label="related3" styleName="relatedBtn" 
+							minWidth="60" />
+					</Tile>
+					<Spacer height="100%" />
+				</VBox>
+			</screen>
+		</screens>
+		<javaScript>
+			<jsBlock id="gotoEditorWindow" functionName="doRemix" 
+				params="kshowId" />
+		</javaScript>
+		<extraData>
+			<GigyaUI>
+				<config>
+					<display showDesktop="false" showEmail="true" 
+						useTransitions="true" showBookmark="true" 
+						codeBoxHeight="auto" showCloseButton="true" 
+						postToSidebarChecked="false" bulletinChecked="false" 
+						networksToHide="livespaces, piczo, orkut, pageflakes, vox, tagged, hi5, wordpress, multiply" 
+						networksWithCodeBox="*" 
+						networksToShow="myspace, facebook, bebo, blogger, freewebs, livejournal, blackplanet, myyearbook, typepad, xanga, igoogle, netvibes, migente, friendster" 
+						bookmarksToShow="googlebookmarks,delicious,digg,facebookshare,newsvine,reddit,twitter,ask,myaol,slashdot,skimbit,simpy,blogmarks,spurl,linkagogo,Magnolia,faves,segnalo,netvouz,blinklist,dropjack,feedmelinks"></display>
+					<body>
+						<controls corner-roundness="0;10;0;10">
+							<snbuttons iconsOnly="false" type="textUnder"></snbuttons>
+							<servicemarker gradient-color-begin="#F4F4F4" 
+								gradient-color-end="#D5D5D5"></servicemarker>
+						</controls>
+					</body>
+				</config>
+			</GigyaUI>
+		</extraData>
+	</layout>
+	<!-- ########################################################################### -->
+	<layout layoutId="AppStudioTemplate" 
+		skinPath="/content/uiconf/qa/kdp/skin_kdp_screens.swf">
+		<VBox id="player" height="100%" styleName="mlayout" width="100%">
+			<HBox height="30" id="TopTitle" styleName="a" k_theme_change="true" 
+				width="100%">
+				<Label height="22" id="movieName" 
+					label="{myKplayer.kalturaEntry.entryName,myKplayer.kalturaShow.kshowName,''}" 
+					styleName="movieName" width="100%"/>
+			</HBox>
+			<HBox height="100%" styleName="playerContainer" 
+				id="playerContainer" width="100%">
+				<Canvas height="100%" id="PlayerHolder" 
+					styleName="PlayerBackground" width="100%">
+					<KplayerModule height="100%" id="myKplayer" 
+						k_path="kplayer/KplayerModule.swf" styleName="centered" 
+						width="100%"/>
+					<waterMark height="100%" id="loadedWaterMark" 
+						k_path="watermarks/WaterMarkLoader.swf" 
+						k_watermark_path="/content/uiconf/qa/kdp/kaltura_watermark.png‬" 
+						k_watermark_position="bottomLeft" styleName="centered" 
+						width="100%"/>
+					<screens height="100%" id="screens" styleName="centered" 
+						width="100%" k_path="screens/Screens.swf" 
+						k_end_screen_id="endScreen" 
+						k_end_screen_over_id="endScreen" 
+						k_pause_screen_id="pauseScreen" 
+						k_pause_screen_over_id="pauseScreen" 
+						k_play_screen_id="emptyScreen" 
+						k_play_screen_over_id="playScreen" 
+						k_start_screen_id="startScreen" 
+						k_start_screen_over_id="startScreen" />
+					<Gigya height="100%" id="Gigya" 
+						k_share_email_link="http://www.poli.com" 
+						k_share_email_body="Hi%2c%3cbr%3eI watched this video and thought you'd enjoy it too %24URL%24 to watch.%3cbr%3e%0d%0a%24sender%24%0d%0a" 
+						k_share_email_subject="Take a look at this video" 
+						k_path="addons/Gigya.swf" width="100%" k_uiconf_id="r" 
+						/>
+				</Canvas>
+			</HBox>
+			<HBox id="controllerBox" width="100%" height="35" styleName="a" 
+				k_theme_change="true" >
+				<Button id="playBtnController" command="play" width="25" 
+					height="25" k_buttonType="buttonControllerArea" 
+					styleName="play" />
+				<VBox id="scrubberContainerController" width="100%" 
+					height="100%">
+					<Spacer height="1"/>
+					<Scrubber id="scrubberController" styleName="scrubber" 
+						width="100%" k_color_change="true" height="12" />
+				</VBox>
+				<TimerCountdown id="timerController" width="30" height="10" 
+					styleName="timer" k_path="timertext/TimerCountdown.swf" />
+				<VolumeModule width="15" height="15" id="volumeBarController" 
+					k_path="VolumeBars/VolumeBarB.swf" styleName="volumeBar" />
+				<Button id="fullScreenBtnController" command="fullScreen" 
+					k_buttonType="buttonIconControllerArea" width="autoSize" 
+					height="15" label="" styleName="fs" 
+					tooltip="Toggle Full Screen Mode" />
+				<Button id="poweredByController" width="40" height="20" 
+					k_click="navigate:http://www.kaltura.com" 
+					styleName="kalturaLogo" />
+				<Button id="editBtnController" 
+					k_buttonType="buttonControllerArea" width="autoSize" 
+					height="20" k_click="jsInject:gotoEditorWindow,pauseMedia" 
+					label="Edit" styleName="editBtn" />
+				<Button id="uploadBtnController" width="autoSize" height="20" 
+					k_buttonType="buttonControllerArea" 
+					k_click="jsInject:gotoEditorWindow,pauseMedia" 
+					label="upload" styleName="uploadBtn" />
+				<Button id="shareBtnController" 
+					k_buttonType="buttonControllerArea" command="gigyaButton" 
+					label="Share" styleName="" />
+				<Button id="relatedBtnController" 
+					k_buttonType="buttonControllerArea" width="autoSize" 
+					height="20" label="related" styleName="" />
+				<Button id="downloadBtnController" 
+					k_buttonType="buttonControllerArea" width="autoSize" 
+					height="20" label="download" styleName="downloadBtn" />
+				<Button id="flagBtnController" 
+					k_buttonType="buttonControllerArea" width="autoSize" 
+					height="20" label="flag" k_click="popup:report" 
+					styleName="flagBtn" />
+				<Button id="creditsBtnController" 
+					k_buttonType="buttonControllerArea" width="autoSize" 
+					height="20" label="credits" k_click="credits" 
+					styleName="creditsBtn" />
+				<Button id="ffwx2BtnController" command="ffwx2" 
+					k_buttonType="buttonControllerArea" width="autoSize" 
+					height="20" label="x2" styleName="ffwx2" />
+				<Button id="ffwx4BtnController" command="ffwx4" 
+					k_buttonType="buttonControllerArea" width="autoSize" 
+					height="20" label="x4" styleName="ffwx4" />
+				<Button id="ffwx8BtnController" command="ffwx8" 
+					k_buttonType="buttonControllerArea" width="autoSize" 
+					height="20" label="x8" styleName="ffwx8" />
+				<Button id="custom1BtnController" 
+					k_buttonType="buttonControllerArea" width="autoSize" 
+					height="20" k_click="jsInject:customFunc1" label="custom1" 
+					styleName="custom1" />
+				<Button id="custom2BtnController" 
+					k_buttonType="buttonControllerArea" width="autoSize" 
+					height="20" k_click="jsInject:customFunc2" label="custom2" 
+					styleName="custom2" />
+				<Button id="custom3BtnController" 
+					k_buttonType="buttonControllerArea" width="autoSize" 
+					height="20" k_click="jsInject:customFunc3" label="custom3" 
+					styleName="custom3" />
+				<Button id="custom4BtnController" 
+					k_buttonType="buttonControllerArea" width="autoSize" 
+					height="20" k_click="jsInject:customFunc4" label="custom4" 
+					styleName="custom4" />
+				<Button id="custom5BtnController" 
+					k_buttonType="buttonControllerArea" width="autoSize" 
+					height="20" k_click="jsInject:customFunc5" label="custom5" 
+					styleName="custom5" />
+				<Button id="thumbnailBtnController" command="thumbnail" 
+					width="autoSize" height="20" 
+					k_buttonType="buttonControllerArea" label="Thumb" 
+					styleName="thumbnailBtn" />
+			</HBox>
+		</VBox>
+		<visual>
+			<primaryColor>0x000000</primaryColor>
+			<secondaryColor>0xFFFF33</secondaryColor>
+			<theme id="theme1">
+				<primaryColor>0xFF6600</primaryColor>
+				<secondaryColor>0x00FF99</secondaryColor>
+				<cssSelector componentId="TopTitle" newClass="a" />
+				<cssSelector componentId="controllerBox" newClass="a" />
+			</theme>
+			<theme id="theme2">
+				<primaryColor>0xFF6600</primaryColor>
+				<secondaryColor>0x00FF99</secondaryColor>
+				<cssSelector componentId="TopTitle" newClass="b" />
+				<cssSelector componentId="controllerBox" newClass="b" />
+			</theme>
+			<theme id="theme3">
+				<primaryColor>0xFF6600</primaryColor>
+				<secondaryColor>0x00FF99</secondaryColor>
+				<cssSelector componentId="TopTitle" newClass="c" />
+				<cssSelector componentId="controllerBox" newClass="c" />
+			</theme>
+			<theme id="theme4">
+				<primaryColor>0xFF6600</primaryColor>
+				<secondaryColor>0x00FF99</secondaryColor>
+				<cssSelector componentId="TopTitle" newClass="d" />
+				<cssSelector componentId="controllerBox" newClass="d" />
+			</theme>
+			<theme id="theme5">
+				<primaryColor>0xFF6600</primaryColor>
+				<secondaryColor>0x00FF99</secondaryColor>
+				<cssSelector componentId="TopTitle" newClass="e" />
+				<cssSelector componentId="controllerBox" newClass="e" />
+			</theme>
+			<font></font>
+		</visual>
+		<popups>
+			<module height="100%" id="report" k_path="popups/Report.swf" 
+				width="100%"/>
+			<credits height="100%" id="credits" 
+				k_path="credits/CreditsWindow.swf" width="100%"/>
+		</popups>
+		<screens>
+			<screen id="startScreen">
+				<VBox height="100%" id="screenContainer" 
+					styleName="screenContainer" width="100%">
+					<Spacer height="100%" />
+					<Tile>
+						<Button id="onVideoPlayBtnStartScreen" command="play" 
+							width="autoSize" height="autoSize" label="play" 
+							k_buttonType="buttonVideoArea" styleName="playBtn" 
+							/>
+						<Button id="shareBtnStartScreen" width="autoSize" 
+							height="autoSize" k_buttonType="buttonVideoArea" 
+							command="gigyaButton" label="Share" styleName="" />
+						<Button id="fullScreenBtnStartScreen" 
+							command="fullScreen" k_buttonType="buttonVideoArea" 
+							width="autoSize" height="autoSize" labelPlacement="top"  
+							label="fullscreen" styleName="fs" 
+							tooltip="Toggle Full Screen Mode" />
+						<Button id="editBtnStartScreen" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" 
+							k_click="jsInject:gotoEditorWindow,pauseMedia" 
+							label="Edit" styleName="editBtn" />
+						<Button id="uploadBtnStartScreen" width="autoSize" 
+							height="autoSize" k_buttonType="buttonVideoArea" 
+							k_click="jsInject:gotoEditorWindow,pauseMedia" 
+							label="upload" styleName="uploadBtn" />
+						<Button id="replayBtnStartScreen" command="replay" 
+							width="autoSize" height="autoSize" 
+							labelPlacement="top" k_buttonType="buttonVideoArea" 
+							styleName="replayBtn" label="share" />
+						<Button id="relatedBtnStartScreen" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" label="related" styleName="" />
+						<Button id="downloadBtnStartScreen" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" label="download" 
+							styleName="downloadBtn" />
+						<Button id="flagBtnStartScreen" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" label="flag" 
+							k_click="popup:report" styleName="flagBtn" />
+						<Button id="creditsBtnStartScreen" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" label="credits" k_click="credits" 
+							styleName="creditsBtn" />
+						<Button id="ffwx2BtnStartScreen" command="ffwx2" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" label="x2" styleName="ffwx2" />
+						<Button id="ffwx4BtnStartScreen" command="ffwx4" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" label="x4" styleName="ffwx4" />
+						<Button id="ffwx8BtnStartScreen" command="ffwx8" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" label="x8" styleName="ffwx8" />
+						<Button id="custom1BtnStartScreen" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" k_click="jsInject:customFunc1" 
+							label="custom1" styleName="custom1" />
+						<Button id="custom2BtnStartScreen" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" k_click="jsInject:customFunc2" 
+							label="custom2" styleName="custom2" />
+						<Button id="custom3BtnStartScreen" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" k_click="jsInject:customFunc3" 
+							label="custom3" styleName="custom3" />
+						<Button id="custom4BtnStartScreen" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" k_click="jsInject:customFunc4" 
+							label="custom4" styleName="custom4" />
+						<Button id="custom5BtnStartScreen" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" k_click="jsInject:customFunc5" 
+							label="custom5" styleName="custom5" />
+						<Button id="thumbnailBtnStartScreen" 
+							command="thumbnail" width="autoSize" 
+							height="autoSize" k_buttonType="buttonVideoArea" 
+							label="Thumb" styleName="thumbnailBtn" />
+						<Button id="unMuteBtnStartScreen" command="unMute" 
+							width="autoSize" height="autoSize" label="unmute" 
+							k_buttonType="buttonVideoArea" styleName="unMute" />
+					</Tile>
+					<Spacer height="100%" />
+				</VBox>
+			</screen>
+			<screen id="pauseScreen">
+				<VBox height="100%" id="screenContainer" 
+					styleName="screenContainer" width="100%">
+					<Spacer height="100%" />
+					<Tile>
+						<Button id="onVideoPlayBtnPauseScreen" command="play" 
+							width="autoSize" height="autoSize" label="play" 
+							k_buttonType="buttonVideoArea" styleName="playBtn" 
+							/>
+						<Button id="unMuteBtnPauseScreen" command="unMute" 
+							width="autoSize" height="autoSize" label="unmute" 
+							k_buttonType="buttonVideoArea" styleName="unMute" />
+						<Button id="shareBtnPauseScreen" width="autoSize" 
+							height="autoSize" k_buttonType="buttonVideoArea" 
+							command="gigyaButton" label="Share" styleName="" />
+						<Button id="fullScreenBtnPauseScreen" 
+							command="fullScreen" k_buttonType="buttonVideoArea" 
+							width="autoSize" height="autoSize" 
+							label="fullscreen" styleName="fs" 
+							tooltip="Toggle Full Screen Mode" />
+						<Button id="editBtnPauseScreen" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" 
+							k_click="jsInject:gotoEditorWindow,pauseMedia" 
+							label="Edit" styleName="editBtn" />
+						<Button id="uploadBtnPauseScreen" width="autoSize" 
+							height="autoSize" k_buttonType="buttonVideoArea" 
+							k_click="jsInject:gotoEditorWindow,pauseMedia" 
+							label="upload" styleName="uploadBtn" />
+						<Button id="replayBtnPauseScreen" command="replay" 
+							width="25" height="autoSize" 
+							k_buttonType="buttonVideoArea" 
+							styleName="replayBtn" />
+						<Button id="relatedBtnPauseScreen" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" label="related" styleName="" />
+						<Button id="downloadBtnPauseScreen" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" label="download" 
+							styleName="downloadBtn" />
+						<Button id="flagBtnPauseScreen" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" label="flag" 
+							k_click="popup:report" styleName="flagBtn" />
+						<Button id="ffwx2BtnPauseScreen" command="ffwx2" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" label="x2" styleName="ffwx2" />
+						<Button id="creditsBtnPauseScreen" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" label="credits" k_click="credits" 
+							styleName="creditsBtn" />
+						<Button id="ffwx4BtnPauseScreen" command="ffwx4" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" label="x4" styleName="ffwx4" />
+						<Button id="ffwx8BtnPauseScreen" command="ffwx8" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" label="x8" styleName="ffwx8" />
+						<Button id="custom1BtnPauseScreen" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" k_click="jsInject:customFunc1" 
+							label="custom1" styleName="custom1" />
+						<Button id="custom2BtnPauseScreen" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" k_click="jsInject:customFunc2" 
+							label="custom2" styleName="custom2" />
+						<Button id="custom3BtnPauseScreen" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" k_click="jsInject:customFunc3" 
+							label="custom3" styleName="custom3" />
+						<Button id="custom5BtnPauseScreen" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" k_click="jsInject:customFunc5" 
+							label="custom5" styleName="custom5" />
+						<Button id="custom4BtnPauseScreen" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" k_click="jsInject:customFunc4" 
+							label="custom4" styleName="custom4" />
+						<Button id="thumbnailBtnPauseScreen" 
+							command="thumbnail" width="autoSize" 
+							height="autoSize" k_buttonType="buttonVideoArea" 
+							label="Thumb" styleName="thumbnailBtn" />
+					</Tile>
+					<Spacer height="100%" />
+				</VBox>
+			</screen>
+			<screen id="playScreen">
+				<VBox height="100%" id="screenContainer" 
+					styleName="screenContainer" width="100%">
+					<Spacer height="100%" />
+					<Tile>
+						<Button id="onVideoPlayBtnPlayScreen" command="play" 
+							width="autoSize" height="autoSize" label="play" 
+							k_buttonType="buttonVideoArea" styleName="playBtn" 
+							/>
+						<Button id="unMuteBtnPlayScreen" command="unMute" 
+							width="autoSize" height="autoSize" label="unmute" 
+							k_buttonType="buttonVideoArea" styleName="unMute" />
+						<Button id="shareBtnPlayScreen" width="autoSize" 
+							height="autoSize" k_buttonType="buttonVideoArea" 
+							command="gigyaButton" label="Share" styleName="" />
+						<Button id="fullScreenBtnPlayScreen" 
+							command="fullScreen" k_buttonType="buttonVideoArea" 
+							width="autoSize" height="autoSize" 
+							label="fullscreen" styleName="fs" 
+							tooltip="Toggle Full Screen Mode" />
+						<Button id="editBtnPlayScreen" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" 
+							k_click="jsInject:gotoEditorWindow,pauseMedia" 
+							label="Edit" styleName="editBtn" />
+						<Button id="uploadBtnPlayScreen" width="autoSize" 
+							height="autoSize" k_buttonType="buttonVideoArea" 
+							k_click="jsInject:gotoEditorWindow,pauseMedia" 
+							label="upload" styleName="uploadBtn" />
+						<Button id="replayBtnPlayScreen" command="replay" 
+							width="25" height="autoSize" 
+							k_buttonType="buttonVideoArea" 
+							styleName="replayBtn" />
+						<Button id="relatedBtnPlayScreen" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" label="related" styleName="" />
+						<Button id="downloadBtnPlayScreen" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" label="download" 
+							styleName="downloadBtn" />
+						<Button id="flagBtnPlayScreen" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" label="flag" 
+							k_click="popup:report" styleName="flagBtn" />
+						<Button id="ffwx2BtnPlayScreen" command="ffwx2" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" label="x2" styleName="ffwx2" />
+						<Button id="creditsBtnPlayScreen" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" label="credits" k_click="credits" 
+							styleName="creditsBtn" />
+						<Button id="ffwx4BtnPlayScreen" command="ffwx4" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" label="x4" styleName="ffwx4" />
+						<Button id="ffwx8BtnPlayScreen" command="ffwx8" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" label="x8" styleName="ffwx8" />
+						<Button id="custom1BtnPlayScreen" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" k_click="jsInject:customFunc1" 
+							label="custom1" styleName="custom1" />
+						<Button id="custom2BtnPlayScreen" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" k_click="jsInject:customFunc2" 
+							label="custom2" styleName="custom2" />
+						<Button id="custom3BtnPlayScreen" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" k_click="jsInject:customFunc3" 
+							label="custom3" styleName="custom3" />
+						<Button id="custom5BtnPlayScreen" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" k_click="jsInject:customFunc5" 
+							label="custom5" styleName="custom5" />
+						<Button id="custom4BtnPlayScreen" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" k_click="jsInject:customFunc4" 
+							label="custom4" styleName="custom4" />
+						<Button id="thumbnailBtnPlayScreen" command="thumbnail" 
+							width="autoSize" height="autoSize" 
+							k_buttonType="buttonVideoArea" label="Thumb" 
+							styleName="thumbnailBtn" />
+					</Tile>
+					<Spacer height="100%" />
+				</VBox>
+			</screen>
+			<screen id="endScreen">
+				<VBox height="100%" id="screenContainer" 
+					styleName="screenContainer" width="100%">
+					<Spacer height="100%" />
+					<Tile>
+						<Button id="onVideoPlayBtnEndScreen" command="play" 
+							width="autoSize" height="autoSize" label="play" 
+							k_buttonType="buttonVideoArea" styleName="playBtn" 
+							/>
+						<Button id="unMuteBtnEndScreen" command="unMute" 
+							width="autoSize" height="autoSize" label="unmute" 
+							k_buttonType="buttonVideoArea" styleName="unMute" />
+						<Button id="shareBtnendScreen" width="autoSize" 
+							height="autoSize" k_buttonType="buttonVideoArea" 
+							command="gigyaButton" label="Share" styleName="" />
+						<Button id="fullScreenBtnEndScreen" 
+							command="fullScreen" k_buttonType="buttonVideoArea" 
+							width="autoSize" height="autoSize" 
+							label="fullscreen" styleName="fs" 
+							tooltip="Toggle Full Screen Mode" />
+						<Button id="uploadBtnEndScreen" width="autoSize" 
+							height="autoSize" k_buttonType="buttonVideoArea" 
+							k_click="jsInject:gotoEditorWindow,pauseMedia" 
+							label="upload" styleName="uploadBtn" />
+						<Button id="editBtnEndScreen" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" 
+							k_click="jsInject:gotoEditorWindow,pauseMedia" 
+							label="Edit" styleName="editBtn" />
+						<Button id="replayBtnEndScreen" command="replay" 
+							width="25" height="autoSize" 
+							k_buttonType="buttonVideoArea" 
+							styleName="replayBtn" />
+						<Button id="relatedBtnEndScreen" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" label="related" styleName="" />
+						<Button id="flagBtnEndScreen" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" label="flag" 
+							k_click="popup:report" styleName="flagBtn" />
+						<Button id="downloadBtnEndScreen" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" label="download" 
+							styleName="downloadBtn" />
+						<Button id="creditsBtnEndScreen" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" label="credits" k_click="credits" 
+							styleName="creditsBtn" />
+						<Button id="custom1BtnEndScreen" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" k_click="jsInject:customFunc1" 
+							label="custom1" styleName="custom1" />
+						<Button id="custom2BtnEndScreen" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" k_click="jsInject:customFunc2" 
+							label="custom2" styleName="custom2" />
+						<Button id="custom3BtnEndScreen" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" k_click="jsInject:customFunc3" 
+							label="custom3" styleName="custom3" />
+						<Button id="custom4BtnEndScreen" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" k_click="jsInject:customFunc4" 
+							label="custom4" styleName="custom4" />
+						<Button id="custom5BtnEndScreen" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" k_click="jsInject:customFunc5" 
+							label="custom5" styleName="custom5" />
+						<Button id="thumbnailBtnEndScreen" command="thumbnail" 
+							width="autoSize" height="autoSize" 
+							k_buttonType="buttonVideoArea" label="Thumb" 
+							styleName="thumbnailBtn" />
+						<Button id="ffwx2BtnEndScreen" command="ffwx2" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" label="x2" styleName="ffwx2" />
+						<Button id="ffwx4BtnEndScreen" command="ffwx4" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" label="x4" styleName="ffwx4" />
+						<Button id="ffwx8BtnEndScreen" command="ffwx8" 
+							k_buttonType="buttonVideoArea" width="autoSize" 
+							height="autoSize" label="x8" styleName="ffwx8" />
+					</Tile>
+					<Spacer height="100%" />
+				</VBox>
+			</screen>
+		</screens>
+		<visual>
+			<theme id="theme1">
+				<primaryColor>0xFF6600</primaryColor>
+				<secondaryColor>0x00FF99</secondaryColor>
+				<cssSelector componentId="TopTitle" newClass="a" />
+				<cssSelector componentId="controllerBox" newClass="a" />
+			</theme>
+			<theme id="theme2">
+				<primaryColor>0xFF6600</primaryColor>
+				<secondaryColor>0x00FF99</secondaryColor>
+				<cssSelector componentId="TopTitle" newClass="b" />
+				<cssSelector componentId="controllerBox" newClass="b" />
+			</theme>
+			<theme id="theme3">
+				<primaryColor>0xFF6600</primaryColor>
+				<secondaryColor>0x00FF99</secondaryColor>
+				<cssSelector componentId="TopTitle" newClass="c" />
+				<cssSelector componentId="controllerBox" newClass="c" />
+			</theme>
+			<theme id="theme4">
+				<primaryColor>0xFF6600</primaryColor>
+				<secondaryColor>0x00FF99</secondaryColor>
+				<cssSelector componentId="TopTitle" newClass="d" />
+				<cssSelector componentId="controllerBox" newClass="d" />
+			</theme>
+			<theme id="theme5">
+				<primaryColor>0xFF6600</primaryColor>
+				<secondaryColor>0x00FF99</secondaryColor>
+				<cssSelector componentId="TopTitle" newClass="e" />
+				<cssSelector componentId="controllerBox" newClass="e" />
+			</theme>
+			<theme id="currentTheme">
+				<primaryColor>0x000000</primaryColor>
+				<secondaryColor>0x33FF33</secondaryColor>
+				<cssSelector componentId="TopTitle" newClass="c" />
+				<cssSelector componentId="controllerBox" newClass="e" />
+				<font>Georgia</font>
+				<fontSize>12</fontSize>
+			</theme>
+		</visual>
+		<javaScript>
+			<jsBlock id="gotoEditorWindow" functionName="doRemix" 
+				params="kshowId" />
+		</javaScript>
+		
+		<extraData>
+			<GigyaUI>
+				<config>
+					<display showDesktop="false" showEmail="true" 
+						useTransitions="true" showBookmark="true" 
+						codeBoxHeight="auto" showCloseButton="true" 
+						postToSidebarChecked="false" bulletinChecked="false" 
+						networksToHide="livespaces, piczo, orkut, pageflakes, vox, tagged, hi5, wordpress, multiply" 
+						networksWithCodeBox="*" 
+						networksToShow="myspace, facebook, bebo, blogger, freewebs, livejournal, blackplanet, myyearbook, typepad, xanga, igoogle, netvibes, migente, friendster" 
+						bookmarksToShow="googlebookmarks,delicious,digg,facebookshare,newsvine,reddit,twitter,ask,myaol,slashdot,skimbit,simpy,blogmarks,spurl,linkagogo,Magnolia,faves,segnalo,netvouz,blinklist,dropjack,feedmelinks"></display>
+					<body>
+						<controls corner-roundness="0;10;0;10">
+							<snbuttons iconsOnly="false" type="textUnder"></snbuttons>
+							<servicemarker gradient-color-begin="#F4F4F4" 
+								gradient-color-end="#D5D5D5"></servicemarker>
+						</controls>
+					</body>
+				</config>
+			</GigyaUI>
+		</extraData>
+	</layout>
+</layouts>

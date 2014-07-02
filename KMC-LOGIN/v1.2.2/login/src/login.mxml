@@ -1,0 +1,687 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="init()" layout="absolute"
+				preloader="com.kaltura.preloaders.KmcPreloader" backgroundColor="#034F57" horizontalScrollPolicy="off"
+				verticalScrollPolicy="off" backgroundAlpha="0" backgroundGradientAlphas="0,0"
+				xmlns:components="com.pfp.components.*">
+
+	<mx:Script>
+		<![CDATA[
+			import com.kaltura.KalturaClient;
+			import com.kaltura.analytics.GoogleAnalyticsConsts;
+			import com.kaltura.analytics.GoogleAnalyticsTracker;
+			import com.kaltura.analytics.KAnalyticsTracker;
+			import com.kaltura.commands.MultiRequest;
+			import com.kaltura.commands.adminUser.AdminUserSetInitialPassword;
+			import com.kaltura.commands.adminUser.AdminUserUpdatePassword;
+			import com.kaltura.commands.user.UserGetByLoginId;
+			import com.kaltura.commands.user.UserLoginByLoginId;
+			import com.kaltura.config.KalturaConfig;
+			import com.kaltura.events.KalturaEvent;
+			import com.kaltura.types.KalturaStatsKmcEventType;
+			import com.kaltura.utils.KUtils;
+			import com.kaltura.utils.SoManager;
+			
+			import mx.controls.Alert;
+			import mx.core.UITextField;
+			import mx.events.ValidationResultEvent;
+			import mx.resources.ResourceManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.URLUtil;
+			import mx.validators.ValidationResult;
+			import mx.validators.Validator;
+
+
+			// =====================================================
+			// members
+			// =====================================================
+			private static const KALTURA_SERVICES_URL:String = "index.php/partnerservices2";
+			private static const VERSION:String = "1.2.2";
+
+			private const LBL_WIDTH:Number = 120;
+
+			/**
+			 * the email address to be used from current point.
+			 * */
+			private var _relevantEmail:String;
+
+			/**
+			 * the password to be used from current point.
+			 * */
+			private var _relevantPwd:String;
+
+			/**
+			 * google analytics id
+			 * */
+			private var _urchinNumber:String;
+
+			/**
+			 * name of JS function to call when login returned successfully
+			 * */
+			private var _loginF:String = "loginF";
+
+			/**
+			 * client for posting API_v3 calls
+			 * */
+			private var _kc:KalturaClient;
+
+			[Bindable]
+			/**
+			 * the protocol to use for posting calls
+			 * */
+			private var _protocol:String;
+
+			[Bindable]
+			/**
+			 * dommain for partnerservices2 calls
+			 * */
+			private var _domain:String = "www.kaltura.com";
+
+			/**
+			 * users coming form registration email will have a hash
+			 * key idetifying them.
+			 * */
+			private var _hashKey:String = "";
+			
+			/**
+			 * "remember me"
+			 * */
+			private var _loginSO:SharedObject;
+
+
+			// =====================================================
+			// methods
+			// =====================================================
+
+			/**
+			 * save parameters values to variables and initialize screen
+			 * */
+			private function init():void {
+				Security.allowDomain('*');
+
+				// decide protocol
+				_protocol = getLoadingProtocol();
+
+				// create client for API_v3 calls
+				var configuration:KalturaConfig = new KalturaConfig();
+				configuration.protocol = _protocol;
+				configuration.domain = KUtils.hostFromCode(parameters.host);
+				configuration.srvUrl = parameters.srvurl;
+				_kc = new KalturaClient(configuration);
+
+				// add context menu item
+				var item:ContextMenuItem = new ContextMenuItem("KMC LOGIN VERSION " + VERSION);
+				contextMenu.customItems.push(item);
+
+				// app parameters:
+				_urchinNumber = parameters.urchinNumber;
+
+				if (parameters.host) {
+					if (URLUtil.isHttpURL(String(parameters.host)) || URLUtil.isHttpsURL(String(parameters.host)))
+						_domain = parameters.host;
+					else
+						_domain = KUtils.hostFromCode(parameters.host);
+				}
+
+				if (parameters.loginF)
+					_loginF = parameters.loginF;
+
+				if (parameters.errorCode) {
+					panels.selectedSide = "Back";
+				}
+				// new user / existing user?
+				else if (parameters.hashKey) {
+					_hashKey = parameters.hashKey;
+					panels.selectedSide = 'Top';
+				}
+				
+				_loginSO = SharedObject.getLocal("KMCuser");
+				if (_loginSO.data.loginName) {
+					// assume this happens after email.creationComplete 
+					email.text = _loginSO.data.loginName; 
+					remember.selected = true;
+				}
+			}
+
+
+			/**
+			 * returns the protocol in which the swf was loaded.
+			 * */
+			private function getLoadingProtocol():String {
+				var url:String = systemManager.loaderInfo.loaderURL;
+				var ind:int = url.indexOf("//");
+				var res:String = url.substring(0, ind + 2);
+				
+				// in case we debug localy use http as defualt
+				if (res == "file://")
+					res = "http://";
+				
+				return res;
+			}
+
+
+			/**
+			 * "normal" login
+			 * @param mail	previously entered email
+			 * @param pwd	previously entered password
+			 * @see #onUpdateResult()
+			 * */
+			private function adminLogin(mail:String = '', pwd:String = ''):void {
+
+				// remember user name if required
+				if (remember.selected) {
+					_loginSO.data.loginName = email.text;
+					_loginSO.flush();
+				}
+				else if (_loginSO.data.loginName){
+					_loginSO.clear();
+				}
+					
+				//Check email validator
+				if (!validateTextField(email, resourceManager.getString('kmc', 'enterEmail'), emailValidator))
+					return;
+
+				//Check password validator
+				if (!validateTextField(password, resourceManager.getString('kmc', 'enterPassword'), passwordValidator))
+					return;
+
+				// post request:
+				var params:Object = new Object();
+				if (mail != '') {
+					params.email = mail;
+				}
+				else {
+					params.email = email.text;
+					_relevantEmail = email.text;
+
+				}
+				if (pwd != '') {
+					params.password = pwd;
+				}
+				else {
+					params.password = password.text;
+					_relevantPwd = password.text;
+				}
+
+				var mr:MultiRequest = new MultiRequest();
+
+				//First request to login will return the KS
+				var ulblId:UserLoginByLoginId = new UserLoginByLoginId(params.email, params.password, int.MIN_VALUE, 86400/*24 hrs*/, "disableentitlement");
+
+				//The second call will return the user data needed for the KMC
+				var ugblId:UserGetByLoginId = new UserGetByLoginId(params.email);
+
+				mr.addAction(ulblId);
+				mr.addAction(ugblId);
+
+				mr.addRequestParam("2:ks", "{1:result}");
+
+				mr.addEventListener(KalturaEvent.COMPLETE, onLoginResult);
+				mr.addEventListener(KalturaEvent.FAILED, onLoginFault);
+
+				_kc.post(mr);
+			}
+
+
+			/**
+			 * On a successful login extract the ks an initiate the KMC via JS else alert
+			 * */
+			private function onLoginResult(event:KalturaEvent):void {
+				var errorXml:XML = new XML(event.data[0]);
+
+				if (errorXml && errorXml.hasOwnProperty('error')) {
+					// see what went wrong
+					var errCode:String = errorXml.error.code;
+					if (errCode == "USER_NOT_FOUND" || errCode == "USER_WRONG_PASSWORD") {
+						// show ADMIN_KUSER_NOT_FOUND eror message
+						Alert.show(resourceManager.getString('kmc', "ADMIN_KUSER_NOT_FOUND"), resourceManager.getString('kmc', "invalidLogin"));
+					}
+					else if (errCode == "LOGIN_RETRIES_EXCEEDED") {
+						// show LOGIN_RETRIES_EXCEEDED eror message
+						Alert.show(resourceManager.getString('kmc', "LOGIN_RETRIES_EXCEEDED"), resourceManager.getString('kmc', "invalidLogin"));
+					}
+					else if (errCode == "PASSWORD_EXPIRED") {
+						// show PASSWORD_EXPIRED eror message and rotate cube
+						panels.selectedSide = 'Right';
+					}
+					else {
+						var s:String = ResourceManager.getInstance().getString('kmc', errCode);
+						if (s == null) {
+							s = errorXml.error.message;
+						}
+						Alert.show(s, resourceManager.getString('kmc', "errorOcurred"));
+					}
+				
+				}
+				else {
+					// On Success
+					
+					// Send notification to Google Analytics
+					if (_urchinNumber) {
+						var ga:GoogleAnalyticsTracker = GoogleAnalyticsTracker.getInstance();
+						ga.init("", "", this, "KMC_ANDROMEDA/Login", _urchinNumber, "AS3", Application.application.parameters.gaDebug == "true" ? true : false);
+						ga.sendToGA(GoogleAnalyticsConsts.LOGIN);
+					}
+					// Send notification to Kaltura
+					var ka:KAnalyticsTracker = KAnalyticsTracker.getInstance();
+					ka.init(_kc, "Login", VERSION, "");
+					ka.sendEvent(KalturaStatsKmcEventType.LOGIN, "pagingInEntryTable>Manage");
+					
+					loginF(event.data[1].partnerId, event.data[1].partnerId + "00", event.data[1].id, event.data[0], event.data[1].screenName, event.data[1].email);
+				}
+			}
+
+
+			/**
+			 * If we failed to Login Alert to the user the Server Messege
+			 * */
+			private function onLoginFault(event:KalturaEvent):void {
+				Alert.show(event.error.errorMsg, resourceManager.getString('kmc', 'errorOccurred'));
+			}
+
+
+			/**
+			 * validate both pwds are present and equal and call
+			 * the setInitialPassword service.
+			 * */
+			protected function setInitialPwd(tf1:TextInput, tf2:TextInput):void {
+				//TODO track analytics?
+
+				// validate
+				if (tf1.text != tf2.text) {
+					Alert.show(resourceManager.getString('kmc', 'pwdNoMatch'), resourceManager.getString('kmc', 'error'));
+					return;
+				}
+				if (!validateTextField(tf1, resourceManager.getString('kmc', 'enterPassword'), passwordValidator)) {
+					return;
+				}
+				if (!validateTextField(tf2, resourceManager.getString('kmc', 'enterPassword'), passwordValidator)) {
+					return;
+				}
+
+				_relevantPwd = tf1.text;
+				// post request
+				var ausip:AdminUserSetInitialPassword = new AdminUserSetInitialPassword(_hashKey, tf1.text);
+				ausip.addEventListener(KalturaEvent.COMPLETE, onSetInitialResult);
+				ausip.addEventListener(KalturaEvent.FAILED, faultHandlerV3_a);
+				_kc.post(ausip);
+			}
+
+			
+			
+
+			/**
+			 * log the login event and call relevant JS function
+			 * */
+			private function loginF(partner_id:String, subp_id:String, uid:String, ks:String, screenName:String, uemail:String):void {
+
+//				SoManager.getInstance().getLocalData("login", uemail);
+//
+//				if (_urchinNumber && !SoManager.getInstance().checkOrFlush(GoogleAnalyticsConsts.LOGIN_FIRST_TIME)) {
+//					GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.LOGIN_FIRST_TIME);
+//				}
+				
+				// never ask JS to "remeber me" because KS is always created for 24 hours
+				ExternalInterface.call(_loginF, false, partner_id, subp_id, uid, ks, screenName, uemail);
+				
+			}
+
+
+			/**
+			 * make sure the text in a text field is valid.
+			 * @param target	UITextField or TextInput
+			 * @param defaultString		the default text for the given TF
+			 * @param validator		the validator to use with this TF.
+			 * */
+			private function validateTextField(target:Object, defaultString:String, validator:Validator):Boolean {
+				cleanField(target, defaultString);
+				validator.source = target;
+
+				var vre:ValidationResultEvent = validator.validate();
+				return !(vre.results && (vre.results[0] as ValidationResult).isError);
+			}
+
+
+
+			/**
+			 * if the text in a TF is its default text, remove the contents.
+			 * @param textField		UITextField or TextInput
+			 * @param defaultText	the default text for this TF.
+			 * */
+			private function cleanField(textField:Object, defaultText:String):void {
+				//TestInput is not related to TextArea
+				if (textField is UITextField || textField is TextInput) {
+					if (textField["text"] == defaultText)
+						textField["text"] = "";
+				}
+			}
+
+
+			/**
+			 * restores the default text to the given textfield
+			 * @param textField	the textfield
+			 * @param defaultText	the text to plae in the textfield
+			 * */
+			private function restoreField(textField:Object, defaultText:String):void {
+				if (textField is UITextField || textField is TextInput) {
+					if (textField["text"] == "")
+						textField["text"] = defaultText;
+				}
+			}
+
+
+			/**
+			 * send a request to recover pasword
+			 * */
+			private function resetPassword(tf:TextInput):void {
+				if (!validateTextField(tf, resourceManager.getString('kmc', 'enterEmail'), emailValidator))
+					return;
+
+				var params:Object = new Object();
+				params.email = tf.text;
+				_relevantEmail = tf.text;
+				resetPasswordSrv.send(params);
+				//TODO make V3
+			}
+
+
+			/**
+			 * make sure both pwds are identical
+			 * send server new data
+			 * */
+			protected function updatePwd():void {
+				// validate
+				if (pwd3.text != pwd4.text) {
+					Alert.show(resourceManager.getString('kmc', 'pwdNoMatch'), resourceManager.getString('kmc', 'error'));
+					return;
+				}
+				if (!validateTextField(pwd5, resourceManager.getString('kmc', 'enterPassword'), passwordValidator)) {
+					return;
+				}
+				if (!validateTextField(pwd3, resourceManager.getString('kmc', 'enterPassword'), passwordValidator)) {
+					return;
+				}
+				if (!validateTextField(pwd4, resourceManager.getString('kmc', 'enterPassword'), passwordValidator)) {
+					return;
+				}
+
+				// post request
+				_relevantEmail = email.text;
+				_relevantPwd = pwd3.text;
+				var auup:AdminUserUpdatePassword = new AdminUserUpdatePassword(email.text, pwd5.text, '', pwd3.text);
+				auup.addEventListener(KalturaEvent.COMPLETE, onUpdateResult);
+				auup.addEventListener(KalturaEvent.FAILED, faultHandlerV3_a);
+				_kc.post(auup);
+			}
+
+
+			/**
+			 * login using saved data
+			 * */
+			protected function onUpdateResult(event:KalturaEvent):void {
+				// we assume the user entered his email when he first logged in, 
+				// before being asked to update pwd, and use the pwd sent in update.
+				adminLogin(_relevantEmail, _relevantPwd);
+			}
+
+
+			/**
+			 * set intial password successfull </br>
+			 * show normal login panel
+			 * */
+			protected function onSetInitialResult(event:KalturaEvent):void {
+				Alert.show(ResourceManager.getInstance().getString('kmc', 'pleaseLogin'));
+				panels.selectedSide = "Front";
+			}
+
+			
+			private function faultHandlerV3_a(event:KalturaEvent):void {
+				faultHandlerV3(event, parameters.displayErrorFromServer == "true");
+			}
+
+			/**
+			 * General fault handler for API_v3 <br>
+			 * shows a message from locale, or server.
+			 * */
+			private function faultHandlerV3(event:KalturaEvent, displayErrorFromServer:Boolean = false):void {
+				var s:String = ResourceManager.getInstance().getString('kmc', event.error.errorCode);
+				if (s == null || displayErrorFromServer) {
+					s = event.error.errorMsg;
+				}
+				Alert.show(s, ResourceManager.getInstance().getString('kmc', 'errorOccurred'));
+			}
+
+
+
+			/**
+			 * General fault handler for PS2.
+			 * Triggered when the *service* goes wrong,
+			 * not when the *required action* goes wrong
+			 * */
+			private function faultHandler(event:FaultEvent):void {
+				Alert.show(event.message.toString(), resourceManager.getString('kmc', 'errorOccurred'));
+			}
+
+
+			/**
+			 * tell the user if password reset went ok or not.
+			 * */
+			private function onResetPassResult(event:ResultEvent):void {
+				if (event.result.error.hasOwnProperty('num_0'))
+					Alert.show(event.result.error.num_0.desc);
+				else
+					Alert.show(resourceManager.getString('kmc', 'resetMess', [_relevantEmail]));
+			}
+
+
+
+			/**
+			 * hide / show forget password panel
+			 * */
+			protected function toggleForgotPassword():void {
+				if (panels.selectedSide == "Front") {
+					panels.selectedSide = "Left";
+				}
+				else {
+					panels.selectedSide = "Front";
+				}
+			}
+
+
+
+			/**
+			 * remove the default text from a TF and make it show '*'
+			 * */
+			protected function removeDefaultText(event:FocusEvent):void {
+				cleanField(event.target as UITextField, resourceManager.getString('kmc', 'enterPassword'));
+				(event.target as UITextField).displayAsPassword = true;
+			}
+
+
+			/**
+			 * restore the default text to a password TF.
+			 * also clear clipboard so you can't copy out.
+			 * NOTE: it doesn't solve pasting into the next TF...
+			 * */
+			protected function resetDefaultText(event:FocusEvent):void {
+				restoreField(event.target, resourceManager.getString('kmc', 'enterPassword'));
+				if ((event.target as UITextField).text == resourceManager.getString('kmc', 'enterPassword') || (event.target as UITextField).text == '') {
+					(event.target as UITextField).displayAsPassword = false;
+				}
+				// an empty string doesn't work.
+//				System.setClipboard(' ');
+			}
+
+
+			/**
+			 * disable pasting text into a password TF
+			 * */
+			protected function pasteHandler(event:Event):void {
+				event.target.text = '';
+			}
+		]]>
+	</mx:Script>
+
+	<mx:Style source="assets/kaltura.css"/>
+
+	<mx:Metadata>
+		[ResourceBundle("kmc")]
+	</mx:Metadata>
+
+	<!-- Validators -->
+	<mx:StringValidator id="passwordValidator" required="true" property="text" minLength="1" maxLength="200"/>
+	<mx:EmailValidator id="emailValidator" required="true" property="text"/>
+
+	<!-- PS2 services -->
+	<!--	<mx:HTTPService id="loginSrv" url="{_protocol + _domain}/{KALTURA_SERVICES_URL}/adminlogin" method="POST" resultFormat="e4x"
+						showBusyCursor="true" result="onLoginSuccess( event )" fault="faultHandler( event )"/>-->
+
+	<mx:HTTPService id="resetPasswordSrv" url="{_protocol + _domain}/{KALTURA_SERVICES_URL}/resetadminpassword"
+					method="POST" resultFormat="e4x" showBusyCursor="true" result="onResetPassResult( event )"
+					fault="faultHandler( event )"/>
+
+	<!-- UI -->
+	<components:CubeStack id="panels" width="380" height="220" horizontalCenter="0" verticalCenter="0"
+						  horizontalScrollPolicy="off" verticalScrollPolicy="off">
+		<!-- login details -->
+		<mx:TitleWindow title="{resourceManager.getString('kmc', 'login')}" showCloseButton="false"
+						keyDown="{if(event.keyCode == Keyboard.ENTER)adminLogin();}" name="Front">
+
+			<mx:VBox width="100%" height="100%" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0">
+				<mx:HBox paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0">
+					<mx:Label width="{LBL_WIDTH}" text="{resourceManager.getString('kmc', 'email')}:"/>
+					<mx:TextInput id="email"
+								  creationComplete="restoreField( event.target , resourceManager.getString('kmc', 'enterEmail'))"
+								  focusIn="{cleanField( event.target as UITextField, resourceManager.getString('kmc', 'enterEmail'))}"
+								  focusOut="{restoreField( event.target , resourceManager.getString('kmc', 'enterEmail'))}"/>
+				</mx:HBox>
+				<mx:HBox paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0">
+					<mx:Label width="{LBL_WIDTH}" text="{resourceManager.getString('kmc', 'password')}:"/>
+					<mx:TextInput id="password" paste="pasteHandler(event)"
+								  creationComplete="restoreField( event.target , resourceManager.getString('kmc', 'enterPassword'))"
+								  focusIn="removeDefaultText(event)" focusOut="resetDefaultText(event)"/>
+				</mx:HBox>
+				<mx:CheckBox id="remember" label="{resourceManager.getString('kmc', 'rememberMe')}"/>
+			</mx:VBox>
+			<mx:ControlBar paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
+				<mx:LinkButton label="{resourceManager.getString('kmc', 'forgotPassword')}"
+							   click="toggleForgotPassword()" buttonMode="true"/>
+				<mx:VRule height="10" visible="{Application.application.parameters.visibleSignup=='true'}"/>
+				<mx:LinkButton label="{resourceManager.getString('kmc', 'signup')}"
+							   click="{ExternalInterface.call('gotoSignup')}" buttonMode="true"
+							   visible="{Application.application.parameters.visibleSignup=='true'}"/>
+				<mx:Spacer width="100%"/>
+				<mx:Button label="{resourceManager.getString('kmc', 'login')}" buttonMode="true" click="adminLogin()"/>
+			</mx:ControlBar>
+		</mx:TitleWindow>
+
+		<!-- forgot password section -->
+		<mx:TitleWindow title="{resourceManager.getString('kmc', 'forgotPassword')}" showCloseButton="false"
+						keyDown="{if(event.keyCode == Keyboard.ENTER)resetPassword(email2);}" name="Left">
+			<mx:VBox width="100%" height="100%" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0">
+				<mx:Text width="95%" htmlText="{resourceManager.getString('kmc', 'forgotPasswordText')}"/>
+				<mx:HBox verticalAlign="middle" width="100%">
+					<mx:Label text="{resourceManager.getString('kmc', 'email')}:"/>
+					<mx:TextInput id="email2"
+								  creationComplete="restoreField( event.target , resourceManager.getString('kmc', 'enterEmail'))"
+								  focusIn="{ cleanField( event.target as UITextField, resourceManager.getString('kmc', 'enterEmail')) }"
+								  focusOut="{ restoreField( event.target , resourceManager.getString('kmc', 'enterEmail')) }"/>
+				</mx:HBox>
+			</mx:VBox>
+			<mx:ControlBar paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
+				<mx:LinkButton label="{resourceManager.getString('kmc', 'login')}" click="toggleForgotPassword()"
+							   buttonMode="true"/>
+				<mx:VRule height="10" visible="{Application.application.parameters.visibleSignup=='true'}"/>
+				<mx:LinkButton label="{resourceManager.getString('kmc', 'signup')}"
+							   click="{ExternalInterface.call('gotoSignup')}" buttonMode="true"
+							   visible="{Application.application.parameters.visibleSignup=='true'}"/>
+				<mx:Spacer width="100%"/>
+				<mx:Button label="{resourceManager.getString('kmc', 'send')}" buttonMode="true"
+						   click="resetPassword(email2)"/>
+			</mx:ControlBar>
+		</mx:TitleWindow>
+
+
+		<!-- invalid / corrupt hashcode section -->
+		<mx:TitleWindow title="{resourceManager.getString('kmc', 'invalidHash')}" showCloseButton="false"
+						keyDown="{if(event.keyCode == Keyboard.ENTER)resetPassword(email3);}" name="Back">
+			<mx:VBox width="100%" height="100%" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0">
+				<mx:Text width="95%" text="{resourceManager.getString('kmc', 'invalidHashText')}"/>
+				<mx:HBox verticalAlign="middle" width="100%">
+					<mx:Label text="{resourceManager.getString('kmc', 'email')}:"/>
+					<mx:TextInput id="email3"
+								  creationComplete="restoreField( event.target , resourceManager.getString('kmc', 'enterEmail'))"
+								  focusIn="{ cleanField( event.target as UITextField, resourceManager.getString('kmc', 'enterEmail')) }"
+								  focusOut="{ restoreField( event.target , resourceManager.getString('kmc', 'enterEmail')) }"/>
+				</mx:HBox>
+			</mx:VBox>
+			<mx:ControlBar paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
+				<mx:LinkButton label="{resourceManager.getString('kmc', 'login')}" click="toggleForgotPassword()"
+							   buttonMode="true"/>
+				<mx:Spacer width="100%"/>
+				<mx:Button label="{resourceManager.getString('kmc', 'send')}" buttonMode="true"
+						   click="resetPassword(email3)"/>
+			</mx:ControlBar>
+		</mx:TitleWindow>
+
+		<!-- pwd expired section -->
+		<mx:TitleWindow title="{resourceManager.getString('kmc', 'pwdExpired')}" showCloseButton="false"
+						keyDown="{if(event.keyCode == Keyboard.ENTER) updatePwd();}" name="Right">
+			<mx:VBox width="100%" height="100%">
+				<mx:Text selectable="false" text="{resourceManager.getString('kmc', 'pwdExpiredText')}" width="95%"/>
+				<mx:HBox width="100%">
+					<mx:Label text="{resourceManager.getString('kmc', 'enterOldPassword')}" width="{LBL_WIDTH}"/>
+					<mx:TextInput id="pwd5" width="100%" paste="pasteHandler(event)"
+								  creationComplete="restoreField( event.target , resourceManager.getString('kmc', 'enterPassword'))"
+								  focusIn="removeDefaultText(event)" focusOut="resetDefaultText(event)"/>
+				</mx:HBox>
+				<mx:HBox width="100%">
+					<mx:Label text="{resourceManager.getString('kmc', 'enterNewPassword')}" width="{LBL_WIDTH}"/>
+					<mx:TextInput id="pwd3" width="100%" paste="pasteHandler(event)"
+								  creationComplete="restoreField( event.target , resourceManager.getString('kmc', 'enterPassword'))"
+								  focusIn="removeDefaultText(event)" focusOut="resetDefaultText(event)"/>
+				</mx:HBox>
+				<mx:HBox width="100%">
+					<mx:Label text="{resourceManager.getString('kmc', 'confirmPassword')}" width="{LBL_WIDTH}"/>
+					<mx:TextInput id="pwd4" width="100%" paste="pasteHandler(event)"
+								  creationComplete="restoreField( event.target , resourceManager.getString('kmc', 'enterPassword'))"
+								  focusIn="removeDefaultText(event)" focusOut="resetDefaultText(event)"/>
+				</mx:HBox>
+			</mx:VBox>
+			<mx:ControlBar paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
+				<mx:Spacer width="100%"/>
+				<mx:Button label="{resourceManager.getString('kmc', 'send')}" buttonMode="true" click="updatePwd()"/>
+			</mx:ControlBar>
+		</mx:TitleWindow>
+
+
+		<!-- new user (HBO) -->
+		<mx:TitleWindow title="{resourceManager.getString('kmc', 'setInitialPassword')}" showCloseButton="false"
+						keyDown="{if(event.keyCode == Keyboard.ENTER)setInitialPwd(pwd1, pwd2);}" name="Top">
+
+			<mx:VBox width="100%" height="100%">
+				<mx:Text selectable="false" text="{resourceManager.getString('kmc', 'welcome')}" width="95%"/>
+				<mx:HBox width="100%">
+					<mx:Label text="{resourceManager.getString('kmc', 'enterNewPassword')}" width="{LBL_WIDTH}"/>
+					<mx:TextInput id="pwd1" width="100%" paste="pasteHandler(event)"
+								  creationComplete="restoreField( event.target , resourceManager.getString('kmc', 'enterPassword'))"
+								  focusIn="removeDefaultText(event)" focusOut="resetDefaultText(event)"/>
+				</mx:HBox>
+				<mx:HBox width="100%">
+					<mx:Label text="{resourceManager.getString('kmc', 'confirmPassword')}" width="{LBL_WIDTH}"/>
+					<mx:TextInput id="pwd2" width="100%" paste="pasteHandler(event)"
+								  creationComplete="restoreField( event.target , resourceManager.getString('kmc', 'enterPassword'))"
+								  focusIn="removeDefaultText(event)" focusOut="resetDefaultText(event)"/>
+				</mx:HBox>
+			</mx:VBox>
+			<mx:ControlBar paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
+				<mx:Spacer width="100%"/>
+				<mx:Button label="{resourceManager.getString('kmc', 'send')}" buttonMode="true"
+						   click="setInitialPwd(pwd1, pwd2)"/>
+			</mx:ControlBar>
+		</mx:TitleWindow>
+
+		<mx:VBox name="Bottom"/>
+	</components:CubeStack>
+
+</mx:Application>

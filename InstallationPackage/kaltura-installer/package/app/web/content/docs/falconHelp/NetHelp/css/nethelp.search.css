@@ -1,0 +1,15 @@
+﻿.c1-search,
+.c1-search ul,
+.c1-search li {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.c1-search li {
+    margin: .3em 0;
+    line-height: 1;
+}
+.c1-search .service {
+    font-style: italic;
+    margin: 5px 10px;
+}

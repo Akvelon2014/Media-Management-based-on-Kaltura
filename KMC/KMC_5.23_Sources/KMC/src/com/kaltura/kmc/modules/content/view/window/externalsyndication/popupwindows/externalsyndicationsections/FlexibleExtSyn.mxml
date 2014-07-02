@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" implements="com.kaltura.kmc.modules.content.view.interfaces.IExternalSyndicationFeed"
+		 width="100%">
+	<mx:Script>
+		<![CDATA[
+			import com.kaltura.vo.KalturaBaseSyndicationFeed;
+			import com.kaltura.vo.KalturaGenericSyndicationFeed;
+			import com.kaltura.vo.KalturaGenericXsltSyndicationFeed;
+			
+			import mx.controls.Alert;
+			import mx.events.ValidationResultEvent;
+			
+			private var _syndication:KalturaBaseSyndicationFeed;
+			private var _fileReference:FileReference;
+			
+			public function validate():Boolean {
+				xslValidator.source = transFileTi;
+				if ((xslValidator.validate() as ValidationResultEvent).results)
+					return false;
+				
+				return true;
+			}
+			
+			public function get syndication():KalturaBaseSyndicationFeed {
+				if (!_syndication)
+					_syndication = new KalturaGenericXsltSyndicationFeed;
+				(_syndication as KalturaGenericXsltSyndicationFeed).xslt = transFileTi.text;
+				return _syndication;
+			}
+			
+			public function set syndication(syndication:KalturaBaseSyndicationFeed):void {
+				_syndication = syndication;
+				transFileTi.text = (syndication as KalturaGenericXsltSyndicationFeed).xslt;
+			}
+			
+			private function onBrowseClick():void {
+				_fileReference = new FileReference();
+				var fileFilter:FileFilter = new FileFilter(resourceManager.getString('cms','xsltFile') + " (*.xslt)", "*.xslt;");
+				_fileReference.addEventListener(Event.SELECT, onXsltSelected);
+				_fileReference.browse(new Array(fileFilter));
+			}
+			
+			private function onXsltSelected(event:Event):void {
+				_fileReference.removeEventListener(Event.SELECT, onXsltSelected);
+				_fileReference.addEventListener(Event.COMPLETE, onLoadComplete);				
+				_fileReference.addEventListener(IOErrorEvent.IO_ERROR, onLoadFailed);	
+				_fileReference.load();
+			}
+			
+			private function onLoadComplete(event:Event) : void {
+				_fileReference.removeEventListener(Event.COMPLETE, onLoadComplete);				
+				_fileReference.removeEventListener(IOErrorEvent.IO_ERROR, onLoadFailed);
+				transFileTi.text = _fileReference.data.toString();
+			}
+			
+			private function onLoadFailed(event:Event):void {
+				_fileReference.removeEventListener(Event.COMPLETE, onLoadComplete);				
+				_fileReference.removeEventListener(IOErrorEvent.IO_ERROR, onLoadFailed);
+				Alert.show(resourceManager.getString('cms','errorLoadingFile', new Array(_fileReference.name)),resourceManager.getString('cms','error'));
+			}
+		]]>
+	</mx:Script>
+	<mx:StringValidator id="xslValidator" property="text" required="true"/>
+	<mx:HBox width="100%">
+		<mx:Label text="{resourceManager.getString('cms','xslCodeLabel')}" width="180" styleName="feedParamLabel"/>
+		<mx:TextArea id="transFileTi" width="100%" selectable="true" editable="false" height="200"/>
+		<mx:Button label="{resourceManager.getString('cms','browseBtn')}" click="onBrowseClick()"/>
+	</mx:HBox>
+</mx:VBox>

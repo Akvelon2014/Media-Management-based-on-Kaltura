@@ -1,0 +1,2 @@
+*/15 * * * * root echo `date` >> @LOG_DIR@/cron.log && @APP_DIR@/alpha/crond/kaltura/clear_cache.sh >> @LOG_DIR@/cron.log 2>&1
+0 2 * * * root  echo `date` >> @LOG_DIR@/cron.log && @APP_DIR@/alpha/crond/kaltura/delete_old_content.sh >> @LOG_DIR@/cron.log 2>&1

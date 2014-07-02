@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+
+ Modified by Akvelon Inc.
+ 2014-06-30
+ http://www.akvelon.com/contact-us
+-->
+
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
+		 implements="com.kaltura.kmc.modules.account.view.interfaces.IAccountPanel"
+		 xmlns:validators="com.kaltura.validators.*">
+	<mx:Script>
+		<![CDATA[
+			import com.kaltura.analytics.GoogleAnalyticsConsts;
+			import com.kaltura.analytics.GoogleAnalyticsTracker;
+			import com.kaltura.analytics.KAnalyticsTracker;
+			import com.kaltura.analytics.KAnalyticsTrackerConsts;
+			import com.kaltura.edw.business.permissions.PermissionManager;
+			import com.kaltura.edw.control.commands.dist.RetryEntryDistributionCommand;
+			import com.kaltura.kmc.modules.account.events.PartnerEvent;
+			import com.kaltura.kmc.modules.account.events.UserEvent;
+			import com.kaltura.kmc.modules.account.vo.AdminVO;
+			import com.kaltura.kmc.modules.account.vo.PartnerVO;
+			import com.kaltura.types.KalturaStatsKmcEventType;
+			import com.kaltura.vo.KalturaUser;
+			
+			import mx.binding.utils.BindingUtils;
+			import mx.collections.ArrayCollection;
+			import mx.controls.ComboBox;
+			import mx.events.FlexEvent;
+			import mx.events.ListEvent;
+			import mx.events.ValidationResultEvent;
+
+			private const LBL_WIDTH:Number = 270;
+			private const TXT_WIDTH:Number = 360;
+
+			[Bindable]
+			public var partnerData:PartnerVO;
+
+			[Bindable]
+			public var adminData:AdminVO;
+
+
+			[ArrayElementType("com.kaltura.vo.KalturaUser")]
+			/**
+			 * @copy #users
+			 * */
+			private var _users:ArrayCollection;
+
+
+			/**
+			 * original partner data so we can revert
+			 * */
+			private var _clonedPartnerData:PartnerVO;
+
+			/**
+			 * original admin data so we can revert
+			 * */
+			private var _clonedAdminData:AdminVO;
+
+
+			[Bindable]
+			private var _ctList:Array = [];
+			[Bindable]
+			private var _ctComboBox:Array = [];
+			
+			private var isReady:Boolean = false;
+
+			public static const NAME:String = "overview";
+
+
+			public function init():void {
+				if (isReady) {
+					reloadData();
+				}
+				else{
+					//populate the content type list
+					var s:String = resourceManager.getString('account', 'contentList');
+					_ctList = s.split(',');
+					_ctComboBox = (resourceManager.getString('account', 'describeList')).split(',');
+	
+					_clonedAdminData = adminData.clone(); //admin has the email when the application init (in flashvars) so it can be set here
+	
+					BindingUtils.bindSetter(onPartnerDataLoaded, this, "partnerData");
+					BindingUtils.bindSetter(onAdminDataLoaded, this, "adminData");
+	
+					// load partner data
+					var partnerEvent:PartnerEvent = new PartnerEvent(PartnerEvent.GET_PARTNER_INFO);
+					partnerEvent.dispatch();
+					
+					// load changeable data
+					reloadData();
+
+					// set ui according to permissions
+					PermissionManager.getInstance().applyAllAttributes(this, NAME);
+					
+					isReady = true;
+				}
+
+			}
+			
+			/**
+			 * reload data that may be changed in other modules
+			 * */
+			private function reloadData():void {
+				var ul:UserEvent = new UserEvent(UserEvent.LIST_USERS);
+				ul.dispatch();
+			}
+
+
+			private function onPartnerDataLoaded(pvo:PartnerVO):void {
+				if (pvo) {
+					// remove the redundant trailing thing for partners who 
+					// registered from .org (or something)
+					if (pvo.partner.website) {
+						var i:int = pvo.partner.website.indexOf(" | Source =") ; 
+						if (i > -1) {
+							var s:String = pvo.partner.website;
+							s = s.substr(i, 11);
+							pvo.partner.website = s;
+						}
+					}
+					_clonedPartnerData = pvo.clone();
+					setDescribeYourself();
+				}
+			}
+
+
+			private function onAdminDataLoaded(avo:AdminVO):void {
+				if (avo)
+					_clonedAdminData = avo.clone();
+			}
+
+
+
+			private function setDescribeYourself():void {
+				var bFound:Boolean = false;
+				for (var i:int = 0; i < dyCB.dataProvider.length; i++) {
+					if (partnerData.partner.describeYourself == dyCB.dataProvider[i]) {
+						dyCB.selectedIndex = i;
+						bFound = true;
+					}
+				}
+				if (!bFound) {
+					dyCB.selectedIndex = _ctComboBox.length - 1;
+				}
+			}
+
+
+			//public functions
+			//------------------------------------------------
+			public function undo():void {
+				adminData = _clonedAdminData.clone();
+				partnerData = _clonedPartnerData.clone();
+				pOwner.selectedIndex = getAccountOwner();
+			}
+
+
+			public function isChanged():Boolean {
+				var res:Boolean = false;
+				if (partnerData && !partnerData.equals(_clonedPartnerData)) {
+					res = true;
+				}
+				if (adminData && !adminData.equals(_clonedAdminData)) {
+					res = true;
+				}
+				return res;
+			}
+
+
+			public function savePartnerInfo(force:Boolean):void {
+				if (!partnerData.equals(_clonedPartnerData) || force) {
+					nameValidator.source = pName;
+					if ((nameValidator.validate() as ValidationResultEvent).type == ValidationResultEvent.INVALID)
+						return;
+										
+					wamsAccountNameValidator.source = pWAMSAccount;
+					if ((wamsAccountNameValidator.validate() as ValidationResultEvent).type == ValidationResultEvent.INVALID)
+						return;
+					
+					wamsAccountKeyValidator.source = pWAMSKey;
+					if ((wamsAccountKeyValidator.validate() as ValidationResultEvent).type == ValidationResultEvent.INVALID)
+						return;
+					
+
+					_clonedPartnerData = partnerData.clone();
+					//do save
+					var partnerEvent:PartnerEvent = new PartnerEvent(PartnerEvent.UPDATE_PARTNER);
+					partnerEvent.dispatch();
+
+					KAnalyticsTracker.getInstance().sendEvent(KAnalyticsTrackerConsts.ACCOUNT, KalturaStatsKmcEventType.ACCOUNT_CHANGE_PARTNER_INFO, "AccountSettings>PartnerInfo>SaveChangesBtn");
+					GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.ACCOUNT_CHANGE_PARTNER_INFO, GoogleAnalyticsConsts.ACCOUNT);
+				}
+			}
+
+
+
+			public function saveChanges():void {
+				savePartnerInfo(false);
+			}
+
+
+			public function resetClonedData():void {
+				_clonedPartnerData = partnerData.clone();
+				_clonedAdminData = adminData.clone();
+			}
+
+
+			/**
+			 * partner vo has accountOwnerId, use it to select the kalturauser that is
+			 * the account owner.
+			 * @return id of the account owner in the users (pOwner) data provider array
+			 * */
+			private function getAccountOwner():int {
+				var uid:String = partnerData.partner.adminUserId;
+				var result:int = -1;
+				for (var i:int = 0; i < _users.length; i++) {
+					if ((_users[i] as KalturaUser).id == uid) {
+						result = i;
+						break;
+					}
+				}
+				return result;
+			}
+
+
+			/**
+			 * change the account owner on the partner vo
+			 * */
+			protected function changeAccountOwner(event:ListEvent):void {
+				partnerData.partner.adminUserId = (event.target.selectedItem as KalturaUser).id;
+			}
+
+
+			[Bindable]
+			/**
+			 * admin users for the current partner
+			 * */
+			public function get users():ArrayCollection
+			{
+				return _users;
+			}
+
+			/**
+			 * @private
+			 * */
+			public function set users(value:ArrayCollection):void
+			{
+				_users = value;
+				pOwner.dataProvider = value;
+				pOwner.dropdown.dataProvider = value;
+				pOwner.selectedIndex = getAccountOwner();
+			}
+			
+
+		]]>
+	</mx:Script>
+	<mx:StringValidator id="passwordValidator" required="true" property="text" minLength="4" maxLength="20"/>
+	<mx:StringValidator id="nameValidator" required="true" property="text" minLength="4" maxLength="20"/>
+	<mx:StringValidator id="wamsAccountNameValidator" required="true" property="text" minLength="1" maxLength="100"/>
+	<mx:StringValidator id="wamsAccountKeyValidator" required="true" property="text" minLength="1" maxLength="100"/>
+	
+	<mx:VBox id="infoBox" width="100%" height="100%" styleName="blueBox" disabledOverlayAlpha="0" horizontalAlign="left"
+			 verticalAlign="top">
+		<!--<mx:HBox width="100%">-->
+			<mx:Label styleName="expendableButton" text="{resourceManager.getString('account', 'partnerInfo')}"/>
+		<!--</mx:HBox>-->
+		<mx:Text id="partnerInfoText" width="100%" height="40"
+				 text="{resourceManager.getString('account', 'partnerInfoText')}" styleName="pageDescription"/>
+		<mx:HBox>
+			<mx:Label width="{LBL_WIDTH}" text="{resourceManager.getString('account', 'partnerIdB')}" styleName="boldLabel"/>
+			<mx:Label width="{TXT_WIDTH}" text="{partnerData.partnerId}" selectable="true"/>
+		</mx:HBox>
+		<mx:HBox>
+			<mx:Label width="{LBL_WIDTH}" text="{resourceManager.getString('account', 'company_name')} *" styleName="boldLabel"/>
+			<mx:TextInput id="pName" width="{TXT_WIDTH}" text="{partnerData.partner.name}"
+						  change="{partnerData.partner.name = pName.text}" enabled="{infoBox.enabled}"/>
+		</mx:HBox>
+		<mx:HBox>
+			<mx:Label width="{LBL_WIDTH}" text="{resourceManager.getString('account', 'owner_name')} *" styleName="boldLabel"/>
+			<mx:ComboBox id="pOwner" width="{TXT_WIDTH}"
+						 change="changeAccountOwner(event)" labelField="fullName" enabled="{infoBox.enabled}"/>
+		</mx:HBox>
+		<mx:HBox>
+			<mx:Label width="{LBL_WIDTH}" text="{resourceManager.getString('account', 'email')}" styleName="boldLabel"/>
+			<mx:Label id="pEmail" width="{TXT_WIDTH}" text="{(pOwner.selectedItem as KalturaUser).email}" enabled="{infoBox.enabled}" selectable="true"/>
+		</mx:HBox>
+		<mx:HBox>
+			<mx:Label width="{LBL_WIDTH}" text="{resourceManager.getString('account', 'phone')}" styleName="boldLabel"/>
+			<mx:TextInput id="pPhone" width="{TXT_WIDTH}" text="{partnerData.partner.phone}"
+						  change="{partnerData.partner.phone = pPhone.text}" enabled="{infoBox.enabled}"/>
+		</mx:HBox>
+		<mx:HBox>
+			<mx:Label width="{LBL_WIDTH}" text="{resourceManager.getString('account', 'website')}" styleName="boldLabel"/>
+			<mx:TextInput id="pWebsite" width="{TXT_WIDTH}" text="{partnerData.partner.website}"
+						  change="{partnerData.partner.website = pWebsite.text}" enabled="{infoBox.enabled}"/>
+		</mx:HBox>
+		<mx:HBox id="dyContainer">
+			<mx:Label width="{LBL_WIDTH}" text="{resourceManager.getString('account', 'describeYourself')}" styleName="boldLabel"/>
+			<mx:ComboBox id="dyCB" width="{TXT_WIDTH}" dataProvider="{_ctComboBox}"
+						 change="{partnerData.partner.describeYourself = dyCB.selectedItem.toString()}" enabled="{infoBox.enabled}"/>
+		</mx:HBox>
+		
+		<mx:HBox>
+			<mx:Label width="{LBL_WIDTH}" text="{resourceManager.getString('account', 'wamsAccountName')} *"	styleName="boldLabel"/>
+			<mx:TextInput id="pWAMSAccount" width="{TXT_WIDTH}" text="{partnerData.partner.wamsAccountName}"
+						  change="{partnerData.partner.wamsAccountName = pWAMSAccount.text}" enabled="{infoBox.enabled}"/>
+		</mx:HBox>
+		<mx:HBox>
+			<mx:Label width="{LBL_WIDTH}" text="{resourceManager.getString('account', 'wamsAccountKey')} *" styleName="boldLabel"/>
+			<mx:TextInput id="pWAMSKey" width="{TXT_WIDTH}" text="{partnerData.partner.wamsAccountKey}"
+						  change="{partnerData.partner.wamsAccountKey = pWAMSKey.text}" enabled="{infoBox.enabled}"/>
+		</mx:HBox>
+		<mx:Label text="{resourceManager.getString('account', 'reqF')}" fontSize="9"/>
+		<mx:HBox width="{dyContainer.width}" horizontalAlign="right">
+			<mx:Button id="saveChangesBtn" label="{resourceManager.getString('account', 'saveChanges')}"
+					   click="savePartnerInfo( true )" buttonMode="true"/>
+		</mx:HBox>
+
+	</mx:VBox>
+</mx:HBox>

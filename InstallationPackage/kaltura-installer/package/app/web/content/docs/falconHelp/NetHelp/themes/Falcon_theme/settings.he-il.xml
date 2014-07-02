@@ -1,0 +1,185 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<settings>
+  <general>
+    <!-- If set to true, text direction is right-to-left. -->
+    <rightToLeft>true</rightToLeft>
+  </general>
+  <theme>
+    <predefined>false</predefined>
+    <name>Falcon_theme</name>
+  </theme>
+  <!-- Section with text for the splitter between topic area and navigation tab pages (Contents, Index and Search) -->
+  <splitter>
+    <strings>
+      <!-- Tooltip of the splitter button "Show side panel".-->
+      <sideShowTooltip>הצג את לוח הצד</sideShowTooltip>
+      <!-- Tooltip of the splitter button "Hide side panel". -->
+      <sideHideTooltip>הסתר את לוח הצד</sideHideTooltip>
+    </strings>
+  </splitter>
+  <!-- Section with text that is shown in the topic area. -->
+  <topic>
+    <strings>
+      <!-- This message is shown when topic cannot be loaded. -->
+      <notfoundText>הנושא לא נמצא</notfoundText>
+      <!-- This window title is shown when topic cannot be loaded. -->
+      <notfoundTitle>הנושא לא נמצא</notfoundTitle>
+    </strings>
+    <!-- Text for collapsible sections -->
+    <collapsibleSections>
+      <expandAll>
+        <!-- Label of the button for expanding all collapsible sections. -->
+        <label>הרחב הכל</label>
+      </expandAll>
+      <collapseAll>
+        <!-- Label of the button for collapsing all collapsible sections. -->
+        <label>כווץ הכל</label>
+      </collapseAll>
+    </collapsibleSections>
+    <!-- Section with settings of popup message shown on loading a topic. -->
+    <spinner>
+      <!-- Text of the label in popup message shown on loading a topic. -->
+      <messageText>טעינה...</messageText>
+    </spinner>
+  </topic>
+  <!-- Section with text that is shown in the Contents tab. -->
+  <toc>
+    <!-- Text of the Contents tab in the (left) side block on a page. -->
+    <label>תוכן עניינים</label>
+  </toc>
+  <!-- Section with text that is shown in the Index tab. -->
+  <index>
+    <!-- Text of the Index tab in the (left) side block on a page. -->
+    <label>מפתח העניינים</label>
+    <strings>
+      <!-- Tooltip for the Index text box. -->
+      <filterTooltip>סינון מילות מפתח</filterTooltip>
+      <!-- This message is shown when keywords aren't found in Index. -->
+      <notfound>לא נמצאו מילות מפתח</notfound>
+      <!-- This message is shown when one or more keywords are found. This message can contain a #{count} macro that is replaced with a found keywords number. -->
+      <found>נמצאו מילות מפתח: #{count}</found>
+      <!-- Text of the "more" link in keyword list. -->
+      <more>עוד...</more>
+    </strings>
+  </index>
+  <!-- Section with text that is shown in the Search page. -->
+  <search>
+    <!-- Text of the Search tab in the (left) side block on a page. -->
+    <label>חיפוש</label>
+    <strings>
+      <!-- Tooltip for the Search text box. -->
+      <filterTooltip>חפש נושאים</filterTooltip>
+      <!-- This text will be shown in a popup when the user clicks the "Help" button on the search tab. -->
+      <helpMessage>ניתן להשתמש בפעולות לוגיות: #{and}, #{or}, #{not}    דוגמאות: כדורגל #{or} הוקי ,ספורט #{and} #{not} בייסבול</helpMessage>
+      <!-- This message is shown in the search results area while data is loading. -->
+      <loading>טוען מנוע החיפוש...</loading>
+      <!-- This message is shown if data fails to load. -->
+      <loaderror>שגיאה: טעינת מנוע החיפוש נכשלה</loaderror>
+      <!-- This message is shown when search is disabled. -->
+      <disabled>חיפוש מנוטרל</disabled>
+      <!-- This message is shown when no topics are found. -->
+      <notfound>לא נמצאו נושאים.</notfound>
+      <!-- This message is shown when topics are found. This message can contain a #{count} macro that is replaced with a found topics number. -->
+      <found>נמצאו נושאים: #{count}</found>
+      <!-- This message is shown when search engine suggests a search string correction to the user. This message can contain a #{query} macro that is replaced with a link to the corrected search string (default: "Did you mean: #{query}") -->
+      <correcting>האם התכוונת ל: #{query}</correcting>
+      <!-- Text of the "more" link in search results list. -->
+      <more>עוד...</more>
+    </strings>
+    <!-- Buttons used on the search page. -->
+    <buttons>
+      <!-- Go button that starts search. -->
+      <go>
+        <!-- Text (or tooltip) for the Go button to start search. -->
+        <label>חיפוש</label>
+      </go>
+      <!-- Help button that displays a help message. -->
+      <help>
+        <!-- Text (or tooltip) for the Help button to show a help message. -->
+        <label>עזרה</label>
+      </help>
+      <!-- Highlight button that enable word higlighting in topics. -->
+      <highlight>
+        <!-- Text (or tooltip) for the Highlight button to enable/disable words highlighting in topics from the search results. -->
+        <label>סמן תוצאות חיפוש</label>
+      </highlight>
+    </buttons>
+    <!-- These strings define logical operators for search. -->
+    <operators>
+      <!-- The logical operator AND. -->
+      <and>AND</and>
+      <!-- The logical operator OR. -->
+      <or>OR</or>
+      <!-- The logical operator NOT. -->
+      <not>NOT</not>
+    </operators>
+  </search>
+  <!-- Section with text that is shown when context sensitive help is used. -->
+  <contextSensitive>
+    <strings>
+      <!-- Title of the page. It is used as the browser window title when a list of keywords, groups, or search results is shown on the page. This string can contain macros #{key} and #{value} that are replaced with context-key ("keyword", "group", "id" or "search") and context-value (string after context-key and char "=" in url-string). -->
+      <title>נושאים: "#{key}"="#{value}"</title>
+      <!-- This message is shown when the result is empty (when context-key is "keyword", "group" or "id"). -->
+      <notfound>לא נמצאו נושאים</notfound>
+      <!-- This message is shown when specified context-key is not supported. -->
+      <notsupported>המפתח "#{key}" אינו נתמך</notsupported>
+    </strings>
+  </contextSensitive>
+  <!-- Text (or tooltips) for buttons. -->
+  <buttons>
+    <poweredBy>
+      <!-- Text (or tooltips) for the "Created with Doc-To-Help" button. -->
+      <label>נוצר ע"י ®&amp;nbsp;Doc-To-Help&amp;nbsp;</label>
+    </poweredBy>
+    <prev>
+      <!-- Text (or tooltips) for the Previous button. -->
+      <label>קודם</label>
+    </prev>
+    <next>
+      <!-- Text (or tooltips) for the Next button. -->
+      <label>הבא</label>
+    </next>
+    <home>
+      <!-- Text (or tooltips) for the Home button. -->
+      <label>דף הבית</label>
+    </home>
+    <print>
+      <!-- Text (or tooltips) for the Print button. -->
+      <label>הדפס</label>
+    </print>
+    <email>
+      <!-- Text (or tooltips) for the Email button. -->
+      <label>שלח</label>
+    </email>
+  </buttons>
+  <toolbars>
+    <topicTop>
+      <align>left</align>
+    </topicTop>
+  </toolbars>
+  <!-- Strings shown only if Accessibility Mode is set to Section 508. -->
+  <accessibility>
+    <!-- The title for icons in the table of contents. -->
+    <toc>
+      <!-- The title for the closed books without topic. -->
+      <closedBook>ספר נסגר ללא נושא</closedBook>
+      <!-- The title for the open books without topic. -->
+      <openBook>ספר פתוח ללא נושא</openBook>
+      <!-- The title for the closed books with topic. -->
+      <closedBookTopic>ספר נסגר עם הנושא</closedBookTopic>
+      <!-- The title for the open books with topic. -->
+      <openBookTopic>ספר פתוח עם הנושא</openBookTopic>
+      <!-- The title for the topic items. -->
+      <topic>נושא</topic>
+    </toc>
+    <!-- The title for collapsible section icon. -->
+    <collapsibleSections>
+      <!-- The title for the section in the collapsed state. -->
+      <collapsed>הרחב זה</collapsed>
+      <!-- The title for the section in the expanded state. -->
+      <expanded>כווצ זה</expanded>
+    </collapsibleSections>
+    <!-- List header for the list of topics of a keyword or group link (if there is more than one topic). This string can contain "#{count}" macro. -->
+    <akLinksMenuHeader>נושאים נמצאו: #{count}</akLinksMenuHeader>
+  </accessibility>
+</settings>

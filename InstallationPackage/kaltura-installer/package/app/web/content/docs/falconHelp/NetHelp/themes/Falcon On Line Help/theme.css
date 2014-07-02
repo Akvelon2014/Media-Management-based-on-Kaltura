@@ -1,0 +1,117 @@
+﻿/* common styles */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Verdana,Arial,sans-serif;
+    font-size: 10pt;
+    line-height: normal;
+}
+a img {
+    border: 0 none;
+}
+a[href],
+a[data-ref] {
+    cursor: pointer;
+    text-decoration: none;
+}
+a[href]:hover,
+a[data-ref]:hover {
+    text-decoration: underline;
+}
+
+.flat {
+    border: none;
+    background: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* jQuery UI fix */
+.ui-widget {
+    font-size: 1em;
+}
+.ui-icon-empty {
+    background-position: 16px 16px;
+}
+[dir="rtl"] .ui-tabs .ui-tabs-nav li,
+[dir="rtl"] .ui-tabs .ui-tabs-nav li a {
+    float: right;
+}
+
+/* topic */
+#c1topic,
+#c1topicBar {
+    padding: 5px 20px;
+}
+#c1topicBar {
+    padding-bottom: 0;
+}
+
+/* collapsible */
+.collapsible-header {
+    cursor: pointer;
+}
+.collapsible-header .ui-icon,
+.collapsible-header .custom-icon {
+    float: left;
+    clear: left;
+}
+[dir="rtl"] .collapsible-header .ui-icon,
+[dir="rtl"] .collapsible-header .custom-icon {
+    float: right;
+    clear: right;
+}
+.collapsible-highlight {
+    background: url(images/gray50.png);
+}
+#c1expandAll,
+#c1collapseAll {
+    display: inline-block;
+    position: relative;
+    padding: 1px;
+    margin: 0 10px 0 0;
+    overflow: visible;
+    cursor: pointer;
+}
+[dir="rtl"] #c1expandAll,
+[dir="rtl"] #c1collapseAll {
+    margin: 0 0 0 10px;
+}
+#c1expandAll .ui-icon,
+#c1collapseAll .ui-icon,
+#c1expandAll .custom-icon,
+#c1collapseAll .custom-icon {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    margin-top: -8px;
+}
+[dir="rtl"] #c1expandAll .ui-icon,
+[dir="rtl"] #c1collapseAll .ui-icon,
+[dir="rtl"] #c1expandAll .custom-icon,
+[dir="rtl"] #c1collapseAll .custom-icon {
+    left: auto;
+    right: 0;
+}
+#c1expandAll .label,
+#c1collapseAll .label {
+    display: block;
+    padding: 0 0 0 17px;
+}
+[dir="rtl"] #c1expandAll .label,
+[dir="rtl"] #c1collapseAll .label {
+    padding: 0 17px 0 0;
+}
+#c1expandAll:hover .label,
+#c1collapseAll:hover .label {
+    text-decoration: underline;
+}
+
+/* frame */
+#c1topic .c1-topic-frame {
+    position: absolute;
+    top: 2px;
+    bottom: 2px;
+    left: 2px;
+    right: 2px;
+}

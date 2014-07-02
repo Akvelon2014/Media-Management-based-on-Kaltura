@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<containers:ConfinedTitleWindow xmlns:containers="com.kaltura.containers.*" xmlns:mx="http://www.adobe.com/2006/mxml" width="470" height="470" 
+				xmlns:cat="com.kaltura.edw.components.fltr.cat.*"
+				creationComplete="creationCompleteHandler(event)" 
+				styleName="TitleWindowType2" showCloseButton="true" close="clearSelection(event)"
+				title="{resourceManager.getString('drilldown', 'catTree')}">
+	<mx:Metadata>
+		/**
+		 * dispatched when the "apply" button is clicked
+		 * */
+		[Event(name="apply", type="fl.events.Event")]
+	</mx:Metadata>
+	<mx:Script>
+		<![CDATA[
+			import com.kaltura.KalturaClient;
+			import com.kaltura.edw.components.fltr.FilterComponentEvent;
+			import com.kaltura.edw.components.fltr.cat.CatTreeSelectionMode;
+			import com.kaltura.edw.events.GeneralNonCairngormEvent;
+			import com.kaltura.edw.model.FilterModel;
+			import com.kaltura.edw.vo.CategoryVO;
+			import com.kaltura.vo.KalturaCategory;
+			
+			import mx.collections.ArrayCollection;
+			import mx.core.mx_internal;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			
+			[Bindable]
+			public var filterModel:FilterModel;
+			
+			[Bindable]
+			public var kClient:KalturaClient;
+			
+			[Bindable]
+			/**
+			 * show / hide the autocomplete component
+			 * */
+			public var showText:Boolean = true;
+			
+			/**
+			 * container variable for initial categories list
+			 * */
+			private var _categories:Array;
+			
+			/**
+			 * set categories which will appear as selected
+			 * @param value	Array of KalturaCategory objects
+			 * */
+			public function setCategories(value:Array):void {
+				if (catComplete) {
+					catComplete.selectedItems = new ArrayCollection(value);
+					var catids:String = '';
+					for each (var kCat:KalturaCategory in value) {
+						catids += kCat.id + ",";
+					}
+					catTree.filter = catids;
+				}
+				else {
+					_categories = value;
+				}
+			}
+			
+			/**
+			 * get list of selected categories (KalturaCategory objects)
+			 * */
+			public function getCategories():Array {
+				return catComplete.selectedItems.source;
+			}
+
+			protected function button1_clickHandler(event:MouseEvent):void {
+				dispatchEvent(new Event("apply"));
+				mx_internal::closeButton.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+			}
+
+
+
+			protected function creationCompleteHandler(event:FlexEvent):void {
+				if (_categories) {
+					setCategories(_categories);
+					_categories = null;
+				}
+			}
+
+
+			protected function catTree_valueChangeHandler(event:FilterComponentEvent):void
+			{
+				var fromTree:Array = catTree.getSelectedCategories(); // CategoryVo objects
+				var fromAC:ArrayCollection = catComplete.selectedItems;			// KalturaCategory objects
+				
+				var kCat:KalturaCategory;
+				if (event.kind == FilterComponentEvent.EVENT_KIND_ADD) {
+					// get unique KalturaCategories
+					var found:Boolean;
+					for each (var catvo:CategoryVO in fromTree) {
+						found = false;
+						for each (kCat in fromAC) {
+							if (kCat.id == catvo.id) {
+								found = true;
+								break;
+							}
+						}
+						if (!found) {
+							fromAC.addItem(catvo.category);
+						}
+					}
+				}
+				else if (event.kind == FilterComponentEvent.EVENT_KIND_REMOVE) {
+					// event.data.value is cat.id
+					for (var i:int = 0; i< fromAC.length; i++) {
+						kCat = fromAC.getItemAt(i) as KalturaCategory;
+						if (kCat.id == event.data.value) {
+							// if in autocomplete, remove it.
+							fromAC.removeItemAt(i);
+						} 
+					}
+				}
+			}
+
+
+			protected function catComplete_valueChangeHandler(event:GeneralNonCairngormEvent):void {
+				if (event.data) {
+					// event.data is selected item in autocomplete
+					var cat:KalturaCategory = event.data as KalturaCategory;
+					catTree.addByCatId(cat.id.toString(), true, cat);
+				}
+				else {
+					// reset selected items in tree
+					var catids:String = '';
+					for each (var kCat:KalturaCategory in catComplete.selectedItems) {
+						catids += kCat.id + ",";
+					}
+					if (catids.length) {
+						catids = catids.substring(0, catids.length-1);
+					}
+					catTree.filter = catids;
+				}
+			}
+
+
+			private function clearSelection(event:CloseEvent):void {
+				// mark all categories as unselected in the tree (has no effect on actual data)
+				catTree.filter = '';
+			}
+
+		]]>
+	</mx:Script>
+	<cat:CategoryAutocomplete id="catComplete" kClient="{kClient}" width="100%" height="60" 
+							  visible="{showText}" includeInLayout="{showText}"
+							  valueChange="catComplete_valueChangeHandler(event)"
+							  keepValues="true"/>
+	<cat:CatTree id="catTree" styleName="categoriesTree" width="100%" height="100%" 
+				 selectionMode="{CatTreeSelectionMode.MULTIPLE_SELECT_EXACT}"
+				 chunkedData="{filterModel.chunkedCategoriesLoad}"
+				 categories="{filterModel.categoriesMapGeneral}"
+				 dataProvider="{filterModel.categoriesGeneral}" 
+				 valueChange="catTree_valueChangeHandler(event)"/>
+	<mx:ControlBar>
+		<mx:Button label="{resourceManager.getString('drilldown', 'apply')}" click="button1_clickHandler(event)" />
+	</mx:ControlBar>
+</containers:ConfinedTitleWindow>

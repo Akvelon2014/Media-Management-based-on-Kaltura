@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin
+   id="ConcurrentSafeCombinationLookup"
+   iconfile="CMB.png"
+   description="Dimension Concurrent Update"
+   tooltip="Concurrent safe dimension lookup/update"
+   category="Lookup"
+   classname="org.kaltura.dimensionlookup.CombinationLookupMeta">
+   <libraries>
+    <library name="lookup.jar"/>
+    </libraries>
+    
+   <localized_category>
+     <category locale="en_US">Lookup</category>
+   </localized_category>
+   <localized_description>
+     <description locale="en_US">Dimension Concurrent Update</description>
+   </localized_description>
+   <localized_tooltip>
+     <tooltip locale="en_US">Concurrent safe dimension lookup/update</tooltip>
+   </localized_tooltip>
+   
+</plugin>

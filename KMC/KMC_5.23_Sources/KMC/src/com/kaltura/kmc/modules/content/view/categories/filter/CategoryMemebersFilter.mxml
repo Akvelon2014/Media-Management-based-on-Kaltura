@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panels:MultiAttributeFilter xmlns:mx="http://www.adobe.com/2006/mxml" 
+						 xmlns:panels="com.kaltura.edw.components.fltr.panels.*"
+						 creationComplete="additionalfilter1_creationCompleteHandler(event)">
+	<mx:Script>
+		<![CDATA[
+			import com.kaltura.edw.components.fltr.indicators.IndicatorVo;
+			import com.kaltura.types.KalturaAppearInListType;
+			
+			import mx.controls.Button;
+			import mx.events.FlexEvent;
+			
+			protected function additionalfilter1_creationCompleteHandler(event:FlexEvent):void
+			{
+				_buttons = [allBtn, hasBtn, noBtn];
+				friendlyName = resourceManager.getString('filter', 'membersTooltip');
+				_vo.membersCountLessThanOrEqual = int.MIN_VALUE;
+				_vo.membersCountGreaterThanOrEqual = int.MIN_VALUE;
+			}
+			
+			
+			override public function set kfilters(value:Array):void {
+				// update vo:
+				super.kfilters = value;
+				
+				// has
+				if (_vo.membersCountGreaterThanOrEqual && _vo.membersCountGreaterThanOrEqual != int.MIN_VALUE) {
+					// don't care about the value, assuming it's 1
+					hasBtn.selected = true;
+				} 
+				else {
+					hasBtn.selected = false;
+					_vo.membersCountGreaterThanOrEqual = int.MIN_VALUE;
+				}
+				
+				// doesn't have
+				if (_vo.membersCountLessThanOrEqual && _vo.membersCountLessThanOrEqual != int.MIN_VALUE) {
+					// don't care about the value, assuming it's 0
+					noBtn.selected = true;
+				}
+				else {
+					noBtn.selected = false;
+					_vo.membersCountLessThanOrEqual = int.MIN_VALUE;
+				}
+			}
+			
+			
+			override protected function onDynamicTitleClicked(event:MouseEvent):void {
+				_vo.membersCountLessThanOrEqual = int.MIN_VALUE;
+				_vo.membersCountGreaterThanOrEqual = int.MIN_VALUE;
+				super.onDynamicTitleClicked(event); 
+			
+			}
+			
+			override protected function onDynamicMemberClicked(event:MouseEvent):void {
+				if (event.target == hasBtn) {
+					if (hasBtn.selected) {
+						_vo.membersCountGreaterThanOrEqual = 1;	
+					}
+					else {
+						_vo.membersCountGreaterThanOrEqual = int.MIN_VALUE;
+					}
+				}
+				else if (event.target == noBtn) {
+					if (noBtn.selected) {
+						_vo.membersCountLessThanOrEqual = 0;
+					}
+					else {
+						_vo.membersCountLessThanOrEqual = int.MIN_VALUE;
+					}
+				}
+				super.onDynamicMemberClicked(event);
+			}
+			
+//			override public function removeItem(item:IndicatorVo):void {
+//				clearDates();
+//			} 
+			
+			override public function get attribute():String {
+				return attributes.join("~~"); // horrible convention for which I'll be sorry soon;
+			}
+			
+			
+		]]>
+	</mx:Script>
+	<mx:CheckBox id="allBtn" width="100%" label="{resourceManager.getString('filter', 'membersAllBtn')}"
+				 selected="true" click="onDynamicTitleClicked(event)" styleName="mainFilterGroupButton"/>
+	<mx:CheckBox id="hasBtn" width="100%" label="{resourceManager.getString('filter', 'membersHasMembersBtn')}"
+				 click="onDynamicMemberClicked(event)" styleName="innerFilterGroupButton"/>
+	<mx:CheckBox id="noBtn" width="100%" label="{resourceManager.getString('filter', 'membersNoMembers')}"
+				 click="onDynamicMemberClicked(event)" styleName="innerFilterGroupButton"/>
+</panels:MultiAttributeFilter>

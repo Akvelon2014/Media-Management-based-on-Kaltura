@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" height="90" verticalAlign="middle" horizontalAlign="center">
+	
+	<mx:Script>
+		<![CDATA[
+			import com.kaltura.edw.vo.ThumbnailWithDimensions;
+			import com.kaltura.types.KalturaFlavorAssetStatus;
+			
+			override public function set data(value:Object):void {
+				var thumb:ThumbnailWithDimensions = value as ThumbnailWithDimensions;
+				if (thumb.thumbAsset) {
+					var status:int = thumb.thumbAsset.status;
+					switch (status) {
+						case KalturaFlavorAssetStatus.READY:
+							statusLabel.text = resourceManager.getString('cms', 'statusready');
+							break;
+						case KalturaFlavorAssetStatus.CONVERTING:
+						case KalturaFlavorAssetStatus.QUEUED:
+							statusLabel.text = resourceManager.getString('cms','statusProcessing');
+							break;
+						case KalturaFlavorAssetStatus.ERROR:
+							statusLabel.text = resourceManager.getString('cms', 'statusError');
+					}
+				}
+				else {
+					statusLabel.text = "-";
+				}
+			}
+		]]>
+	</mx:Script>
+	<mx:Text id="statusLabel" width="100%" textAlign="center" />
+</mx:HBox>

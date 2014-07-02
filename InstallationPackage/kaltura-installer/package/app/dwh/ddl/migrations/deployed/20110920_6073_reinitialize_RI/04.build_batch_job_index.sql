@@ -1,0 +1,13 @@
+ALTER TABLE kalturadw.dwh_dim_batch_job 
+	ADD KEY (dwh_update_date),
+	DROP KEY entry_id_index_id,
+	DROP KEY status_job_type_index,
+	DROP KEY created_at_job_type_status_index, 
+  	DROP KEY partner_type_index, 
+	DROP KEY partner_id_index,
+	DROP KEY work_group_id_index_priority,
+        DROP KEY twin_job_id_index,
+        DROP KEY bulk_job_id_index,
+        DROP KEY root_job_id_index,
+        DROP KEY parent_job_id_index,
+        DROP KEY duplication_status_created_index;

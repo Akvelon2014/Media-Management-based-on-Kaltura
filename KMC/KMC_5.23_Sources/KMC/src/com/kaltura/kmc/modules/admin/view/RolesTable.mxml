@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:DataGrid xmlns:mx="http://www.adobe.com/2006/mxml" height="100%" verticalScrollPolicy="auto"
+			 allowMultipleSelection="true" rowHeight="36" dropEnabled="true" dragMoveEnabled="false"
+			 itemClick="setSelection(event);" creationComplete="creationCompleteHandler(event)"
+			 xmlns:view="com.kaltura.kmc.modules.content.view.*"
+			 xmlns:renderers="com.kaltura.kmc.modules.admin.view.renderers.*">
+	<mx:Metadata>
+		[Event(name="drillDown", type="flash.events.Event")] 
+		[Event(name="deleteRole", type="flash.events.Event")] 
+		[Event(name="duplicateRole", type="flash.events.Event")] 
+		[Event(name="selectRole", type="flash.events.Event")] 
+	</mx:Metadata>
+	
+	<mx:Script>
+		<![CDATA[
+			import com.kaltura.vo.KalturaUserRole;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.controls.ComboBox;
+			import mx.controls.dataGridClasses.DataGridColumn;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.events.ListEvent;
+			import mx.formatters.DateFormatter;
+			import mx.resources.ResourceManager;
+			
+			// ==================================================================
+			// constants
+			// ==================================================================
+			
+			/**
+			 * defines the value of the type property for the <code>drillDown</code> event.
+			 * */
+			public static const DRILL_DOWN:String = "drillDown";
+			
+			/**
+			 * defines the value of the type property for the <code>deleteRole</code> event.
+			 * */
+			public static const DELETE_ROLE:String = "deleteRole";
+			
+			/**
+			 * defines the value of the type property for the <code>duplicateRole</code> event.
+			 * */
+			public static const DUPLICATE_ROLE:String = "duplicateRole";
+			
+			/**
+			 * defines the value of the type property for the <code>selectRole</code> event.
+			 * */
+			public static const SELECT_ROLE:String = "selectRole";
+			
+			
+			// ==================================================================
+			// members
+			// ==================================================================
+			
+			[Bindable]
+			/**
+			 * 
+			 */
+			public var comboDataProvider:ArrayCollection = new ArrayCollection();
+			
+			
+			
+			
+			// ==================================================================
+			// methods
+			// ==================================================================
+			
+			
+			/**
+			 * selection or deselection was made
+			 */
+			public function setSelection(event:ListEvent):void {
+				if (event.itemRenderer.data) {
+					dispatchEvent(new Event(RolesTable.SELECT_ROLE));
+				}
+			}
+			
+			
+			/**
+			 * open the entry drilldown popup
+			 * */
+			private function editEntry():void {
+				dispatchEvent(new Event(RolesTable.DRILL_DOWN));
+			}
+			
+			
+			/**
+			 * show delete confirmation box
+			 * */
+			private function confirmDelete():void {
+				Alert.show(ResourceManager.getInstance().getString('admin', 'confirm_delete_role', [selectedRole.name]), ResourceManager.getInstance().getString('admin', 'confirm_delete_title'), Alert.OK | Alert.CANCEL, null, deleteEntry);
+				
+			}
+			
+			
+			/**
+			 * delete the selected entry
+			 * */
+			private function deleteEntry(e:CloseEvent):void {
+				if (e.detail == Alert.OK) {
+					// request to delete the entry
+					dispatchEvent(new Event(RolesTable.DELETE_ROLE));
+				}
+			}
+			
+			
+			/**
+			 * duplicate the selected entry
+			 * */
+			private function duplicateEntry():void {
+				dispatchEvent(new Event(RolesTable.DUPLICATE_ROLE));
+			}
+			
+			
+			// ==================================================================
+			// item-renderer functions
+			// ==================================================================
+			
+			/**
+			 * show formatted date
+			 * */
+			private function formatDate(date:Number):String {
+				var df:DateFormatter = new DateFormatter();
+				df.formatString = resourceManager.getString('admin', 'list_date_format');
+				var dt:Date = new Date();
+				dt.setTime(date * 1000);
+				return df.format(dt);
+			};
+			
+			
+			
+			/**
+			 * translate last login data to something readable
+			 * */
+			public function getSaveDate(item:Object):String {
+				return formatDate(item.updatedAt);
+			}
+			
+			
+			
+			
+			/**
+			 * perform selected action on selected entry
+			 * (used in item renderer)
+			 * */
+			public function onActionSelected(event:ListEvent):void {
+				switch (event.target.selectedItem.id) {
+					case RolesTable.DRILL_DOWN:
+						editEntry();
+						break;
+					case RolesTable.DUPLICATE_ROLE:
+						duplicateEntry();
+						break;
+					case RolesTable.DELETE_ROLE:
+						confirmDelete();
+						break;
+				}
+				(event.target as ComboBox).selectedIndex = -1;
+			}
+			
+			// ==================================================================
+			// gettesr / setters
+			// ==================================================================
+			
+			/**
+			 * 
+			 * */
+			public function get selectedRole():KalturaUserRole {
+				return selectedItem as KalturaUserRole;
+			}
+
+			
+			/**
+			 * Remove single item from the combobox dataprovider by its id
+			 * @id - the name of the id to remove 
+			 */
+			private function removeItemById(id:String):void
+			{
+				//find the index of the item
+				for (var i:uint=0;i<comboDataProvider.length;i++)
+				{
+					if(comboDataProvider.getItemAt(i).id == id)
+						break;
+				}
+				//protect from an ID it did not find - check if this is the last item 
+				// and if it has not the same id  
+				if(i==comboDataProvider.length && comboDataProvider.getItemAt(i-1) != id )
+					return;
+				//remove the item
+				comboDataProvider.removeItemAt(i); 
+			}
+			
+//			/**
+//			 * Hide actions from the data provider. 
+//			 * @itemsToHide - a comma seperated strings of items (edit,unblock,delete)
+//			 */
+//			public function set comboHideItems(itemsToHide:String):void
+//			{
+//				var items:Array = itemsToHide.split(",");
+//				for each (var str:String in items)
+//				{
+//					removeItemById(str);
+//				}
+//			}
+//			/**
+//			 * @private 
+//			 * This is because the apply permission needs to read the comboHideItems function
+//			 */
+//			public function get comboHideItems():String
+//			{
+//				return "";
+//			}
+			/**
+			 * Hide the Duplicate action from the data provider. 
+			 * @param value
+			 */
+			public function set enableDuplicate(value:Boolean):void
+			{
+				removeItemById(RolesTable.DUPLICATE_ROLE);
+			}
+			/**
+			 * @private 
+			 * apply permission needs to read the value to know the attribute type
+			 */
+			public function get enableDuplicate():Boolean
+			{
+				return false;
+			}
+			/**
+			 * Hide the Delete action from the data provider. 
+			 * @param value
+			 */
+			public function set enableDelete(value:Boolean):void
+			{
+				removeItemById(RolesTable.DELETE_ROLE);
+			}
+			/**
+			 * @private 
+			 * apply permission needs to read the value to know the attribute type
+			 */
+			public function get enableDelete():Boolean
+			{
+				return false;
+			}
+			/**
+			 * Hide the Edit action from the data provider. 
+			 * @param value
+			 */
+			public function set enableEdit(value:Boolean):void
+			{
+				removeItemById(RolesTable.DRILL_DOWN);
+			}
+			/**
+			 * @private 
+			 * apply permission needs to read the value to know the attribute type
+			 */
+			public function get enableEdit():Boolean
+			{
+				return false;
+			}
+
+
+			protected function creationCompleteHandler(event:FlexEvent):void
+			{
+				//build the dataprovider items list :
+				comboDataProvider.addItem({label:resourceManager.getString('admin','edit'),id:RolesTable.DRILL_DOWN});
+				comboDataProvider.addItem({label:resourceManager.getString('admin','duplicate'),id:RolesTable.DUPLICATE_ROLE});
+				comboDataProvider.addItem({label:resourceManager.getString('admin','delete'),id:RolesTable.DELETE_ROLE});
+			}
+
+		]]>
+	</mx:Script>
+	
+	<mx:columns>
+		<mx:DataGridColumn dataField="name" headerStyleName="adminTableColumn"
+						   headerText="{resourceManager.getString('admin', 'role')}">
+			<mx:itemRenderer>
+				<mx:Component>
+					<renderers:RoleBaseItemRenderer width="100%" height="100%" verticalScrollPolicy="off" horizontalScrollPolicy="off">
+						<mx:Label text="{data.name}" toolTip="{data.name}"/>
+					</renderers:RoleBaseItemRenderer>
+				</mx:Component>
+			</mx:itemRenderer>
+		</mx:DataGridColumn>
+		<!--<mx:DataGridColumn dataField="id" headerStyleName="adminTableColumn"
+						   headerText="{resourceManager.getString('admin', 'id')}" />-->
+		<mx:DataGridColumn dataField="description" headerStyleName="adminTableColumn"
+						   headerText="{resourceManager.getString('admin', 'description')}">
+			<mx:itemRenderer>
+				<mx:Component>
+					<renderers:RoleBaseItemRenderer width="100%" height="100%" verticalScrollPolicy="off" horizontalScrollPolicy="off">
+						<mx:Label text="{data.description}" toolTip="{data.description}"/>
+					</renderers:RoleBaseItemRenderer>
+				</mx:Component>
+			</mx:itemRenderer>
+		</mx:DataGridColumn>
+		<mx:DataGridColumn headerStyleName="adminTableColumn"
+						   headerText="{resourceManager.getString('admin', 'save_date')}" width="150">
+			<mx:itemRenderer>
+				<mx:Component>
+					<renderers:RoleBaseItemRenderer width="100%" height="100%" verticalScrollPolicy="off" horizontalScrollPolicy="off">
+						<mx:Label text="{outerDocument.getSaveDate(data)}" toolTip="{outerDocument.getSaveDate(data)}"/>
+					</renderers:RoleBaseItemRenderer>
+				</mx:Component>
+			</mx:itemRenderer>
+		</mx:DataGridColumn>
+		<mx:DataGridColumn headerText="{resourceManager.getString('admin', 'user_actions')}"
+						   headerStyleName="adminTableCenteredColumn" width="140">
+			<mx:itemRenderer>
+				<mx:Component>
+					<renderers:RoleBaseItemRenderer height="100%" verticalScrollPolicy="off" 
+													horizontalScrollPolicy="off" paddingRight="5">
+						<mx:VBox width="100%" verticalAlign="middle" horizontalAlign="center"
+								 horizontalScrollPolicy="off" verticalScrollPolicy="off">
+							<mx:ComboBox width="130" selectedIndex="-1" enabled="{data.partnerId != 0}"
+										 dataProvider="{outerDocument.comboDataProvider}"
+										 prompt="{resourceManager.getString('admin','select_action')}"
+										 change="{outerDocument.onActionSelected(event)}" />
+						</mx:VBox>
+					</renderers:RoleBaseItemRenderer>
+				</mx:Component>
+			</mx:itemRenderer>
+		</mx:DataGridColumn>
+	</mx:columns>
+</mx:DataGrid>

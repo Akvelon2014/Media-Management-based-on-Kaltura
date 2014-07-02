@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!---
+	 on rule based playlists, this is the window that allows adding a new rule.
+	 opened from <code>RulePlaylistWindow</code>
+-->
+<HelpTitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="com.kaltura.containers.*"
+				 xmlns:window="com.kaltura.kmc.modules.content.view.window.*" 
+				 showCloseButton="true" close="onClose()" help="{onHelp()}" 
+				 implements="com.kaltura.edw.business.IDataOwner"
+				 creationComplete="loadFilterData()" height="540" width="780" >
+	<mx:Metadata>
+		[Event (name="removeMe", type="flash.events.Event")]
+	</mx:Metadata>
+
+	<mx:Script>
+		<![CDATA[
+			import com.kaltura.edw.business.IDataOwner;
+			import com.kaltura.edw.business.permissions.PermissionManager;
+			import com.kaltura.edw.control.KedController;
+			import com.kaltura.edw.control.events.LoadEvent;
+			import com.kaltura.edw.model.FilterModel;
+			import com.kaltura.kmc.events.KmcHelpEvent;
+			import com.kaltura.kmc.modules.content.events.NewFilterEvent;
+			import com.kaltura.kmc.modules.content.model.CmsModelLocator;
+			import com.kaltura.vo.KalturaMediaEntryFilterForPlaylist;
+
+
+			/**
+			 * defines the value of the type property of the "removeMe" event
+			 * */
+			public static const REMOVE_ME:String = "removeMe";
+
+			/**
+			 * in case of editing an existing filter (rule), this is it.
+			 * */
+			public var filterForSingleRule:KalturaMediaEntryFilterForPlaylist;
+
+			[Bindable]
+			/**
+			 * data (model) for filter
+			 * */
+			public var filterData:FilterModel;
+
+			[Bindable]
+			/**
+			 * a list of distibution profiles for the filter
+			 * */
+			public var distributionProfilesArr : Array;
+
+
+			/**
+			 * dispatch a help event with relevant section data.
+			 * */
+			private function onHelp():void {
+				dispatchEvent(new KmcHelpEvent(KmcHelpEvent.HELP, 'section_edit_rule'));
+			}
+
+			/**
+			 * triggered by command after filter data is loaded
+			 * */
+			public function onRequestedDataLoaded():void {
+				initWindow();
+			}
+
+			private function loadFilterData():void {
+				var fe:LoadEvent = new LoadEvent(LoadEvent.LOAD_FILTER_DATA, this, filterData);
+				KedController.getInstance().dispatch(fe);
+			}
+
+			private function initWindow():void {
+				if (filterForSingleRule) {
+					singleRule.ruleToEdit = filterForSingleRule;
+				}
+				else {
+					singleRule.ruleToEdit = new KalturaMediaEntryFilterForPlaylist();
+				}
+				//async call to the kaltura server to run the rule filter 
+				singleRule.runRule();
+				PermissionManager.getInstance().applyAllAttributes(this, "addRuleWin");
+			}
+
+
+			/**
+			 * close this popup - no changes
+			 */
+			private function onClose():void {
+				singleRule.clear();
+				dispatchEvent(new Event(REMOVE_ME));
+			}
+
+
+			/**
+			 * apply this filter and close the popup
+			 */
+			private function save():void {
+				var kalturaPlaylistFilter:KalturaMediaEntryFilterForPlaylist = (singleRule.ruleFilter);
+				dispatchEvent(new NewFilterEvent(NewFilterEvent.NEW_PLAYLIST_FILTER, kalturaPlaylistFilter));
+				onClose();
+			}
+		]]>
+	</mx:Script>
+	<mx:HBox width="100%" height="100%">
+		<window:OneRule id="singleRule" width="100%" height="100%" filterData="{filterData}" 
+						distributionProfilesArray="{distributionProfilesArr}" />
+	</mx:HBox>
+	<mx:ControlBar>
+		<mx:Button id="saveBtn" label="{resourceManager.getString('cms', 'saveChanges')}" buttonMode="true" click="save()"/>
+	</mx:ControlBar>
+</HelpTitleWindow>

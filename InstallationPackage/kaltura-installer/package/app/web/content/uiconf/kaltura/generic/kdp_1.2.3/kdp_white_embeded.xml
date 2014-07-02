@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layouts>
+	<layout layoutId="full" skinPath="/content/uiconf/kaltura/generic/kdp_1.2.3/kdp_white_skin.swf?r=5">
+		<VBox height="100%" styleName="mlayout" width="100%">
+			<HBox height="30" styleName="TopTitle" width="100%">
+			    <Label height="27" id="movieName111" label="{myKplayer.kalturaShow.kshowName,myKplayer.kalturaEntry.entryName,''}" styleName="movieName" width="100%"/>
+			</HBox>
+			<HBox height="100%" styleName="playerContainer" width="100%">
+				<Canvas width="100%" height="100%" id="PlayerHolder" styleName="PlayerBackground" >
+					<KplayerModule height="100%" id="myKplayer" k_path="kplayer/KplayerModule.swf" styleName="centered" width="100%"/>
+					<screens height="100%" id="screens" k_path="screens/Screens.swf" styleName="centered" width="100%"
+					k_end_screen_id="endScreen" k_end_screen_over_id="endScreen"
+					k_pause_screen_id="startScreen" k_pause_screen_over_id="startScreen" 
+					k_play_screen_id="emptyScreen" k_play_screen_over_id="emptyScreen" 
+					k_start_screen_id="startScreen" k_start_screen_over_id="startScreen" />
+					<Gigya height="100%" id="Gigya" 
+						k_share_email_body="Hi%2c%3cbr%3eI watched this video and thought you'd enjoy it too %24URL%24 to watch.%3cbr%3e%0d%0a%24sender%24%0d%0a" 
+						k_share_email_subject="Take a look at this video"
+						k_path="addons/Gigya.swf" width="100%" />
+				</Canvas>
+			</HBox>
+			<HBox height="29" styleName="controllerBox" width="100%">
+				<Button width="25" height="25" id="play" styleName="play" />
+				<VBox width="100%" height="100%" styleName="scrubberHolder" >
+					<Scrubber width="100%" height="12" id="scrubber" styleName="scrubber" />
+					<HBox width="100%" height="12" styleName="TimerCont" >
+						<TimerCountdown height="15" id="timer" k_path="timertext/TimerCountdown.swf" styleName="timer" width="40"/>
+					</HBox>
+				</VBox>
+				<VolumeModule width="33" height="23" id="Volume" k_path="VolumeBars/VolumeBarA.swf" />
+				<Button width="33" height="23" id="fullScreen" label="" styleName="fullScreen" tooltip="Full Screen" />	
+				<Button height="23" id="remix" label="" styleName="controlRemix" tooltip="Remix this video" k_click="jsInject:gotoEditorWindow,pauseMedia" />
+				<Button height="23" id="add" label="" styleName="controlUpload" tooltip="Add media to video"  k_click="jsInject:gotoContribWizard,pauseMedia"/>
+				<Button id="poweredByController" width="40" height="20" k_click="navigate:http://www.kaltura.com" styleName="kalturaLogo" />
+			</HBox>
+		</VBox>
+		<popups>
+			<module width="100%" height="100%" id="report" k_path="popups/Report.swf" />
+		</popups>		
+		<screens>
+		   <screen id="endScreen">
+		   		<HBox width="100%" height="100%" styleName="tileHolder">
+					<Tile styleName="bottonsTile">
+						<Button id="replayBtn" styleName="replayBtn" label="Replay" labelPlacement="top" command="play" />
+						<Button id="shareBtn" command="gigyaButton" styleName="shareBtn" label="Share" labelPlacement="top" />
+						<Button id="captureBtn" styleName="captureBtn" label="Capture" labelPlacement="top" />
+						<Button id="reportBtn" styleName="reportBtn" label="Report" labelPlacement="top" k_click="popup:report" />
+					</Tile>
+				</HBox>
+		   </screen>
+		   <screen id="startScreen">
+				<HBox width="100%" height="100%" styleName="tileHolder">
+					<Tile styleName="bottonsTile">
+						<Button id="playButtnOnScreen" styleName="playBtn" label="Play" labelPlacement="top" command="play" />
+						<Button id="shareBtn" command="gigyaButton" styleName="shareBtn" label="Share" labelPlacement="top" />
+						<Button id="captureBtn" styleName="captureBtn" label="Capture" labelPlacement="top" command="createThumbnail" />
+						<Button id="reportBtn" styleName="reportBtn" label="Report" labelPlacement="top" k_click="popup:report" />
+					</Tile>
+				</HBox>
+		   </screen>
+		</screens>
+		<javaScript>
+			<jsBlock functionName="gotoContribWizard" id="gotoContribWizard" params="kshowId">
+				<![CDATA[
+					function gotoContribWizard(kshowId)
+					{
+						var theWindow;
+						if (typeof(window) != "undefined" && typeof(window.top) != "undefined")
+							theWindow = window.top;
+						else
+							theWindow = window;
+							
+						if (!kshowId)
+							kshowId = "";
+
+						theWindow.location = "http://corp.kaltura.com/userzone/contribute/kshow_id/" + kshowId + "/todo/add";
+					};
+				]]>
+			</jsBlock>
+			<jsBlock functionName="gotoEditorWindow" id="gotoEditorWindow" params="kshowId">
+				<![CDATA[
+					function gotoEditorWindow(kshowId)
+					{
+						var theWindow;
+						if (typeof(window) != "undefined" && typeof(window.top) != "undefined")
+							theWindow = window.top;
+						else
+							theWindow = window;
+							
+						if (typeof(kshowId) == "undefined")
+							kshowId = "";
+
+						theWindow.location = "http://corp.kaltura.com/userzone/contribute/kshow_id/" + kshowId + "/todo/edit";
+					};
+				]]>
+			</jsBlock>
+		</javaScript>		
+		<extraData>
+			<GigyaUI>
+				<config>
+					<display showEmail="true" useTransitions="true" 
+						showBookmark="true" codeBoxHeight="auto" 
+						showCodeBox="true" showCloseButton="true" 
+						networksWithCodeBox="" 
+						networksToHide="livespaces, piczo, orkut, pageflakes, vox, tagged, hi5, wordpress, multiply" 
+						networksToShow="myspace, facebook, bebo, blogger, freewebs, livejournal, blackplanet, myyearbook, typepad, xanga, igoogle, netvibes, migente, friendster" 
+						bookmarksToShow="googlebookmarks,delicious,digg,facebookshare,newsvine,reddit,twitter,ask,myaol,slashdot,skimbit,simpy,blogmarks,spurl,linkagogo,Magnolia,faves,segnalo,netvouz,blinklist,dropjack,feedmelinks"/>
+					<body>
+						<background frame-color="#BFBFBF" 
+							background-color="#292929" frame-thickness="0" 
+							gradient-color-begin="#292929" 
+							gradient-color-end="#292929" 
+							corner-roundness="0;0;0;0"/>
+						<controls corner-roundness="4;4;4;4" 
+							gradient-color-begin="#EAEAEA" 
+							gradient-color-end="#F4F4F4" bold="false">
+							<snbuttons type="textUnder" frame-color="#666666" 
+								background-color="#292929" 
+								over-frame-color="#FFFFFF" color="#BFBFBF" 
+								gradient-color-begin="#666666" 
+								gradient-color-end="Transparent" size="10" 
+								bold="false" down-frame-color="#666666" 
+								down-gradient-color-begin="Transparent" 
+								over-gradient-color-end="#ffffff" 
+								down-gradient-color-end="#666666" 
+								over-color="#ffffff" down-color="#ffffff" 
+								over-bold="false">
+								<more frame-color="#A4DBFF" 
+									over-frame-color="#A4DBFF" 
+									gradient-color-begin="#F4F4F4" 
+									gradient-color-end="#BBE4FF" 
+									over-gradient-color-begin="#A4DBFF" 
+									over-gradient-color-end="#F4F4F4"/>
+								<previous frame-color="#BBE4FF" 
+									over-frame-color="#A4DBFF" 
+									gradient-color-begin="#FFFFFF" 
+									gradient-color-end="#A4DBFF" 
+									over-gradient-color-begin="#A4DBFF" 
+									over-gradient-color-end="#F4F4F4"/>
+							</snbuttons>
+							<textboxes frame-color="#CACACA" 
+								background-color="#292929" color="#757575" 
+								gradient-color-begin="#292929" 
+								gradient-color-end="#292929" bold="false">
+								<codeboxes color="#808080" 
+									frame-color="#6A6A6A" 
+									background-color="#606060" 
+									gradient-color-begin="Transparent" 
+									gradient-color-end="Transparent" size="10"/>
+								<inputs frame-color="#6a6a6a" color="#808080" 
+									gradient-color-begin="Transparent" 
+									gradient-color-end="Transparent"/>
+								<dropdowns list-item-over-color="#52A4DA" 
+									frame-color="#6a6a6a" 
+									background-color="#292929" color="#808080" 
+									gradient-color-begin="#292929" 
+									gradient-color-end="#292929"/>
+							</textboxes>
+							<buttons frame-color="#6a6a6a" 
+								background-color="Transparent" 
+								gradient-color-begin="#666666" 
+								gradient-color-end="Transparent" 
+								color="#FFFFFF" frame-thickness="1" size="12" 
+								bold="false" over-frame-color="#FFFFFF" 
+								down-frame-color="#6a6a6a" 
+								over-gradient-color-begin="#666666" 
+								down-gradient-color-begin="Transparent" 
+								over-gradient-color-end="#353535" 
+								down-gradient-color-end="Transparent" 
+								over-size="12" over-bold="false">
+								<post-buttons frame-color="#6a6a6a" 
+									gradient-color-end="Transparent"/>
+							</buttons>
+							<listboxes frame-color="#CACACA" 
+								corner-roundness="4;4;4;4" 
+								gradient-color-begin="#F4F4F4" 
+								gradient-color-end="#FFFFFF"/>
+							<checkboxes checkmark-color="#FFFFC8" 
+								frame-color="#6a6a6a" 
+								down-gradient-color-begin="#292929" 
+								down-gradient-color-end="#292929" 
+								background-color="#292929" 
+								corner-roundness="3;3;3;3" 
+								gradient-color-begin="Transparent" 
+								gradient-color-end="Transparent" 
+								over-background-color="#292929" 
+								down-background-color="#292929"/>
+							<servicemarker gradient-color-begin="Transparent" 
+								gradient-color-end="#666666"/>
+							<tooltips frame-thickness="0" color="#292929" 
+								gradient-color-begin="#FFFFFF" 
+								gradient-color-end="#FFFFC8" size="10" 
+								frame-color="#FFDBA4"/>
+						</controls>
+						<texts color="808080">
+							<privacy color="#808080"/>
+							<headers color="#FFFFFF" bold="false"/>
+							<labels color="#FFFFFF" bold="false"/>
+							<messages color="#202020" 
+								background-color="#FFFFA4" frame-thickness="0" 
+								corner-roundness="4;4;4;4"/>
+							<links color="#FFFFFF" underline="false" 
+								over-color="#666666" down-color="#666666" 
+								down-bold="false"/>
+						</texts>
+					</body>
+				</config>
+			</GigyaUI>
+		</extraData>	
+	</layout>
+</layouts>

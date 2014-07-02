@@ -1,0 +1,113 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<settings>
+  <general>
+    <updateTitle>true</updateTitle>
+  </general>
+  <theme>
+    <name>Falcon On Line Help</name>
+    <predefined>false</predefined>
+    <baseTheme>Tabs</baseTheme>
+    <baseVersion>1.6</baseVersion>
+  </theme>
+  <pageHeader>
+    <visible>true</visible>
+    <height>40</height>
+    <logoImage>
+    </logoImage>
+    <showText>true</showText>
+  </pageHeader>
+  <splitter>
+    <icons>
+      <splitter>ui-icon ui-icon-grip-dotted-vertical</splitter>
+      <sideShow>ui-icon ui-icon-triangle-1-e</sideShow>
+      <sideHide>ui-icon ui-icon-triangle-1-w</sideHide>
+    </icons>
+    <position>300</position>
+  </splitter>
+  <topic>
+    <jqueryuiStyle>true</jqueryuiStyle>
+    <relatedTopics>
+      <icon>ui-icon ui-icon-arrowreturnthick-1-e</icon>
+    </relatedTopics>
+    <breadcrumbs>
+      <separator>&amp;nbsp;/&amp;nbsp;</separator>
+    </breadcrumbs>
+    <collapsibleSections>
+      <expandAll>
+        <icon>ui-icon ui-icon-circle-triangle-s</icon>
+      </expandAll>
+      <collapseAll>
+        <icon>ui-icon ui-icon-circle-triangle-n</icon>
+      </collapseAll>
+      <expanded>
+        <icon>ui-icon ui-icon-circle-triangle-n</icon>
+      </expanded>
+      <collapsed>
+        <icon>ui-icon ui-icon-circle-triangle-s</icon>
+      </collapsed>
+    </collapsibleSections>
+  </topic>
+  <toc>
+    <icons>
+      <leaf>ui-icon ui-icon-document</leaf>
+      <collapsed>ui-icon ui-icon-folder-collapsed</collapsed>
+      <expanded>ui-icon ui-icon-folder-open</expanded>
+    </icons>
+  </toc>
+  <index>
+    <visible>true</visible>
+  </index>
+  <search>
+    <visible>true</visible>
+    <buttons>
+      <go>
+        <icon>ui-icon ui-icon-search</icon>
+      </go>
+      <help>
+        <icon>ui-icon ui-icon-help</icon>
+      </help>
+      <highlight>
+        <icon>ui-icon ui-icon-lightbulb</icon>
+      </highlight>
+    </buttons>
+  </search>
+  <buttons>
+    <poweredBy>
+      <id>c1buttonPoweredBy</id>
+      <icon>custom-icon custom-icon-1</icon>
+      <showLabel>false</showLabel>
+      <visible>true</visible>
+      <click>window.open('http://www.doctohelp.com', '_blank').focus()</click>
+    </poweredBy>
+    <prev>
+      <id>c1buttonPrev</id>
+      <icon>ui-icon ui-icon-circle-arrow-w</icon>
+      <showLabel>false</showLabel>
+      <visible>true</visible>
+    </prev>
+    <next>
+      <id>c1buttonNext</id>
+      <icon>ui-icon ui-icon-circle-arrow-e</icon>
+      <showLabel>false</showLabel>
+      <visible>true</visible>
+    </next>
+    <home>
+      <id>c1buttonHome</id>
+      <icon>ui-icon ui-icon-home</icon>
+      <showLabel>false</showLabel>
+      <visible>true</visible>
+    </home>
+    <print>
+      <id>c1buttonPrint</id>
+      <icon>ui-icon ui-icon-print</icon>
+      <showLabel>false</showLabel>
+      <visible>true</visible>
+    </print>
+    <email>
+      <id>c1buttonEmail</id>
+      <icon>ui-icon ui-icon-mail-closed</icon>
+      <showLabel>false</showLabel>
+      <visible>true</visible>
+    </email>
+  </buttons>
+</settings>

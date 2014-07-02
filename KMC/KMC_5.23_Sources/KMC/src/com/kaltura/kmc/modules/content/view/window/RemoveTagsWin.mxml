@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<HelpTitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" help="{onHelp()}"
+				 showCloseButton="true" xmlns="com.kaltura.containers.*" layout="vertical"
+				 title="{resourceManager.getString('cms', 'removeTags')}">
+	<mx:Script>
+		<![CDATA[
+			import com.adobe.cairngorm.control.CairngormEvent;
+			import com.adobe.utils.ArrayUtil;
+			import com.kaltura.analytics.GoogleAnalyticsConsts;
+			import com.kaltura.analytics.GoogleAnalyticsTracker;
+			import com.kaltura.analytics.KAnalyticsTracker;
+			import com.kaltura.analytics.KAnalyticsTrackerConsts;
+			import com.kaltura.kmc.events.KmcHelpEvent;
+			import com.kaltura.kmc.modules.content.events.CategoryEvent;
+			import com.kaltura.kmc.modules.content.events.EntriesEvent;
+			import com.kaltura.kmc.modules.content.events.WindowEvent;
+			import com.kaltura.types.KalturaStatsKmcEventType;
+			
+			import mx.collections.ArrayCollection;
+			import mx.core.mx_internal;
+			import mx.utils.StringUtil;
+
+			
+			public static const OBJECT_TYPE_ENTRY:String = "entry";
+			public static const OBJECT_TYPE_CATEGORY:String = "category";
+			
+			private var _objects:ArrayCollection = new ArrayCollection();
+
+			[Bindable]
+			/**
+			 * tags list
+			 * */
+			private var _listDP:ArrayCollection = new ArrayCollection();
+
+			[Bindable]
+			/**
+			 * optional values: "entry" / "category"
+			 * */
+			public var objectType:String; 
+			
+			private function onHelp():void {
+				if (objectType == OBJECT_TYPE_ENTRY) {
+					dispatchEvent(new KmcHelpEvent(KmcHelpEvent.HELP, 'section_remove_entry_tags'));
+				}
+				else if (objectType == OBJECT_TYPE_CATEGORY) {
+					dispatchEvent(new KmcHelpEvent(KmcHelpEvent.HELP, 'section_remove_cat_tags'));
+				}
+			}
+
+
+			private function removeTags():void {
+				for (var i:int = 0; i < _objects.length; i++) {
+					for (var j:int = 0; j < list.selectedItems.length; j++) {
+						_objects[i].tags = String(_objects[i].tags).replace(list.selectedItems[j], '');
+					}
+
+					if (objectType == OBJECT_TYPE_ENTRY) {
+						KAnalyticsTracker.getInstance().sendEvent(KAnalyticsTrackerConsts.CONTENT, KalturaStatsKmcEventType.CONTENT_REMOVE_TAGS,
+							"Entry>RemoveTagsWindow",
+							_objects[i].id);
+					}
+				}
+				var cgEvent:CairngormEvent;
+				if (objectType == OBJECT_TYPE_ENTRY) {
+					GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.CONTENT_REMOVE_TAGS, GoogleAnalyticsConsts.CONTENT);
+					cgEvent = new EntriesEvent(EntriesEvent.UPDATE_ENTRIES, _objects);
+					cgEvent.dispatch();
+				}
+				else if (objectType == OBJECT_TYPE_CATEGORY) {
+					GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.CONTENT_REMOVE_CATEGORY_TAGS, GoogleAnalyticsConsts.CONTENT);
+					cgEvent = new CategoryEvent(CategoryEvent.UPDATE_CATEGORIES);
+					cgEvent.data = _objects.source;
+					cgEvent.dispatch();
+				}
+				// close window
+				mx_internal::closeButton.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+				
+			}
+
+
+			/**
+			 * 
+			 * @param arrCol	array collection of items that have attribute "tags"
+			 * */
+			public function setObjects(arrCol:ArrayCollection):void {
+				_objects = arrCol;
+				for (var i:int = 0; i < _objects.length; i++) {
+					var newArr:Array;
+					if (_objects[i].tags != null)
+						newArr = String(_objects[i].tags).split(',');
+
+					if (newArr != null) {
+						for (var j:int = 0; j < newArr.length; j++) {
+							if (newArr[j] == " " || newArr[j] == "" || newArr[j] == ",")
+								ArrayUtil.removeValueFromArray(newArr, newArr[j]);
+							else
+								newArr[j] = StringUtil.trim(newArr[j]);
+						}
+
+						_listDP.source = (_listDP.source).concat(newArr);
+					}
+				}
+
+				var uniqeArr:Array = ArrayUtil.createUniqueCopy(_listDP.source);
+				uniqeArr.sort();
+				_listDP = new ArrayCollection(uniqeArr);
+			}
+			
+			
+			private function getDescription(objectType:String):String {
+				if (objectType == OBJECT_TYPE_ENTRY) {
+					return resourceManager.getString('cms', 'removeTagsDescription')
+				}
+				else {
+					return resourceManager.getString('cms', 'removeTagsDescriptionCats')
+				}
+			}
+			
+		]]>
+	</mx:Script>
+	<mx:Text id="removeTagsText" text="{getDescription(objectType)}"/>
+	<mx:List id="list" minWidth="150" width="100%" dataProvider="{_listDP}" allowMultipleSelection="true"
+			 variableRowHeight="true"/>
+	<mx:ControlBar>
+		<mx:Button label="{resourceManager.getString('cms', 'remove')}" enabled="{list.selectedItems.length > 0}"
+				   click="removeTags()" buttonMode="true"/>
+	</mx:ControlBar>
+</HelpTitleWindow>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layouts>
+	<layout skinPath="/content/uiconf/kaltura/corp_demos/pepsi/kdp_kd_pepsi_skin.swf">
+	    <VBox width="100%" height="100%" styleName="mlayout" >
+
+	      <Canvas id="PlayerHolder" styleName="PlayerBackground" width="100%" height="100%" >
+		      <KplayerModule id="myKplayer" styleName="Kplayer"  k_path="kplayer/KplayerModule.swf" width="100%" height="100%" maxWidth="600" maxHeight="450"/>
+		      <waterMark id="loadedWaterMark" k_watermark_path="http://www.pepsi.co.uk/maxist/SiteImages/watermark.png" styleName="centered"  width="90%" height="90%" maxWidth="600" maxHeight="450"  k_path="watermarks/WaterMarkLoader.swf" />
+	      </Canvas>
+
+	      <HBox styleName="controllerBox" height="39" width="100%">
+	      	<Spacer width="8" />
+	      	<Button id="play" styleName="play" width="28" height="28" />
+	      	<Spacer width="2" />
+	      	<TimerCountdown  id="timer" width="30" styleName="timer" k_path="timertext/TimerCountdown.swf" />
+			<VBox width="100%" height="100%" styleName="scrubberHolder">
+		      	<Spacer height="6"/>
+				<Scrubber id="scrubber" styleName="scrubber" width="100%" height="10"/>
+		      	<Spacer height="3"/>
+	      		<poweredBy id="poweredBy" k_path="poweredby/PoweredByCapitals.swf" styleName="powered"  width="96" height="12"/>
+			</VBox>
+	      	<VolumeModule width="20" height="20" k_path="VolumeBars/VolumeBarA.swf" id="Volume" styleName="pp"/>
+	      	<Spacer width="8"/>
+	      </HBox>
+	    </VBox>
+	    
+	    	<popups>
+	    		<SharePop id="SharePop" k_path="popups/SharePopup.swf" width="350" height="350" />
+		</popups>
+		
+		<javaScript>
+		</javaScript>
+	</layout>
+</layouts>

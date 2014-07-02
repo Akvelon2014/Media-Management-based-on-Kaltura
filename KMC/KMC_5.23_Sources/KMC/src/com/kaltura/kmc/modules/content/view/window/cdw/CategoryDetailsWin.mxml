@@ -1,0 +1,458 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation:ChangeableDataViewer xmlns:navigation="com.kaltura.edw.business.*" xmlns:mx="http://www.adobe.com/2006/mxml"
+								 height="595" width="890" showCloseButton="true" showHelpButton="true" help="helpHandler(event)"
+								 close="onClose(event)" layout="horizontal" horizontalScrollPolicy="off" paddingTop="18"
+								 xmlns:components="com.kaltura.kmc.modules.content.view.window.cdw.components.*"
+								 initialize="onInitialize(event)" paddingBottom="0" paddingLeft="0" paddingRight="0"
+								 title="{setTitle(_undoCategory)}"
+								 styleName="WinTitleStyle">
+	<mx:Script>
+		<![CDATA[
+			import com.adobe.cairngorm.control.CairngormEvent;
+			import com.kaltura.KalturaClient;
+			import com.kaltura.edw.events.KedDataEvent;
+			import com.kaltura.edw.events.ValidationResultEvent;
+			import com.kaltura.edw.model.FilterModel;
+			import com.kaltura.edw.vo.CategoryVO;
+			import com.kaltura.kmc.business.CategoryUtils;
+			import com.kaltura.kmc.events.KmcHelpEvent;
+			import com.kaltura.kmc.modules.content.events.CategoryEvent;
+			import com.kaltura.kmc.modules.content.model.CategoriesModel;
+			import com.kaltura.types.KalturaInheritanceType;
+			import com.kaltura.utils.ObjectHelpers;
+			import com.kaltura.utils.ObjectUtil;
+			import com.kaltura.vo.KalturaCategory;
+			
+			import mx.binding.utils.BindingUtils;
+			import mx.binding.utils.ChangeWatcher;
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.events.PropertyChangeEvent;
+			import mx.events.PropertyChangeEventKind;
+
+			[Bindable]
+			private var _isNewCategory:Boolean;
+
+			public function set isNewCategory(value:Boolean):void {
+				_isNewCategory = value;
+				if (_isNewCategory && showNextPrevBtns) {
+					showNextPrevBtns = false;
+				}
+			}
+			
+			
+			[Bindable]
+			/**
+			 * client for autocomplete calls
+			 * */
+			public var kClient:KalturaClient;
+
+
+			[Bindable]
+			private var _model:CategoriesModel;
+
+			public function set categoriesModel(value:CategoriesModel):void {
+				if (_selectedCatWatcher) {
+					_selectedCatWatcher.unwatch();
+				}
+				_model = value;
+				_itemsAC = value.categoriesList;
+				_selectedCatWatcher = BindingUtils.bindSetter(setCategory, _model, "selectedCategory");
+			}
+
+			public function get categoriesModel():CategoriesModel {
+				return _model;
+			}
+
+
+			private var _origCategory:KalturaCategory;
+
+			[Bindable]
+			private var _undoCategory:KalturaCategory;
+
+			private var _nextPendingCategory:int;
+
+
+			[Bindable]
+			private var _filterModel:FilterModel;
+
+			public function get filterModel():FilterModel {
+				return _filterModel;
+			}
+
+			public function set filterModel(value:FilterModel):void {
+				_filterModel = value;
+			}
+
+
+			/**
+			 * watches setting of selected category
+			 * */
+			private var _selectedCatWatcher:ChangeWatcher;
+
+			[Bindable] 
+			/**
+			 * RnP - allow saving changes in the window
+			 * */
+			public var enableSave:Boolean = true; 
+
+			
+			/**
+			 * select window state according to category
+			 * */
+			private function onInitialize(evt:FlexEvent):void {
+				if (_isNewCategory) {
+					currentState = "parentSelect";
+				}
+				else {
+					currentState = "tabs";
+				}
+			}
+			
+			
+			/**
+			 * set window title according to category
+			 * */
+			private function setTitle(cat:KalturaCategory):String {
+				var title:String = '';
+				if (_isNewCategory) {
+					title = resourceManager.getString('cms', 'newCategoryTitle');
+				}
+				else {
+					title = resourceManager.getString('cms', 'editCategoryTitle', [_origCategory.name]);
+				}
+				return title;
+			}
+
+			
+			private function onClose(event:Event):void {
+				if ((_isNewCategory && _model.processingNewCategory) || hasChanged()) {
+					// discard changes?
+					Alert.show(resourceManager.getString('drilldown', 'undoEntryDetails'), resourceManager.getString('drilldown', 'undoEntryDetailsTitle'), Alert.YES | Alert.NO, null, removeMe);
+				}
+				else {
+					removeMe();
+				}
+			}
+
+			
+			/**
+			 * clear and close the window
+			 * */
+			private function removeMe(event:CloseEvent = null):void {
+				if (event && event.detail == Alert.NO) {
+					return;
+				}
+				if (tabsNav != null) {
+					tabsNav.clear();
+					tabsNav.destroy();
+				}
+				if (_selectedCatWatcher) {
+					_selectedCatWatcher.unwatch();
+				}
+				if (_sameRefidWatcher) {
+					_sameRefidWatcher.unwatch();
+				}
+				dispatchEvent(new KedDataEvent(KedDataEvent.CLOSE_WINDOW));
+			}
+
+
+			private function onParentSelected(event:Event):void {
+				var parentCategory:KalturaCategory = parentSelect.selectedCategory;
+				_undoCategory.parentId = parentCategory.id;
+				if (parentCategory.privacyContexts) {
+					// little hack to show the end users tab if it is needed: simulate inheriting privacy contexts
+					_undoCategory.privacyContexts = parentCategory.privacyContexts; 
+					_undoCategory.pendingMembersCount = 0;
+					_undoCategory.membersCount = 0;
+				}
+				currentState = "tabs";
+			}
+
+
+			
+			/**
+			* @internal
+			* the close event is there in case the function is triggered from refid alert
+			* */
+			private function save(e:CloseEvent = null):void {
+				if (e && e.detail == Alert.NO) {
+					_nextPendingCategory = 0;
+					return;
+				}
+				
+				if (_isNewCategory && _model.processingNewCategory) {
+					addCategory();
+				}
+				else {
+					if (hasChanged()) {
+//						if (_origCategory.name != _undoCategory.name) {
+//							var action:String = resourceManager.getString('cms', 'catBatchName');
+//							Alert.show(resourceManager.getString('cms', 'catBatchNotice', [action]), resourceManager.getString('cms', 'attention'), Alert.CANCEL|Alert.OK, null, saveTabsData); 
+//						}
+//						else {
+							saveTabsData();
+//						}
+					}
+					else if (_refreshListsRequired) {
+						// it's actually "saveAndClose"
+						removeMe();
+					}
+				}
+			}
+			
+			
+			private function saveTabsData(e:CloseEvent = null):void {
+				if (!e || e.detail == Alert.OK) {
+					tabsNav.save();
+					// this eventually leads to updateCategory();
+				}
+				else {
+					// e.detail = cancel, so revert
+					_undoCategory.name = _origCategory.name;
+				}
+			}
+			
+			
+			/**
+			 * perform the actual add
+			 * */
+			private function addCategory():void {
+				
+				CategoryUtils.resetUnupdateableFields(_undoCategory);
+				
+				// remove any privacy contexts (if required, they will be set by server)
+				_undoCategory.privacyContexts = null;
+				_undoCategory.pendingMembersCount = int.MIN_VALUE;
+				_undoCategory.membersCount = int.MIN_VALUE;
+				
+				
+				// add category
+				if (!_refreshListsRequired) {
+					// if _refreshListsRequired we already set to true in submitChanges(), no need to do again
+					var cgEvent:CategoryEvent = new CategoryEvent(CategoryEvent.SET_REFRESH_REQUIRED);
+					cgEvent.data = true;
+					cgEvent.dispatch();
+				}
+				cgEvent = new CategoryEvent(CategoryEvent.ADD_CATEGORY);
+				cgEvent.data = [_undoCategory, tabsNav.isMetadataChanged()];
+				cgEvent.dispatch();
+				if (_refreshListsRequired) {
+					// it's actually "saveAndClose"
+					removeMe();
+				}
+			}
+			
+			
+			/**
+			 * perform the actual update
+			 * */
+			private function updateCategory(event:Event):void {
+				_undoCategory.setUpdatedFieldsOnly(true);
+				
+				CategoryUtils.resetUnupdateableFields(_undoCategory);
+				
+				var catVO:CategoryVO = new CategoryVO(_origCategory.id, _undoCategory.name, _undoCategory);
+				var cgEvent2:CategoryEvent = new CategoryEvent(CategoryEvent.UPDATE_CATEGORY);
+				cgEvent2.data = [catVO];
+				cgEvent2.dispatch();
+				if (_refreshListsRequired) {
+					// it's actually "saveAndClose"
+					removeMe();
+				}
+			}
+
+
+			/**
+			 * should categories/entries list be refreshed after save action
+			 * (only true for save&close)
+			 * */
+			private var _refreshListsRequired:Boolean;
+
+			
+			/**
+			 * start save process
+			 * */
+			private function submitChanges(refreshLists:Boolean):void {
+				_refreshListsRequired = refreshLists;
+				var cgEvent:CategoryEvent = new CategoryEvent(CategoryEvent.SET_REFRESH_REQUIRED);
+				cgEvent.data = refreshLists;
+				cgEvent.dispatch();
+				
+				tabsNav.validate();
+				// eventually leads to tabsNav_validationCompleteHandler
+			}
+
+			
+
+			private function hasChanged():Boolean {
+				var res:Boolean = !ObjectHelpers.compareKalturaObjects(_origCategory, _undoCategory);
+				if (!res) {
+					res = tabsNav.isChanged();
+				}
+
+				return res;
+			}
+
+
+			private function gotoNextCategory(ascending:Boolean):void {
+				_nextPendingCategory = ascending ? 1 : -1;
+				if (hasChanged()) {
+					// discard changes?
+					Alert.show(resourceManager.getString('cms', 'undoCategoryDetails'), 
+						resourceManager.getString('drilldown', 'undoEntryDetailsTitle'), Alert.YES | Alert.NO, null, setNextCategory);
+				}
+				else {
+					setNextCategory();
+				}
+			}
+
+
+			private function setNextCategory(event:CloseEvent = null):void {
+				if (_nextPendingCategory == 0) {
+					throw new Error("calling setNextCategory() with _nextPendingCategory == 0");
+					return;
+				}
+				if ((event == null || event.detail == Alert.YES)) {
+					tabsNav.clear();
+					itemIndex = getNavigatableItemIndex(_nextPendingCategory == 1, itemIndex);
+					var selectCategory:CategoryEvent = new CategoryEvent(CategoryEvent.SET_SELECTED_CATEGORY);
+					selectCategory.data = _itemsAC.getItemAt(itemIndex);
+					selectCategory.dispatch();
+				}
+				_nextPendingCategory = 0;
+			}
+
+
+			private function setCategory(selectedCategory:KalturaCategory):void {
+				// clear any previous
+				if (_origCategory) {
+					_origCategory.removeEventListener(PropertyChangeEvent.PROPERTY_CHANGE, copyToUndoTo);
+				}
+				// set new value
+				_origCategory = selectedCategory;
+				_origCategory.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, copyToUndoTo, false, 0, true);
+				// create copy
+				var kCat:KalturaCategory = new KalturaCategory();
+				ObjectUtil.copyObject(_origCategory, kCat);
+				_undoCategory = kCat;
+				// set paging
+				if (_model.categoriesList) {
+					itemIndex = _model.categoriesList.getItemIndex(selectedCategory);
+				}
+			}
+			
+			/**
+			 * after save/update, copy new attributes to _undoToEntry
+			 * */
+			private function copyToUndoTo(e:PropertyChangeEvent):void {
+				if (_undoCategory && e.kind == PropertyChangeEventKind.UPDATE) {
+					_undoCategory[e.property] = e.newValue;
+				}
+			}
+
+			private function helpHandler(event:Event):void {
+				var anchor:String;
+				if (currentState == "parentSelect") {
+					anchor = "section_category_parent";
+				}
+				else if (currentState == "tabs") {
+					anchor = tabsNav.helpAnchor;
+				}
+
+				dispatchEvent(new KmcHelpEvent(KmcHelpEvent.HELP, anchor, true));
+			}
+
+			
+			/**
+			 * watcher for categories with the same refid
+			 * */
+			private var _sameRefidWatcher:ChangeWatcher;
+			
+
+			private function tabsNav_validationCompleteHandler(event:ValidationResultEvent):void {
+				// if referenceId was changed
+				if (_undoCategory.referenceId && _undoCategory.referenceId != KalturaClient.NULL_STRING && _origCategory.referenceId != _undoCategory.referenceId) {
+					// list all entries with the same refid , if any - show message
+					if (!_sameRefidWatcher) {
+						_model.categoriesWSameRefidAsSelected = new Array();
+						_sameRefidWatcher = BindingUtils.bindSetter(confirmSameRefid, _model, "categoriesWSameRefidAsSelected");
+					}
+					var cg:CairngormEvent = new CategoryEvent(CategoryEvent.LIST_CATEGORIES_BY_REFID);
+					cg.data = _undoCategory;
+					cg.dispatch();
+				}
+				else {
+					// just save it
+					save();
+				}
+			}
+			
+			/**
+			 * confirm saving category with existing referenceId
+			 * */
+			private function confirmSameRefid(value:Object):void {
+				if (value && value.length > 0) {
+					// we have categories with the same refid
+					var str:String = '';
+					for each (var o:KalturaCategory in value) {
+						str += resourceManager.getString('cms', 'existingRefidCat', [o.fullName, o.id]);
+					}
+					Alert.show(resourceManager.getString('cms', 'existingRefid', [_undoCategory.referenceId, str]),
+						resourceManager.getString('cms', 'attention'), Alert.YES | Alert.NO, this, save);
+				}
+				else if (!value) {
+					save();
+				}
+				
+				if (!value || value.length > 0) {
+					_model.categoriesWSameRefidAsSelected = new Array();
+				}
+			}
+
+
+		]]>
+	</mx:Script>
+	<navigation:states>
+		<mx:State name="tabs">
+			<mx:AddChild>
+				<components:CategoryDetailsTabs id="tabsNav" width="100%" height="100%" filterModel="{_filterModel}"
+												category="{_undoCategory}" model="{_model}"
+												isNewCategory="{_isNewCategory}"
+												validationComplete="tabsNav_validationCompleteHandler(event)"
+												saved="updateCategory(event)"/>
+			</mx:AddChild>
+			<mx:SetProperty target="{saveBtn}" name="enabled" value="true" />
+			<mx:SetProperty target="{saveAndCloseBtn}" name="enabled" value="true" />
+		</mx:State>
+		<mx:State name="parentSelect">
+			<mx:AddChild>
+				<components:ParentCategorySelection change="onParentSelected(event)" id="parentSelect" width="100%"
+													height="100%" filterModel="{_filterModel}" kClient="{kClient}"/>
+			</mx:AddChild>
+			<mx:SetProperty target="{saveBtn}" name="enabled" value="false" />
+			<mx:SetProperty target="{saveAndCloseBtn}" name="enabled" value="false" />
+		</mx:State>
+	</navigation:states>
+
+	<mx:ControlBar horizontalGap="5" width="100%">
+		<mx:Spacer width="33%"/>
+		<mx:HBox width="33%" horizontalAlign="center">
+			<mx:Button id="saveBtn" label="{resourceManager.getString('cms', 'categorySave')}" 
+					   click="submitChanges(false)" buttonMode="{enabled}" 
+					   enabled="{currentState=='tabs' &amp;&amp; !_model.loadingFlag &amp;&amp; enableSave}" />
+			<mx:Button id="saveAndCloseBtn" label="{resourceManager.getString('cms', 'categorySaveAndClose')}" 
+					   click="submitChanges(true)" buttonMode="{enabled}" 
+					   enabled="{currentState=='tabs' &amp;&amp; !_model.loadingFlag &amp;&amp; enableSave}" />
+		</mx:HBox>
+		<mx:HBox horizontalAlign="right" width="33%">
+			<mx:LinkButton label="{resourceManager.getString('cms', 'prevCategory')}" click="gotoNextCategory(false)"
+						   buttonMode="true" enabled="{_prevEnabled &amp;&amp; !_model.loadingFlag}" 
+						   visible="{showNextPrevBtns}" styleName="drillDownNavPrevBtn"/>
+			<mx:LinkButton label="{resourceManager.getString('cms', 'nextCategory')}" click="gotoNextCategory(true)"
+						   buttonMode="true" enabled="{_nextEnabled &amp;&amp; !_model.loadingFlag}" 
+						   visible="{showNextPrevBtns}" styleName="drillDownNavNextBtn" labelPlacement="left" />
+		</mx:HBox>
+	</mx:ControlBar>
+</navigation:ChangeableDataViewer>

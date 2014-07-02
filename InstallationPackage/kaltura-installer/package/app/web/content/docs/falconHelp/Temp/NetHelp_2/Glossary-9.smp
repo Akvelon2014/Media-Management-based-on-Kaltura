@@ -1,0 +1,431 @@
+﻿DocToHelp style map
+Version 1.0
+Quote Char	Quote Char	SPAN.QuoteChar	 	0	32
+Body Text 2 Char	Body Text 2 Char	SPAN.BodyText2Char	 	0	32
+Heading 7 Char	Heading 7 Char	SPAN.Heading7Char	 	0	32
+Glossary Heading (no auto links)	Glossary Heading (no auto links)	P.GlossaryHeadingnoautolinks	Glossary Heading (no auto links)	14	1
+RelatedHead	RelatedHead	P.RelatedHead	RelatedHead	12	16
+P.MsoListNumber5CxSpMiddle	P.MsoListNumber5CxSpMiddle	P.MsoListNumber5CxSpMiddle	 	0	0
+P.MsoListNumber2CxSpMiddle	P.MsoListNumber2CxSpMiddle	P.MsoListNumber2CxSpMiddle	 	0	0
+P.MsoListBullet2CxSpFirst	P.MsoListBullet2CxSpFirst	P.MsoListBullet2CxSpFirst	 	0	0
+P.MsoList3CxSpMiddle	P.MsoList3CxSpMiddle	P.MsoList3CxSpMiddle	 	0	0
+Bibliography	Bibliography	P.MsoBibliography	 	0	0
+Colorful Grid - Accent 6	Colorful Grid - Accent 6	TABLE.MsoTableColorfulGridAccent6	 	0	0
+Colorful Shading - Accent 6	Colorful Shading - Accent 6	TABLE.MsoTableColorfulShadingAccent6	 	0	0
+Medium Grid 2 - Accent 5	Medium Grid 2 - Accent 5	TABLE.MsoTableMediumGrid2Accent5	 	0	0
+Medium Shading 1 - Accent 5	Medium Shading 1 - Accent 5	TABLE.MsoTableMediumShading1Accent5	 	0	0
+Light Shading - Accent 3	Light Shading - Accent 3	TABLE.MsoTableLightShadingAccent3	 	0	0
+Placeholder Text	Placeholder Text	P.MsoPlaceholderText	 	0	0
+Table Subtle 1	Table Subtle 1	TABLE.MsoTableSubtle1	 	0	0
+Table Grid 4	Table Grid 4	TABLE.MsoTableGrid4	 	0	0
+Block Text	Block Text	P.MsoBlockText	 	0	0
+Body Text Indent 3	Body Text Indent 3	P.MsoBodyTextIndent3	 	0	0
+Body Text First Indent 2	Body Text First Indent 2	P.MsoBodyTextFirstIndent2	 	0	0
+List 4	List 4	P.MsoList4	 	0	0
+Index 4	Index 4	P.MsoIndex4	 	0	0
+Heading 4	Heading 4	H4	Heading 4	4	1
+button	button	button	 	0	0
+C1H Section End	C1H Section End	P.C1HSectionEnd	 	0	0
+C1H Section Collapsed	C1H Section Collapsed	P.C1HSectionCollapsed	 	0	0
+C1H Number	C1H Number	P.C1HNumber	 	0	0
+P.MsoListContinue3CxSpLast	P.MsoListContinue3CxSpLast	P.MsoListContinue3CxSpLast	 	0	0
+P.MsoListNumber5CxSpFirst	P.MsoListNumber5CxSpFirst	P.MsoListNumber5CxSpFirst	 	0	0
+P.MsoListNumberCxSpFirst	P.MsoListNumberCxSpFirst	P.MsoListNumberCxSpFirst	 	0	0
+Medium Grid 2 - Accent 6	Medium Grid 2 - Accent 6	TABLE.MsoTableMediumGrid2Accent6	 	0	0
+Medium Shading 1 - Accent 6	Medium Shading 1 - Accent 6	TABLE.MsoTableMediumShading1Accent6	 	0	0
+Light Shading - Accent 4	Light Shading - Accent 4	TABLE.MsoTableLightShadingAccent4	 	0	0
+Medium Grid 3 - Accent 1	Medium Grid 3 - Accent 1	TABLE.MsoTableMediumGrid3Accent1	 	0	0
+Medium Shading 2 - Accent 1	Medium Shading 2 - Accent 1	TABLE.MsoTableMediumShading2Accent1	 	0	0
+Table Grid	Table Grid	TABLE.MsoTableGrid	 	0	0
+Table Subtle 2	Table Subtle 2	TABLE.MsoTableSubtle2	 	0	0
+Table Grid 5	Table Grid 5	TABLE.MsoTableGrid5	 	0	0
+HTML Code	HTML Code	CODE	 	0	0
+Title	Title	P.MsoTitle	 	0	0
+List 5	List 5	P.MsoList5	 	0	0
+Endnote Text	Endnote Text	P.MsoEndnoteText	 	0	0
+Page Number	Page Number	SPAN.MsoPageNumber	 	0	0
+Comment Reference	Comment Reference	SPAN.MsoCommentReference	 	0	32
+Normal Indent	Normal Indent	P.MsoNormalIndent	 	0	0
+Index 5	Index 5	P.MsoIndex5	 	0	0
+Heading 5	Heading 5	H5	Heading 5	5	1
+C1H Section Expanded	C1H Section Expanded	P.C1HSectionExpanded	 	0	0
+Jump Base	Jump Base	P.JumpBase	 	0	0
+C1H Link Tag	C1H Link Tag	SPAN.C1HLinkTag	C1H Link Tag	34	34
+TableHeading	TableHeading	P.TableHeading	 	0	0
+SourceTop	SourceTop	P.SourceTop	 	0	0
+header odd	header odd	P.headerodd	 	0	0
+P.MsoAcetate	P.MsoAcetate	P.MsoAcetate	 	0	0
+P.MsoListBullet3CxSpMiddle	P.MsoListBullet3CxSpMiddle	P.MsoListBullet3CxSpMiddle	 	0	0
+P.MsoListBullet2CxSpLast	P.MsoListBullet2CxSpLast	P.MsoListBullet2CxSpLast	 	0	0
+Light Shading - Accent 5	Light Shading - Accent 5	TABLE.MsoTableLightShadingAccent5	 	0	0
+Medium Grid 3 - Accent 2	Medium Grid 3 - Accent 2	TABLE.MsoTableMediumGrid3Accent2	 	0	0
+Medium Shading 2 - Accent 2	Medium Shading 2 - Accent 2	TABLE.MsoTableMediumShading2Accent2	 	0	0
+Table Grid 6	Table Grid 6	TABLE.MsoTableGrid6	 	0	0
+Plain Text	Plain Text	P.MsoPlainText	 	0	0
+Hyperlink	Hyperlink	SPAN.MsoHyperlink	 	0	0
+Body Text First Indent	Body Text First Indent	P.MsoBodyTextFirstIndent	 	0	0
+List Bullet	List Bullet	P.MsoListBullet	 	0	0
+TOC 1	TOC 1	P.MsoToc1	 	0	0
+Index 6	Index 6	P.MsoIndex6	 	0	0
+Heading 6	Heading 6	H6	 	0	0
+P.WordSection1	P.WordSection1	P.WordSection1	 	0	0
+Salutation Char	Salutation Char	SPAN.SalutationChar	 	0	32
+Intense Quote Char	Intense Quote Char	SPAN.IntenseQuoteChar	 	0	32
+HTML Preformatted Char	HTML Preformatted Char	SPAN.HTMLPreformattedChar	 	0	32
+Jump from Contents	Jump from Contents	P.JumpfromContents	 	0	0
+Footnote Text Char	Footnote Text Char	SPAN.FootnoteTextChar	 	0	32
+C1H Popup Text	C1H Popup Text	SPAN.C1HPopupText	C1H Popup Text	49	34
+C1H Inline Expand	C1H Inline Expand	SPAN.C1HInlineExpand	C1H Inline Expand	44	34
+C1H Popup	C1H Popup	SPAN.C1HPopup	C1H Popup	30	34
+TOC Base	TOC Base	P.TOCBase	 	0	0
+Note	Note	P.Note	 	0	0
+footer odd	footer odd	P.footerodd	 	0	0
+footer even	footer even	P.footereven	 	0	0
+CodeExplained	CodeExplained	P.CodeExplained	 	0	0
+BodyTable	BodyTable	P.BodyTable	 	0	0
+P.MsoListContinue5CxSpMiddle	P.MsoListContinue5CxSpMiddle	P.MsoListContinue5CxSpMiddle	 	0	0
+P.MsoListNumber2CxSpFirst	P.MsoListNumber2CxSpFirst	P.MsoListNumber2CxSpFirst	 	0	0
+Subtle Reference	Subtle Reference	P.MsoSubtleReference	 	0	0
+Intense Emphasis	Intense Emphasis	P.MsoIntenseEmphasis	 	0	0
+Light Shading - Accent 6	Light Shading - Accent 6	TABLE.MsoTableLightShadingAccent6	 	0	0
+Medium Grid 3 - Accent 3	Medium Grid 3 - Accent 3	TABLE.MsoTableMediumGrid3Accent3	 	0	0
+Medium Shading 2 - Accent 3	Medium Shading 2 - Accent 3	TABLE.MsoTableMediumShading2Accent3	 	0	0
+Medium Grid 1	Medium Grid 1	TABLE.MsoTableMediumGrid1	 	0	0
+Table Grid 7	Table Grid 7	TABLE.MsoTableGrid7	 	0	0
+Table Columns 1	Table Columns 1	TABLE.MsoTableColumns1	 	0	0
+HTML Preformatted	HTML Preformatted	PRE	 	0	0
+Subtitle	Subtitle	P.MsoSubtitle	 	0	0
+Envelope Address	Envelope Address	P.MsoEnvelopeAddress	 	0	0
+TOC 2	TOC 2	P.MsoToc2	 	0	0
+Index 7	Index 7	P.MsoIndex7	 	0	0
+Heading 7	Heading 7	P.MsoHeading7	 	0	0
+Closing Char	Closing Char	SPAN.ClosingChar	 	0	32
+C1 Section End	C1 Section End	P.C1SectionEnd	 	0	0
+TOCTitle	TOCTitle	P.TOCTitle	 	0	0
+Index Base	Index Base	P.IndexBase	 	0	0
+P.MsoListContinue4CxSpFirst	P.MsoListContinue4CxSpFirst	P.MsoListContinue4CxSpFirst	 	0	0
+P.MsoList5CxSpFirst	P.MsoList5CxSpFirst	P.MsoList5CxSpFirst	 	0	0
+P.MsoListBulletCxSpFirst	P.MsoListBulletCxSpFirst	P.MsoListBulletCxSpFirst	 	0	0
+Intense Reference	Intense Reference	P.MsoIntenseReference	 	0	0
+Subtle Emphasis	Subtle Emphasis	P.MsoSubtleEmphasis	 	0	0
+Medium Grid 3 - Accent 4	Medium Grid 3 - Accent 4	TABLE.MsoTableMediumGrid3Accent4	 	0	0
+Medium Shading 2 - Accent 4	Medium Shading 2 - Accent 4	TABLE.MsoTableMediumShading2Accent4	 	0	0
+Medium Grid 2	Medium Grid 2	TABLE.MsoTableMediumGrid2	 	0	0
+Table Grid 8	Table Grid 8	TABLE.MsoTableGrid8	 	0	0
+Table Columns 2	Table Columns 2	TABLE.MsoTableColumns2	 	0	0
+Closing	Closing	P.MsoClosing	 	0	0
+Caption	Caption	P.MsoCaption	 	0	0
+TOC 3	TOC 3	P.MsoToc3	 	0	0
+Index 8	Index 8	P.MsoIndex8	 	0	0
+Heading 8	Heading 8	P.MsoHeading8	 	0	0
+Comment Text Char	Comment Text Char	SPAN.CommentTextChar	 	0	32
+Body Text Indent Char	Body Text Indent Char	SPAN.BodyTextIndentChar	 	0	32
+_D2HComment	_D2HComment	SPAN.D2HComment	 	0	32
+C1H Context ID	C1H Context ID	SPAN.C1HContextID	C1H Context ID	38	34
+C1H Keyword Link	C1H Keyword Link	SPAN.C1HKeywordLink	C1H Keyword Link	33	34
+TableBorder	TableBorder	P.TableBorder	 	0	0
+Header Base	Header Base	P.HeaderBase	 	0	0
+Body Text Table	Body Text Table	P.BodyTextTable	 	0	0
+P.MsoListBullet3CxSpFirst	P.MsoListBullet3CxSpFirst	P.MsoListBullet3CxSpFirst	 	0	0
+P.MsoListNumberCxSpLast	P.MsoListNumberCxSpLast	P.MsoListNumberCxSpLast	 	0	0
+Medium Grid 3 - Accent 5	Medium Grid 3 - Accent 5	TABLE.MsoTableMediumGrid3Accent5	 	0	0
+Medium Shading 2 - Accent 5	Medium Shading 2 - Accent 5	TABLE.MsoTableMediumShading2Accent5	 	0	0
+Medium Grid 3	Medium Grid 3	TABLE.MsoTableMediumGrid3	 	0	0
+Table Columns 3	Table Columns 3	TABLE.MsoTableColumns3	 	0	0
+HTML Acronym	HTML Acronym	ACRONYM	 	0	0
+List Number 2	List Number 2	P.MsoListNumber2	 	0	0
+Line Number	Line Number	SPAN.MsoLineNumber	 	0	0
+Comment Text	Comment Text	P.MsoCommentText	 	0	0
+TOC 4	TOC 4	P.MsoToc4	 	0	0
+Index 9	Index 9	P.MsoIndex9	 	0	0
+Heading 9	Heading 9	P.MsoHeading9	 	0	0
+Signature Char	Signature Char	SPAN.SignatureChar	 	0	32
+Document Map Char	Document Map Char	SPAN.DocumentMapChar	 	0	32
+Date Char	Date Char	SPAN.DateChar	 	0	32
+C1H Variable	C1H Variable	SPAN.C1HVariable	C1H Variable	50	34
+C1H Group Link	C1H Group Link	SPAN.C1HGroupLink	C1H Group Link	32	34
+C1H Number 2	C1H Number 2	P.C1HNumber2	 	0	0
+C1H Bullet 2A	C1H Bullet 2A	P.C1HBullet2A	 	0	0
+P.MsoListNumber5CxSpLast	P.MsoListNumber5CxSpLast	P.MsoListNumber5CxSpLast	 	0	0
+P.MsoListNumber4CxSpMiddle	P.MsoListNumber4CxSpMiddle	P.MsoListNumber4CxSpMiddle	 	0	0
+P.MsoList5CxSpLast	P.MsoList5CxSpLast	P.MsoList5CxSpLast	 	0	0
+P.MsoList5CxSpMiddle	P.MsoList5CxSpMiddle	P.MsoList5CxSpMiddle	 	0	0
+Medium Grid 3 - Accent 6	Medium Grid 3 - Accent 6	TABLE.MsoTableMediumGrid3Accent6	 	0	0
+Medium Shading 2 - Accent 6	Medium Shading 2 - Accent 6	TABLE.MsoTableMediumShading2Accent6	 	0	0
+Medium List 1 - Accent 1	Medium List 1 - Accent 1	TABLE.MsoTableMediumList1Accent1	 	0	0
+Light List	Light List	TABLE.MsoTableLightList	 	0	0
+Table List 1	Table List 1	TABLE.MsoTableList1	 	0	0
+Table Columns 4	Table Columns 4	TABLE.MsoTableColumns4	 	0	0
+Document Map	Document Map	P.MsoDocumentMap	 	0	0
+Default Paragraph Font	Default Paragraph Font	P.MsoNormal	 	0	0
+List Number 3	List Number 3	P.MsoListNumber3	 	0	0
+Index Heading	Index Heading	P.MsoIndexHeading	 	0	0
+TOC 5	TOC 5	P.MsoToc5	 	0	0
+Normal	Normal	P.MsoNormal	 	0	8
+HTML Address Char	HTML Address Char	SPAN.HTMLAddressChar	 	0	32
+Comment Subject Char	Comment Subject Char	SPAN.CommentSubjectChar	 	0	32
+Balloon Text Char	Balloon Text Char	SPAN.BalloonTextChar	 	0	32
+C1 Section Collapsed	C1 Section Collapsed	P.C1SectionCollapsed	 	0	0
+C1H Popup Topic Text	C1H Popup Topic Text	P.C1HPopupTopicText	 	0	0
+C1H Group	C1H Group	SPAN.C1HGroup	C1H Group	31	34
+Medium List 1 - Accent 2	Medium List 1 - Accent 2	TABLE.MsoTableMediumList1Accent2	 	0	0
+Quote	Quote	P.MsoQuote	 	0	0
+Light List - Accent 1	Light List - Accent 1	TABLE.MsoTableLightListAccent1	 	0	0
+Medium Shading 1	Medium Shading 1	TABLE.MsoTableMediumShading1	 	0	0
+Table List 2	Table List 2	TABLE.MsoTableList2	 	0	0
+Table Columns 5	Table Columns 5	TABLE.MsoTableColumns5	 	0	0
+1 / a / i	1 / a / i	P	 	0	0
+HTML Address	HTML Address	ADDRESS	 	0	0
+Strong	Strong	STRONG	 	0	0
+List Number 4	List Number 4	P.MsoListNumber4	 	0	0
+Table of Figures	Table of Figures	P.MsoTof	 	0	0
+Footnote Text	Footnote Text	P.MsoFootnoteText	 	0	0
+TOC 6	TOC 6	P.MsoToc6	 	0	0
+UL	UL	UL	 	0	0
+C1H Expand Text	C1H Expand Text	SPAN.C1HExpandText	C1H Expand Text	48	34
+C1H Contents Title	C1H Contents Title	SPAN.C1HContentsTitle	C1H Contents Title	35	34
+SuperTitle	SuperTitle	P.SuperTitle	 	0	0
+P.MsoListNumber3CxSpFirst	P.MsoListNumber3CxSpFirst	P.MsoListNumber3CxSpFirst	 	0	0
+P.MsoListBullet5CxSpMiddle	P.MsoListBullet5CxSpMiddle	P.MsoListBullet5CxSpMiddle	 	0	0
+P.MsoListBullet2CxSpMiddle	P.MsoListBullet2CxSpMiddle	P.MsoListBullet2CxSpMiddle	 	0	0
+Book Title	Book Title	SPAN.MsoBookTitle	 	0	0
+Medium List 1 - Accent 3	Medium List 1 - Accent 3	TABLE.MsoTableMediumList1Accent3	 	0	0
+Light List - Accent 2	Light List - Accent 2	TABLE.MsoTableLightListAccent2	 	0	0
+Medium Grid 1 - Accent 1	Medium Grid 1 - Accent 1	TABLE.MsoTableMediumGrid1Accent1	 	0	0
+Revision	Revision	P.MsoRMPane	 	0	0
+Colorful List	Colorful List	TABLE.MsoTableColorfulList	 	0	0
+Dark List	Dark List	TABLE.MsoTableDarkList	 	0	0
+Medium Shading 2	Medium Shading 2	TABLE.MsoTableMediumShading2	 	0	0
+Balloon Text	Balloon Text	P	 	0	0
+Table List 3	Table List 3	TABLE.MsoTableList3	 	0	0
+Table Classic 1	Table Classic 1	TABLE.MsoTableClassic1	 	0	0
+Body Text Indent	Body Text Indent	P.MsoBodyTextIndent	 	0	0
+Body Text	Body Text	P.MsoBodyText	 	0	0
+List Number 5	List Number 5	P.MsoListNumber5	 	0	0
+TOA Heading	TOA Heading	P.MsoToaHeading	 	0	0
+TOC 7	TOC 7	P.MsoToc7	 	0	0
+Subtitle Char	Subtitle Char	SPAN.SubtitleChar	 	0	32
+Message Header Char	Message Header Char	SPAN.MessageHeaderChar	 	0	32
+Body Text Indent 3 Char	Body Text Indent 3 Char	SPAN.BodyTextIndent3Char	 	0	32
+GlossaryTerm	GlossaryTerm	P.GlossaryTerm	 	0	0
+Macro Text Char	Macro Text Char	SPAN.MacroTextChar	 	0	32
+C1H Index	C1H Index	SPAN.C1HIndex	C1H Index	28	38
+C1H Bullet	C1H Bullet	P.C1HBullet	 	0	0
+D2HNoGloss	D2HNoGloss	SPAN.D2HNoGloss	 	0	32
+Definition	Definition	P.Definition	 	0	0
+P.MsoListContinue5CxSpFirst	P.MsoListContinue5CxSpFirst	P.MsoListContinue5CxSpFirst	 	0	0
+P.MsoListContinue4CxSpMiddle	P.MsoListContinue4CxSpMiddle	P.MsoListContinue4CxSpMiddle	 	0	0
+P.MsoListNumber4CxSpLast	P.MsoListNumber4CxSpLast	P.MsoListNumber4CxSpLast	 	0	0
+P.MsoListBullet5CxSpLast	P.MsoListBullet5CxSpLast	P.MsoListBullet5CxSpLast	 	0	0
+P.MsoList4CxSpLast	P.MsoList4CxSpLast	P.MsoList4CxSpLast	 	0	0
+P.MsoListBulletCxSpMiddle	P.MsoListBulletCxSpMiddle	P.MsoListBulletCxSpMiddle	 	0	0
+Medium List 1 - Accent 4	Medium List 1 - Accent 4	TABLE.MsoTableMediumList1Accent4	 	0	0
+Light List - Accent 3	Light List - Accent 3	TABLE.MsoTableLightListAccent3	 	0	0
+Medium Grid 1 - Accent 2	Medium Grid 1 - Accent 2	TABLE.MsoTableMediumGrid1Accent2	 	0	0
+Light Grid - Accent 1	Light Grid - Accent 1	TABLE.MsoTableLightGridAccent1	 	0	0
+Table List 4	Table List 4	TABLE.MsoTableList4	 	0	0
+Table Classic 2	Table Classic 2	TABLE.MsoTableClassic2	 	0	0
+Article / Section	Article / Section	P	 	0	0
+Normal (Web)	Normal (Web)	P	 	0	0
+Macro Text	Macro Text	P.MsoMacroText	 	0	0
+TOC 8	TOC 8	P.MsoToc8	 	0	0
+Plain Text Char	Plain Text Char	SPAN.PlainTextChar	 	0	32
+Body Text Indent 2 Char	Body Text Indent 2 Char	SPAN.BodyTextIndent2Char	 	0	32
+Body Text First Indent 2 Char	Body Text First Indent 2 Char	SPAN.BodyTextFirstIndent2Char	 	0	32
+C1H Dropdown Text	C1H Dropdown Text	SPAN.C1HDropdownText	C1H Dropdown Text	47	34
+C1H Inline Dropdown	C1H Inline Dropdown	SPAN.C1HInlineDropdown	C1H Inline Dropdown	46	34
+TableText	TableText	P.TableText	 	0	0
+Margin Note	Margin Note	P.MarginNote	Margin Note	27	1
+P.MsoListBullet4CxSpFirst	P.MsoListBullet4CxSpFirst	P.MsoListBullet4CxSpFirst	 	0	0
+Medium List 1 - Accent 5	Medium List 1 - Accent 5	TABLE.MsoTableMediumList1Accent5	 	0	0
+Light List - Accent 4	Light List - Accent 4	TABLE.MsoTableLightShadingAccent4	 	0	0
+Medium Grid 1 - Accent 3	Medium Grid 1 - Accent 3	TABLE.MsoTableMediumGrid1Accent3	 	0	0
+Light Grid - Accent 2	Light Grid - Accent 2	TABLE.MsoTableLightGridAccent2	 	0	0
+Colorful List - Accent 1	Colorful List - Accent 1	TABLE.MsoTableColorfulListAccent1	 	0	0
+Dark List - Accent 1	Dark List - Accent 1	TABLE.MsoTableDarkListAccent1	 	0	0
+Table Web 1	Table Web 1	TABLE.MsoTableWeb1	 	0	0
+Table Professional	Table Professional	TABLE.MsoTableProfessional	 	0	0
+Table 3D effects 1	Table 3D effects 1	TABLE.MsoTable3DFx1	 	0	0
+Table List 5	Table List 5	TABLE.MsoTableList5	 	0	0
+Table Classic 3	Table Classic 3	TABLE.MsoTableClassic3	 	0	0
+HTML Definition	HTML Definition	DFN	 	0	0
+Salutation	Salutation	P.MsoSalutation	 	0	0
+Message Header	Message Header	P.MsoMessageHeader	 	0	0
+Footer	Footer	P.MsoFooter	 	0	0
+TOC 9	TOC 9	P.MsoToc9	 	0	0
+HTML	HTML	SPAN.HTML	 	0	32
+Source	Source	P.Source	 	0	0
+ByLine	ByLine	P.ByLine	 	0	0
+P.MsoListContinue5CxSpLast	P.MsoListContinue5CxSpLast	P.MsoListContinue5CxSpLast	 	0	0
+P.MsoListNumber3CxSpMiddle	P.MsoListNumber3CxSpMiddle	P.MsoListNumber3CxSpMiddle	 	0	0
+P.MsoList3CxSpFirst	P.MsoList3CxSpFirst	P.MsoList3CxSpFirst	 	0	0
+Medium List 1 - Accent 6	Medium List 1 - Accent 6	TABLE.MsoTableMediumList1Accent6	 	0	0
+Light List - Accent 5	Light List - Accent 5	TABLE.MsoTableLightListAccent5	 	0	0
+Medium Grid 1 - Accent 4	Medium Grid 1 - Accent 4	TABLE.MsoTableMediumGrid1Accent4	 	0	0
+Light Grid - Accent 3	Light Grid - Accent 3	TABLE.MsoTableLightGridAccent3	 	0	0
+Colorful List - Accent 2	Colorful List - Accent 2	TABLE.MsoTableColorfulListAccent2	 	0	0
+Dark List - Accent 2	Dark List - Accent 2	TABLE.MsoTableDarkListAccent2	 	0	0
+Medium List 2 - Accent 1	Medium List 2 - Accent 1	TABLE.MsoTableMediumList2Accent1	 	0	0
+Intense Quote	Intense Quote	P.MsoIntenseQuote	 	0	0
+Table Web 2	Table Web 2	TABLE.MsoTableWeb2	 	0	0
+Table 3D effects 2	Table 3D effects 2	TABLE.MsoTable3DFx2	 	0	0
+Table List 6	Table List 6	TABLE.MsoTableList6	 	0	0
+Table Classic 4	Table Classic 4	TABLE.MsoTableClassic4	 	0	0
+Table Simple 1	Table Simple 1	TABLE.MsoTableSimple1	 	0	0
+Comment Subject	Comment Subject	P.MsoCommentSubject	 	0	0
+HTML Variable	HTML Variable	VAR	 	0	0
+List Continue	List Continue	P.MsoListContinue	 	0	0
+List Number	List Number	P.MsoListNumber	 	0	0
+Jump from List	Jump from List	P.JumpfromList	 	0	0
+C1H Continue	C1H Continue	P.C1HContinue	 	0	0
+List 2 Table	List 2 Table	P.List2Table	 	0	0
+header even	header even	P.headereven	 	0	0
+Figures	Figures	P.Figures	 	0	0
+Code Base	Code Base	P.CodeBase	 	0	0
+Heading Base	Heading Base	P.HeadingBase	 	0	0
+P.MsoListBullet4CxSpLast	P.MsoListBullet4CxSpLast	P.MsoListBullet4CxSpLast	 	0	0
+P.MsoList4CxSpMiddle	P.MsoList4CxSpMiddle	P.MsoList4CxSpMiddle	 	0	0
+P.MsoListNumberCxSpMiddle	P.MsoListNumberCxSpMiddle	P.MsoListNumberCxSpMiddle	 	0	0
+Light List - Accent 6	Light List - Accent 6	TABLE.MsoTableLightListAccent6	 	0	0
+Medium Grid 1 - Accent 5	Medium Grid 1 - Accent 5	TABLE.MsoTableMediumGrid1Accent5	 	0	0
+Light Grid - Accent 4	Light Grid - Accent 4	TABLE.MsoTableLightGridAccent4	 	0	0
+Colorful List - Accent 3	Colorful List - Accent 3	TABLE.MsoTableColorfulListAccent3	 	0	0
+Dark List - Accent 3	Dark List - Accent 3	TABLE.MsoTableDarkListAccent3	 	0	0
+Medium List 2 - Accent 2	Medium List 2 - Accent 2	TABLE.MsoTableMediumList2Accent2	 	0	0
+Colorful Grid - Accent 1	Colorful Grid - Accent 1	TABLE.MsoTableColorfulGridAccent1	 	0	0
+Colorful Shading - Accent 1	Colorful Shading - Accent 1	TABLE.MsoTableColorfulShadingAccent1	 	0	0
+List Paragraph	List Paragraph	P.MsoListParagraph	 	0	0
+Medium List 1	Medium List 1	TABLE.MsoTableMediumList1	 	0	0
+Table Web 3	Table Web 3	TABLE.MsoTableWeb3	 	0	0
+Table Elegant	Table Elegant	TABLE.MsoTableElegant	 	0	0
+Table 3D effects 3	Table 3D effects 3	TABLE.MsoTable3DFx3	 	0	0
+Table List 7	Table List 7	TABLE.MsoTableList7	 	0	0
+Table Simple 2	Table Simple 2	TABLE.MsoTableSimple2	 	0	0
+1 / 1.1 / 1.1.1	1 / 1.1 / 1.1.1	P	 	0	0
+No List	No List	P.MsoNormal	 	0	0
+HTML Typewriter	HTML Typewriter	TT	 	0	0
+HTML Sample	HTML Sample	SAMP	 	0	0
+z-Bottom of Form	z-Bottom of Form	P	 	0	0
+Emphasis	Emphasis	EM	 	0	0
+List Continue 2	List Continue 2	P.MsoListContinue2	 	0	0
+Endnote Reference	Endnote Reference	SPAN.MsoEndnoteReference	 	0	0
+.MsoChpDefault	.MsoChpDefault	.MsoChpDefault	 	0	0
+Keyword Link	Keyword Link	P.KeywordLink	 	0	0
+C1H Inline Popup	C1H Inline Popup	SPAN.C1HInlinePopup	C1H Inline Popup	45	34
+Glossary Heading	Glossary Heading	P.GlossaryHeading	Glossary Heading	13	1
+C1H Online	C1H Online	SPAN.C1HOnline	C1H Online	42	34
+C1H Conditional	C1H Conditional	SPAN.C1HConditional	C1H Conditional	41	34
+C1H Link Tag Invisible	C1H Link Tag Invisible	SPAN.C1HLinkTagInvisible	C1H Link Tag Invisible	37	34
+WhatsThis	WhatsThis	P.WhatsThis	WhatsThis	7	1
+P.MsoListNumber4CxSpFirst	P.MsoListNumber4CxSpFirst	P.MsoListNumber4CxSpFirst	 	0	0
+P.MsoListNumber3CxSpLast	P.MsoListNumber3CxSpLast	P.MsoListNumber3CxSpLast	 	0	0
+P.MsoList3CxSpLast	P.MsoList3CxSpLast	P.MsoList3CxSpLast	 	0	0
+P.MsoListBulletCxSpLast	P.MsoListBulletCxSpLast	P.MsoListBulletCxSpLast	 	0	0
+Medium Grid 1 - Accent 6	Medium Grid 1 - Accent 6	TABLE.MsoTableMediumGrid1Accent6	 	0	0
+Light Grid - Accent 5	Light Grid - Accent 5	TABLE.MsoTableLightGridAccent5	 	0	0
+Colorful List - Accent 4	Colorful List - Accent 4	TABLE.MsoTableColorfulListAccent4	 	0	0
+Dark List - Accent 4	Dark List - Accent 4	TABLE.MsoTableDarkListAccent4	 	0	0
+Medium List 2 - Accent 3	Medium List 2 - Accent 3	TABLE.MsoTableMediumList2Accent3	 	0	0
+Colorful Grid - Accent 2	Colorful Grid - Accent 2	TABLE.MsoTableColorfulGridAccent2	 	0	0
+Colorful Shading - Accent 2	Colorful Shading - Accent 2	TABLE.MsoTableColorfulShadingAccent2	 	0	0
+Medium Grid 2 - Accent 1	Medium Grid 2 - Accent 1	TABLE.MsoTableMediumGrid2Accent1	 	0	0
+Medium Shading 1 - Accent 1	Medium Shading 1 - Accent 1	TABLE.MsoTableMediumShading1Accent1	 	0	0
+Colorful Shading	Colorful Shading	TABLE.MsoTableColorfulShading	 	0	0
+Medium List 2	Medium List 2	TABLE.MsoTableMediumList2	 	0	0
+Table List 8	Table List 8	TABLE.MsoTableList8	 	0	0
+Table Simple 3	Table Simple 3	TABLE.MsoTableSimple3	 	0	0
+HTML Keyboard	HTML Keyboard	KBD	 	0	0
+HTML Cite	HTML Cite	CITE	 	0	0
+z-Top of Form	z-Top of Form	P	 	0	0
+List Continue 3	List Continue 3	P.MsoListContinue3	 	0	0
+List Bullet 2	List Bullet 2	P.MsoListBullet2	 	0	0
+Header	Header	P.MsoHeader	 	0	0
+OL	OL	OL	 	0	0
+CaptionTable	CaptionTable	P.CaptionTable	 	0	0
+C1H Topic Properties	C1H Topic Properties	SPAN.C1HTopicProperties	C1H Topic Properties	39	34
+C1H Index Invisible	C1H Index Invisible	SPAN.C1HIndexInvisible	C1H Index Invisible	40	38
+C1H Continue 2	C1H Continue 2	P.C1HContinue2	 	0	0
+C1H Bullet 2	C1H Bullet 2	P.C1HBullet2	 	0	0
+C1H Group Invisible	C1H Group Invisible	SPAN.C1HGroupInvisible	C1H Group Invisible	36	34
+List Table	List Table	P.ListTable	 	0	0
+Jump	Jump	P.Jump	 	0	0
+P.MsoListBullet4CxSpMiddle	P.MsoListBullet4CxSpMiddle	P.MsoListBullet4CxSpMiddle	 	0	0
+Light Grid - Accent 6	Light Grid - Accent 6	TABLE.MsoTableLightGridAccent6	 	0	0
+Colorful List - Accent 5	Colorful List - Accent 5	TABLE.MsoTableColorfulListAccent5	 	0	0
+Dark List - Accent 5	Dark List - Accent 5	TABLE.MsoTableDarkListAccent5	 	0	0
+Medium List 2 - Accent 4	Medium List 2 - Accent 4	TABLE.MsoTableMediumList2Accent4	 	0	0
+Colorful Grid - Accent 3	Colorful Grid - Accent 3	TABLE.MsoTableColorfulGridAccent3	 	0	0
+Colorful Shading - Accent 3	Colorful Shading - Accent 3	TABLE.MsoTableColorfulShadingAccent3	 	0	0
+Medium Grid 2 - Accent 2	Medium Grid 2 - Accent 2	TABLE.MsoTableMediumGrid2Accent2	 	0	0
+Medium Shading 1 - Accent 2	Medium Shading 1 - Accent 2	TABLE.MsoTableMediumShading1Accent2	 	0	0
+Light Grid	Light Grid	TABLE.MsoTableLightGrid	 	0	0
+Table Grid 1	Table Grid 1	TABLE.MsoTableGrid1	 	0	0
+Table Colorful 1	Table Colorful 1	TABLE.MsoTableColorful1	 	0	0
+FollowedHyperlink	FollowedHyperlink	SPAN.MsoHyperlinkFollowed	 	0	0
+List Continue 4	List Continue 4	P.MsoListContinue4	 	0	0
+List Bullet 3	List Bullet 3	P.MsoListBullet3	 	0	0
+Table of Authorities	Table of Authorities	P.MsoToa	 	0	0
+Index 1	Index 1	P.MsoIndex1	 	0	0
+Heading 1	Heading 1	H1	Heading 1	1	1
+E-mail Signature Char	E-mail Signature Char	SPAN.E-mailSignatureChar	 	0	32
+Heading 9 Char	Heading 9 Char	SPAN.Heading9Char	 	0	32
+C1H Manual	C1H Manual	SPAN.C1HManual	C1H Manual	43	34
+MidTopic	MidTopic	P.MidTopic	MidTopic	6	1
+P.MsoTocHeading	P.MsoTocHeading	P.MsoTocHeading	 	0	0
+P.MsoListContinue4CxSpLast	P.MsoListContinue4CxSpLast	P.MsoListContinue4CxSpLast	 	0	0
+P.MsoListContinue3CxSpMiddle	P.MsoListContinue3CxSpMiddle	P.MsoListContinue3CxSpMiddle	 	0	0
+P.MsoListBullet5CxSpFirst	P.MsoListBullet5CxSpFirst	P.MsoListBullet5CxSpFirst	 	0	0
+Colorful List - Accent 6	Colorful List - Accent 6	TABLE.MsoTableColorfulListAccent6	 	0	0
+Dark List - Accent 6	Dark List - Accent 6	TABLE.MsoTableDarkListAccent6	 	0	0
+Medium List 2 - Accent 5	Medium List 2 - Accent 5	TABLE.MsoTableMediumList2Accent5	 	0	0
+Colorful Grid - Accent 4	Colorful Grid - Accent 4	TABLE.MsoTableColorfulGridAccent4	 	0	0
+Colorful Shading - Accent 4	Colorful Shading - Accent 4	TABLE.MsoTableColorfulShadingAccent4	 	0	0
+Medium Grid 2 - Accent 3	Medium Grid 2 - Accent 3	TABLE.MsoTableMediumGrid2Accent3	 	0	0
+Medium Shading 1 - Accent 3	Medium Shading 1 - Accent 3	TABLE.MsoTableMediumShading1Accent3	 	0	0
+Light Shading - Accent 1	Light Shading - Accent 1	TABLE.MsoTableLightShadingAccent1	 	0	0
+No Spacing	No Spacing	P.MsoNoSpacing	 	0	0
+Table Contemporary	Table Contemporary	TABLE.MsoTableContemporary	 	0	0
+Table Grid 2	Table Grid 2	TABLE.MsoTableGrid2	 	0	0
+Table Colorful 2	Table Colorful 2	TABLE.MsoTableColorful2	 	0	0
+Table Normal	Table Normal	TABLE.MsoNormalTable	 	0	0
+Body Text 2	Body Text 2	P.MsoBodyText2	 	0	0
+Note Heading	Note Heading	P.MsoNoteHeading	 	0	0
+List Continue 5	List Continue 5	P.MsoListContinue5	 	0	0
+Signature	Signature	P.MsoSignature	 	0	0
+List Bullet 4	List Bullet 4	P.MsoListBullet4	 	0	0
+List 2	List 2	P.MsoList2	 	0	0
+List	List	P.MsoList	 	0	0
+Envelope Return	Envelope Return	P.MsoEnvelopeReturn	 	0	0
+Index 2	Index 2	P.MsoIndex2	 	0	0
+Heading 2	Heading 2	H2	Heading 2	2	1
+Note Heading Char	Note Heading Char	SPAN.NoteHeadingChar	 	0	32
+Endnote Text Char	Endnote Text Char	SPAN.EndnoteTextChar	 	0	32
+Body Text 3 Char	Body Text 3 Char	SPAN.BodyText3Char	 	0	32
+Heading 8 Char	Heading 8 Char	SPAN.Heading8Char	 	0	32
+C1 Section Expanded	C1 Section Expanded	P.C1SectionExpanded	 	0	0
+C1H Jump	C1H Jump	SPAN.C1HJump	C1H Jump	29	34
+Figures Table	Figures Table	P.FiguresTable	 	0	0
+P.MsoListContinue3CxSpFirst	P.MsoListContinue3CxSpFirst	P.MsoListContinue3CxSpFirst	 	0	0
+P.MsoListNumber2CxSpLast	P.MsoListNumber2CxSpLast	P.MsoListNumber2CxSpLast	 	0	0
+P.MsoListBullet3CxSpLast	P.MsoListBullet3CxSpLast	P.MsoListBullet3CxSpLast	 	0	0
+P.MsoList4CxSpFirst	P.MsoList4CxSpFirst	P.MsoList4CxSpFirst	 	0	0
+Medium List 2 - Accent 6	Medium List 2 - Accent 6	TABLE.MsoTableMediumList2Accent6	 	0	0
+Colorful Grid - Accent 5	Colorful Grid - Accent 5	TABLE.MsoTableColorfulGridAccent5	 	0	0
+Colorful Shading - Accent 5	Colorful Shading - Accent 5	TABLE.MsoTableColorfulShadingAccent5	 	0	0
+Medium Grid 2 - Accent 4	Medium Grid 2 - Accent 4	TABLE.MsoTableMediumGrid2Accent4	 	0	0
+Medium Shading 1 - Accent 4	Medium Shading 1 - Accent 4	TABLE.MsoTableMediumShading1Accent4	 	0	0
+Light Shading - Accent 2	Light Shading - Accent 2	TABLE.MsoTableLightShadingAccent2	 	0	0
+Colorful Grid	Colorful Grid	TABLE.MsoTableColorfulGrid	 	0	0
+Light Shading	Light Shading	TABLE.MsoTableLightShading	 	0	0
+Table Theme	Table Theme	TABLE.MsoTableTheme	 	0	0
+Table Grid 3	Table Grid 3	TABLE.MsoTableGrid3	 	0	0
+Table Colorful 3	Table Colorful 3	TABLE.MsoTableColorful3	 	0	0
+E-mail Signature	E-mail Signature	P.MsoAutoSig	 	0	0
+Body Text Indent 2	Body Text Indent 2	P.MsoBodyTextIndent2	 	0	0
+Body Text 3	Body Text 3	P.MsoBodyText3	 	0	0
+Date	Date	P.MsoDate	 	0	0
+List Bullet 5	List Bullet 5	P.MsoListBullet5	 	0	0
+List 3	List 3	P.MsoList3	 	0	0
+Footnote Reference	Footnote Reference	SPAN.MsoFootnoteReference	 	0	32
+Index 3	Index 3	P.MsoIndex3	 	0	0
+Heading 3	Heading 3	H3	Heading 3	3	1

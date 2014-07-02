@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+
+<!--
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+
+ Copyright 2014 Akvelon Inc.
+ http://www.akvelon.com/contact-us
+-->
+
+<html xmlns="http://www.w3.org/1999/html">
+
+<head>
+    <meta charset="utf-8">
+    <link href="css/style.css" type="text/css" rel="stylesheet">
+    <title>Kaltura Server on Azure Admin Console</title>
+</head>
+
+<body>
+    <div class="contents">
+        <h3>Contents</h3>
+        <ul class="main_contents">
+            <li><a href="#preface">Preface</a></li>
+            <li><a href="#login">Login to Admin Console</a></li>
+            <li>
+                <a href="#publisher_management_top">Publisher Management</a>
+                <ul class="sub_contents">
+                    <li><a href="#add_publisher">Add New Publisher</a></li>
+                    <li><a href="#publisher_management">Publisher Management</a></li>
+                </ul>
+            </li>
+            <li><a href="#unsupported">Features Removed</a></li>
+        </ul>
+    </div>
+
+    <div class="content">
+        <h1>Kaltura Server on Azure Admin Console</h1>
+        <p class="subtitle">User Manual</p>
+
+        <h2><a name="preface">Preface</a></h2>
+        <p>This manual describes the features and functions of the Admin Console for Kaltura Server on Microsoft Azure.</p>
+
+        <h2><a name="login">Login to Admin Console</a></h2>
+        <p>To access the Kaltura Server Admin Console, browse <i>http://&lt;you_domain&gt;/admin_console/</i>. Provide your system administrator credentials (created during installation). Press “Login” button.</p>
+        <img src="img/admin_console/001.png">
+
+        <h2><a name="publisher_management_top">Publisher Management</a></h2>
+        <h3><a name="add_publisher">Add New Publisher</a></h3>
+        <p>To upload, convert and publish content using Kaltura Server on Azure, you will need to create a new publisher. Click on the “Add New Publisher” option within the “Publishers” tab.</p>
+        <img src="img/admin_console/002.png">
+        <p>Please note the request for “Microsoft Azure Account Info” within this page. Input your Microsoft Azure Media Service credentials or leave it empty. Publisher can also specify these credentials from the Kaltura Management Console (KMC) later.</p>
+        <p>Fill out the remainder of this form and click “Create”.</p>
+
+        <h3><a name="publisher_management">Publisher Management</a></h3>
+        <p>This page contains a list of publishers. Here you can set Microsoft Azure Media Services credentials for an existing publisher.</p>
+        <ol>
+            <li>Select “Configure” from “Actions” drop down menu.
+            <img src="img/admin_console/003.png">
+            </li>
+            <li>You will then be directed to this window to provide the Microsoft Azure Media Service Account Name and Microsoft Azure Media Service Account Key for this instance.
+            <img src="img/admin_console/004.png">
+            </li>
+            <li>Click “Save” when finished.</li>
+        </ol>
+
+        <h2><a name="unsupported">Features Removed</a></h2>
+        <p>The Microsoft Azure Platform Admin Console differs from the Kaltura CE Admin Console in that it contains additional settings to enable integration with Microsoft Azure Media Services. We strongly recommend that you use the Microsoft Azure Management Portal to monitor the load on your server and Media Services.</p>
+        <p>Some other noteworthy differences:</p>
+        <p><em>Included in Microsoft Azure:</em></p>
+        <ul>
+            <li>Microsoft Azure Media Services credentials input fields at Publisher configuration form</li>
+            <li>Microsoft Azure Media Services credentials input fields at Add New Publisher form</li>
+        </ul>
+        <p><em>Not included in Microsoft Azure:</em></p>
+        <ul>
+            <li>UI Confs (would be implemented in the next version)</li>
+            <li>Monitoring (you may use Microsoft Azure Portal for monitoring the VM, “MONITOR” tab under VM details)</li>
+            <li>Developer (would be implemented in the next version)</li>
+            <li>“Service Packages” section in publisher configuration (Kaltura cloud specific options useless at CE version)</li>
+            <li>
+                Publisher profiles
+                <ul>
+                    <li>Widgets (would be implemented in the next version)</li>
+                    <li>Remote Storage (incompatible with approach to store all media at Microsoft Azure)</li>
+                    <li>Distribution Profiles (would be implemented in the next version)</li>
+                    <li>Generic Providers (would be implemented in the next version).</li>
+                 </ul>
+            </li>
+        </ul>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,1943 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<transformation>
+  <info>
+    <name>update_file_sync_manuallly</name>
+    <description/>
+    <extended_description/>
+    <trans_version/>
+    <trans_status>0</trans_status>
+    <directory>&#47;</directory>
+    <parameters>
+        <parameter>
+            <name>ManualEndUpdateDaysInterval</name>
+            <default_value></default_value>
+            <description></description>
+        </parameter>
+        <parameter>
+            <name>ManualStartUpdateDaysInterval</name>
+            <default_value></default_value>
+            <description></description>
+        </parameter>
+    </parameters>
+    <log>
+      <read/>
+      <write/>
+      <input/>
+      <output/>
+      <update/>
+      <rejected/>
+      <connection/>
+      <table/>
+      <step_performance_table/>
+      <use_batchid>Y</use_batchid>
+      <use_logfield>N</use_logfield>
+      <size_limit_lines/>
+    </log>
+    <maxdate>
+      <connection/>
+      <table/>
+      <field/>
+      <offset>0.0</offset>
+      <maxdiff>0.0</maxdiff>
+    </maxdate>
+    <size_rowset>10000</size_rowset>
+    <sleep_time_empty>50</sleep_time_empty>
+    <sleep_time_full>50</sleep_time_full>
+    <unique_connections>N</unique_connections>
+    <feedback_shown>Y</feedback_shown>
+    <feedback_size>50000</feedback_size>
+    <using_thread_priorities>Y</using_thread_priorities>
+    <shared_objects_file/>
+    <capture_step_performance>N</capture_step_performance>
+    <step_performance_capturing_delay>1000</step_performance_capturing_delay>
+    <dependencies>
+    </dependencies>
+    <partitionschemas>
+    </partitionschemas>
+    <slaveservers>
+    </slaveservers>
+    <clusterschemas>
+    </clusterschemas>
+  <modified_user>-</modified_user>
+  <modified_date>2010&#47;11&#47;30 18:01:26.164</modified_date>
+  </info>
+  <notepads>
+    <notepad>
+      <note>This is a really ugly fix - 
+for the case that a new file sync record 
+gets the version of an old file sync record,
+and the old file_sync record gets an even more older version. 
+We update the new version to have the 
+new file_sync ID, and update the old file_sync id 
+to the older version and its data.</note>
+      <xloc>156</xloc>
+      <yloc>500</yloc>
+      <width>329</width>
+      <heigth>101</heigth>
+    </notepad>
+  </notepads>
+  <connection>
+    <name>Kaltura</name>
+    <server>${OpDbHostName}</server>
+    <type>MYSQL</type>
+    <access>Native</access>
+    <database>kaltura</database>
+    <port>${OpDbPort}</port>
+    <username>${OpDbUser}</username>
+    <password>${OpDbPassword}</password>
+    <servername/>
+    <data_tablespace/>
+    <index_tablespace/>
+    <attributes>
+      <attribute><code>EXTRA_OPTION_MYSQL.zeroDateTimeBehavior</code><attribute>convertToNull</attribute></attribute>
+      <attribute><code>FORCE_IDENTIFIERS_TO_LOWERCASE</code><attribute>N</attribute></attribute>
+      <attribute><code>FORCE_IDENTIFIERS_TO_UPPERCASE</code><attribute>N</attribute></attribute>
+      <attribute><code>IS_CLUSTERED</code><attribute>N</attribute></attribute>
+      <attribute><code>PORT_NUMBER</code><attribute>${OpDbPort}</attribute></attribute>
+      <attribute><code>QUOTE_ALL_FIELDS</code><attribute>N</attribute></attribute>
+      <attribute><code>STREAM_RESULTS</code><attribute>Y</attribute></attribute>
+      <attribute><code>SUPPORTS_BOOLEAN_DATA_TYPE</code><attribute>N</attribute></attribute>
+      <attribute><code>USE_POOLING</code><attribute>N</attribute></attribute>
+    </attributes>
+  </connection>
+  <connection>
+    <name>Kaltura_Writable</name>
+    <server>${OpWritableDbHostName}</server>
+    <type>MYSQL</type>
+    <access>Native</access>
+    <database>kaltura</database>
+    <port>${OpDbPort}</port>
+    <username>${OpWritableDbUser}</username>
+    <password>${OpWritableDbPassword}</password>
+    <servername/>
+    <data_tablespace/>
+    <index_tablespace/>
+    <attributes>
+      <attribute><code>EXTRA_OPTION_MYSQL.zeroDateTimeBehavior</code><attribute>convertToNull</attribute></attribute>
+      <attribute><code>FORCE_IDENTIFIERS_TO_LOWERCASE</code><attribute>N</attribute></attribute>
+      <attribute><code>FORCE_IDENTIFIERS_TO_UPPERCASE</code><attribute>N</attribute></attribute>
+      <attribute><code>IS_CLUSTERED</code><attribute>N</attribute></attribute>
+      <attribute><code>PORT_NUMBER</code><attribute>${OpDbPort}</attribute></attribute>
+      <attribute><code>QUOTE_ALL_FIELDS</code><attribute>N</attribute></attribute>
+      <attribute><code>SQL_CONNECT</code><attribute>SET SESSION sql_log_bin=0</attribute></attribute>
+      <attribute><code>STREAM_RESULTS</code><attribute>Y</attribute></attribute>
+      <attribute><code>SUPPORTS_BOOLEAN_DATA_TYPE</code><attribute>N</attribute></attribute>
+      <attribute><code>USE_POOLING</code><attribute>N</attribute></attribute>
+    </attributes>
+  </connection>
+  <connection>
+    <name>KalturaDW</name>
+    <server>${DbHostName}</server>
+    <type>MYSQL</type>
+    <access>Native</access>
+    <database>kalturadw</database>
+    <port>${DbPort}</port>
+    <username>${DbUser}</username>
+    <password>${DbPassword}</password>
+    <servername/>
+    <data_tablespace/>
+    <index_tablespace/>
+    <attributes>
+      <attribute><code>EXTRA_OPTION_MYSQL.zeroDateTimeBehavior</code><attribute>convertToNull</attribute></attribute>
+      <attribute><code>FORCE_IDENTIFIERS_TO_LOWERCASE</code><attribute>N</attribute></attribute>
+      <attribute><code>FORCE_IDENTIFIERS_TO_UPPERCASE</code><attribute>N</attribute></attribute>
+      <attribute><code>IS_CLUSTERED</code><attribute>N</attribute></attribute>
+      <attribute><code>PORT_NUMBER</code><attribute>${DbPort}</attribute></attribute>
+      <attribute><code>QUOTE_ALL_FIELDS</code><attribute>N</attribute></attribute>
+      <attribute><code>STREAM_RESULTS</code><attribute>Y</attribute></attribute>
+      <attribute><code>SUPPORTS_BOOLEAN_DATA_TYPE</code><attribute>N</attribute></attribute>
+      <attribute><code>USE_POOLING</code><attribute>N</attribute></attribute>
+    </attributes>
+  </connection>
+  <connection>
+    <name>kalturadw_bisources</name>
+    <server>${DbHostName}</server>
+    <type>MYSQL</type>
+    <access>Native</access>
+    <database>kalturadw_bisources</database>
+    <port>${DbPort}</port>
+    <username>${DbUser}</username>
+    <password>${DbPassword}</password>
+    <servername/>
+    <data_tablespace/>
+    <index_tablespace/>
+    <attributes>
+      <attribute><code>FORCE_IDENTIFIERS_TO_LOWERCASE</code><attribute>N</attribute></attribute>
+      <attribute><code>FORCE_IDENTIFIERS_TO_UPPERCASE</code><attribute>N</attribute></attribute>
+      <attribute><code>IS_CLUSTERED</code><attribute>N</attribute></attribute>
+      <attribute><code>PORT_NUMBER</code><attribute>${DbPort}</attribute></attribute>
+      <attribute><code>QUOTE_ALL_FIELDS</code><attribute>N</attribute></attribute>
+      <attribute><code>STREAM_RESULTS</code><attribute>Y</attribute></attribute>
+      <attribute><code>SUPPORTS_BOOLEAN_DATA_TYPE</code><attribute>N</attribute></attribute>
+      <attribute><code>USE_POOLING</code><attribute>N</attribute></attribute>
+    </attributes>
+  </connection>
+  <connection>
+    <name>kalturadw_ds</name>
+    <server>${DbHostName}</server>
+    <type>MYSQL</type>
+    <access>Native</access>
+    <database>kalturadw_ds</database>
+    <port>${DbPort}</port>
+    <username>${DbUser}</username>
+    <password>${DbPassword}</password>
+    <servername/>
+    <data_tablespace/>
+    <index_tablespace/>
+    <attributes>
+      <attribute><code>EXTRA_OPTION_MYSQL.defaultFetchSize</code><attribute>500</attribute></attribute>
+      <attribute><code>EXTRA_OPTION_MYSQL.useCursorFetch</code><attribute>true</attribute></attribute>
+      <attribute><code>FORCE_IDENTIFIERS_TO_LOWERCASE</code><attribute>N</attribute></attribute>
+      <attribute><code>FORCE_IDENTIFIERS_TO_UPPERCASE</code><attribute>N</attribute></attribute>
+      <attribute><code>IS_CLUSTERED</code><attribute>N</attribute></attribute>
+      <attribute><code>PORT_NUMBER</code><attribute>${DbPort}</attribute></attribute>
+      <attribute><code>QUOTE_ALL_FIELDS</code><attribute>N</attribute></attribute>
+      <attribute><code>STREAM_RESULTS</code><attribute>Y</attribute></attribute>
+      <attribute><code>SUPPORTS_BOOLEAN_DATA_TYPE</code><attribute>N</attribute></attribute>
+      <attribute><code>USE_POOLING</code><attribute>N</attribute></attribute>
+    </attributes>
+  </connection>
+  <connection>
+    <name>KalturaLogs</name>
+    <server>${DbHostName}</server>
+    <type>MYSQL</type>
+    <access>Native</access>
+    <database>kalturaLog</database>
+    <port>${DbPort}</port>
+    <username>${DbUser}</username>
+    <password>${DbPassword}</password>
+    <servername/>
+    <data_tablespace/>
+    <index_tablespace/>
+    <attributes>
+      <attribute><code>EXTRA_OPTION_MYSQL.defaultFetchSize</code><attribute>500</attribute></attribute>
+      <attribute><code>EXTRA_OPTION_MYSQL.useCursorFetch</code><attribute>true</attribute></attribute>
+      <attribute><code>FORCE_IDENTIFIERS_TO_LOWERCASE</code><attribute>N</attribute></attribute>
+      <attribute><code>FORCE_IDENTIFIERS_TO_UPPERCASE</code><attribute>N</attribute></attribute>
+      <attribute><code>IS_CLUSTERED</code><attribute>N</attribute></attribute>
+      <attribute><code>PORT_NUMBER</code><attribute>${DbPort}</attribute></attribute>
+      <attribute><code>QUOTE_ALL_FIELDS</code><attribute>N</attribute></attribute>
+      <attribute><code>STREAM_RESULTS</code><attribute>Y</attribute></attribute>
+      <attribute><code>SUPPORTS_BOOLEAN_DATA_TYPE</code><attribute>N</attribute></attribute>
+      <attribute><code>USE_POOLING</code><attribute>N</attribute></attribute>
+    </attributes>
+  </connection>
+  <order>
+  <hop> <from>Table input</from><to>Set defaults</to><enabled>Y</enabled> </hop>  <hop> <from>Get Now</from><to>Insert &#47; Update File Sync</to><enabled>Y</enabled> </hop>  <hop> <from>Set defaults</from><to>Fix file_size</to><enabled>Y</enabled> </hop>  <hop> <from>Fix file_size</from><to>Get Now</to><enabled>Y</enabled> </hop>  <hop> <from>Insert &#47; Update File Sync</from><to>Get existing file_sync combo ID</to><enabled>Y</enabled> </hop>  <hop> <from>Update existing row version with new ID</from><to>Select values</to><enabled>Y</enabled> </hop>  <hop> <from>Select values</from><to>Get data of old id</to><enabled>Y</enabled> </hop>  <hop> <from>Set defaults 2</from><to>Fix file_size 2</to><enabled>Y</enabled> </hop>  <hop> <from>Get data of old id</from><to>Set defaults 2</to><enabled>Y</enabled> </hop>  <hop> <from>Get existing file_sync combo ID</from><to>Write to log</to><enabled>Y</enabled> </hop>  <hop> <from>Write to log</from><to>Update existing row version with new ID</to><enabled>Y</enabled> </hop>  <hop> <from>Fix file_size 2</from><to>Get Now 2</to><enabled>Y</enabled> </hop>  <hop> <from>Get Now 2</from><to>Insert &#47; Update File Sync old record</to><enabled>Y</enabled> </hop>  <hop> <from>Update existing row version with new ID</from><to>Already updated</to><enabled>Y</enabled> </hop>  <hop> <from>Insert &#47; Update File Sync old record</from><to>Already updated 2</to><enabled>Y</enabled> </hop>  <hop> <from>Set RI_IND = 1</from><to>Filter assets</to><enabled>Y</enabled> </hop>  <hop> <from>Filter assets</from><to>Filter entries</to><enabled>Y</enabled> </hop>  <hop> <from>Filter entries</from><to> Not an asset nor entry</to><enabled>Y</enabled> </hop>  <hop> <from>Filter assets</from><to>Attempt to insert to flavor asset</to><enabled>Y</enabled> </hop>  <hop> <from>Filter entries</from><to>Set int_id = -1</to><enabled>Y</enabled> </hop>  <hop> <from>Set int_id = -1</from><to>Insert &#47; Update entries</to><enabled>Y</enabled> </hop>  <hop> <from>Create older flavor asset version sql</from><to>lookup latest flavor asset version</to><enabled>Y</enabled> </hop>  <hop> <from>lookup latest flavor asset version</from><to>Update missing flavor asset</to><enabled>Y</enabled> </hop>  <hop> <from>Insert &#47; Update File Sync</from><to>Select RI  fields</to><enabled>Y</enabled> </hop>  <hop> <from>Select RI  fields</from><to>Set RI_IND = 1</to><enabled>Y</enabled> </hop>  <hop> <from>Attempt to insert to flavor asset</from><to>Create older flavor asset version sql</to><enabled>Y</enabled> </hop>  <hop> <from>Attempt to insert to flavor asset</from><to>Flavor Asset ID-Version exists</to><enabled>Y</enabled> </hop>  <hop> <from>Get Variables</from><to>Time range</to><enabled>Y</enabled> </hop>  <hop> <from>Time range</from><to>Table input</to><enabled>Y</enabled> </hop>  </order>
+  <step>
+    <name> Not an asset nor entry</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>843</xloc>
+      <yloc>366</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Already updated</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>357</xloc>
+      <yloc>399</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Already updated 2</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>364</xloc>
+      <yloc>796</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Attempt to insert to flavor asset</name>
+    <type>TableOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <connection>KalturaDW</connection>
+    <schema/>
+    <table>dwh_dim_flavor_asset</table>
+    <commit>1000</commit>
+    <truncate>N</truncate>
+    <ignore_errors>N</ignore_errors>
+    <use_batch>Y</use_batch>
+    <specify_fields>Y</specify_fields>
+    <partitioning_enabled>N</partitioning_enabled>
+    <partitioning_field/>
+    <partitioning_daily>N</partitioning_daily>
+    <partitioning_monthly>Y</partitioning_monthly>
+    <tablename_in_field>N</tablename_in_field>
+    <tablename_field/>
+    <tablename_in_table>Y</tablename_in_table>
+    <return_keys>N</return_keys>
+    <return_field/>
+    <fields>
+        <field>
+          <column_name>id</column_name>
+          <stream_name>object_id</stream_name>
+        </field>
+        <field>
+          <column_name>version</column_name>
+          <stream_name>VERSION</stream_name>
+        </field>
+        <field>
+          <column_name>ri_ind</column_name>
+          <stream_name>RI_IND</stream_name>
+        </field>
+        <field>
+          <column_name>dwh_creation_date</column_name>
+          <stream_name>now</stream_name>
+        </field>
+        <field>
+          <column_name>dwh_update_date</column_name>
+          <stream_name>now</stream_name>
+        </field>
+    </fields>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>839</xloc>
+      <yloc>82</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Create older flavor asset version sql</name>
+    <type>ScriptValueMod</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <compatible>N</compatible>
+    <jsScripts>      <jsScript>        <jsScript_type>0</jsScript_type>
+        <jsScript_name>Script 1</jsScript_name>
+        <jsScript_script>&#47;&#47;Script here
+
+var sqlCommand = &quot;SELECT &quot; + VERSION + &quot; none_existent_version,	flavor_params_id, id, int_id, partner_id, tags, entry_id, STATUS, description, width, height, bitrate, frame_rate, size, is_original, file_ext_id, container_format_id, video_codec_id FROM dwh_dim_flavor_asset WHERE id = &apos;&quot; + object_id + &quot;&apos; AND VERSION &lt; &quot; + VERSION + &quot; ORDER BY VERSION DESC&quot;;
+</jsScript_script>
+      </jsScript>    </jsScripts>    <fields>      <field>        <name>sqlCommand</name>
+        <rename>sqlCommand</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>    </fields>     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>838</xloc>
+      <yloc>14</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Filter assets</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>N</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+<send_true_to>Attempt to insert to flavor asset</send_true_to>
+<send_false_to>Filter entries</send_false_to>
+    <compare>
+<condition>
+ <negated>N</negated>
+ <leftvalue>object_type</leftvalue>
+ <function>=</function>
+ <rightvalue/>
+ <value><name>constant</name><type>Integer</type><text>4</text><length>-1</length><precision>0</precision><isnull>N</isnull><mask>#;-#</mask></value> </condition>
+    </compare>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>840</xloc>
+      <yloc>175</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Filter entries</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>N</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+<send_true_to>Set int_id = -1</send_true_to>
+<send_false_to> Not an asset nor entry</send_false_to>
+    <compare>
+<condition>
+ <negated>N</negated>
+ <leftvalue>object_type</leftvalue>
+ <function>=</function>
+ <rightvalue/>
+ <value><name>constant</name><type>Integer</type><text>1</text><length>-1</length><precision>0</precision><isnull>N</isnull><mask>#;-#</mask></value> </condition>
+    </compare>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>843</xloc>
+      <yloc>266</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Fix file_size</name>
+    <type>ScriptValueMod</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <compatible>N</compatible>
+    <jsScripts>      <jsScript>        <jsScript_type>0</jsScript_type>
+        <jsScript_name>Script 1</jsScript_name>
+        <jsScript_script>&#47;&#47;Script here
+
+if (file_size &lt; 0)
+{
+	file_size = null;
+}
+
+
+
+</jsScript_script>
+      </jsScript>    </jsScripts>    <fields>      <field>        <name>file_size</name>
+        <rename>file_size</rename>
+        <type>Integer</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>Y</replace>
+      </field>    </fields>     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>265</xloc>
+      <yloc>170</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Fix file_size 2</name>
+    <type>ScriptValueMod</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <compatible>N</compatible>
+    <jsScripts>      <jsScript>        <jsScript_type>0</jsScript_type>
+        <jsScript_name>Script 1</jsScript_name>
+        <jsScript_script>&#47;&#47;Script here
+
+if (file_size &lt; 0)
+{
+	file_size = null;
+}
+
+
+
+</jsScript_script>
+      </jsScript>    </jsScripts>    <fields>      <field>        <name>file_size</name>
+        <rename>file_size</rename>
+        <type>Integer</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>Y</replace>
+      </field>    </fields>     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>526</xloc>
+      <yloc>677</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Flavor Asset ID-Version exists</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>1017</xloc>
+      <yloc>81</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Get Now</name>
+    <type>Formula</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+       <formula><field_name>now</field_name>
+<formula_string>now()</formula_string>
+<value_type>Date</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<replace_field/>
+</formula>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>405</xloc>
+      <yloc>170</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Get Now 2</name>
+    <type>Formula</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+       <formula><field_name>now</field_name>
+<formula_string>now()</formula_string>
+<value_type>Date</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<replace_field/>
+</formula>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>526</xloc>
+      <yloc>737</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Get data of old id</name>
+    <type>DBLookup</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <connection>Kaltura</connection>
+    <cache>N</cache>
+    <cache_load_all>N</cache_load_all>
+    <cache_size>0</cache_size>
+    <lookup>
+      <schema/>
+      <table>file_sync</table>
+      <orderby/>
+      <fail_on_multiple>N</fail_on_multiple>
+      <eat_row_on_failure>N</eat_row_on_failure>
+      <key>
+        <name>old_id</name>
+        <field>id</field>
+        <condition>=</condition>
+        <name2/>
+      </key>
+      <value>
+        <name>id</name>
+        <rename>id</rename>
+        <default/>
+        <type>Integer</type>
+      </value>
+      <value>
+        <name>partner_id</name>
+        <rename>partner_id</rename>
+        <default/>
+        <type>Integer</type>
+      </value>
+      <value>
+        <name>object_type</name>
+        <rename>object_type</rename>
+        <default/>
+        <type>Integer</type>
+      </value>
+      <value>
+        <name>object_id</name>
+        <rename>object_id</rename>
+        <default/>
+        <type>String</type>
+      </value>
+      <value>
+        <name>version</name>
+        <rename>version</rename>
+        <default/>
+        <type>String</type>
+      </value>
+      <value>
+        <name>object_sub_type</name>
+        <rename>object_sub_type</rename>
+        <default/>
+        <type>Integer</type>
+      </value>
+      <value>
+        <name>dc</name>
+        <rename>dc</rename>
+        <default/>
+        <type>Integer</type>
+      </value>
+      <value>
+        <name>original</name>
+        <rename>original</rename>
+        <default/>
+        <type>Integer</type>
+      </value>
+      <value>
+        <name>created_at</name>
+        <rename>created_at</rename>
+        <default/>
+        <type>Date</type>
+      </value>
+      <value>
+        <name>updated_at</name>
+        <rename>updated_at</rename>
+        <default/>
+        <type>Date</type>
+      </value>
+      <value>
+        <name>ready_at</name>
+        <rename>ready_at</rename>
+        <default/>
+        <type>Date</type>
+      </value>
+      <value>
+        <name>sync_time</name>
+        <rename>sync_time</rename>
+        <default/>
+        <type>Integer</type>
+      </value>
+      <value>
+        <name>status</name>
+        <rename>status</rename>
+        <default/>
+        <type>Integer</type>
+      </value>
+      <value>
+        <name>file_type</name>
+        <rename>file_type</rename>
+        <default/>
+        <type>Integer</type>
+      </value>
+      <value>
+        <name>linked_id</name>
+        <rename>linked_id</rename>
+        <default/>
+        <type>Integer</type>
+      </value>
+      <value>
+        <name>link_count</name>
+        <rename>link_count</rename>
+        <default/>
+        <type>Integer</type>
+      </value>
+      <value>
+        <name>file_root</name>
+        <rename>file_root</rename>
+        <default/>
+        <type>String</type>
+      </value>
+      <value>
+        <name>file_path</name>
+        <rename>file_path</rename>
+        <default/>
+        <type>String</type>
+      </value>
+      <value>
+        <name>file_size</name>
+        <rename>file_size</rename>
+        <default/>
+        <type>Integer</type>
+      </value>
+    </lookup>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>526</xloc>
+      <yloc>537</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Get existing file_sync combo ID</name>
+    <type>DBLookup</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <connection>KalturaDW</connection>
+    <cache>N</cache>
+    <cache_load_all>N</cache_load_all>
+    <cache_size>0</cache_size>
+    <lookup>
+      <schema/>
+      <table>dwh_dim_file_sync</table>
+      <orderby/>
+      <fail_on_multiple>N</fail_on_multiple>
+      <eat_row_on_failure>Y</eat_row_on_failure>
+      <key>
+        <name>object_type</name>
+        <field>object_type</field>
+        <condition>=</condition>
+        <name2/>
+      </key>
+      <key>
+        <name>object_id</name>
+        <field>object_id</field>
+        <condition>=</condition>
+        <name2/>
+      </key>
+      <key>
+        <name>VERSION</name>
+        <field>version</field>
+        <condition>=</condition>
+        <name2/>
+      </key>
+      <key>
+        <name>object_sub_type</name>
+        <field>object_sub_type</field>
+        <condition>=</condition>
+        <name2/>
+      </key>
+      <key>
+        <name>dc</name>
+        <field>dc</field>
+        <condition>=</condition>
+        <name2/>
+      </key>
+      <value>
+        <name>id</name>
+        <rename>old_id</rename>
+        <default/>
+        <type>Integer</type>
+      </value>
+    </lookup>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>526</xloc>
+      <yloc>277</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Insert &#47; Update File Sync</name>
+    <type>InsertUpdate</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <connection>KalturaDW</connection>
+    <commit>100</commit>
+    <update_bypassed>N</update_bypassed>
+    <lookup>
+      <schema/>
+      <table>dwh_dim_file_sync</table>
+      <key>
+        <name>id</name>
+        <field>id</field>
+        <condition>=</condition>
+        <name2/>
+      </key>
+      <value>
+        <name>id</name>
+        <rename>id</rename>
+        <update>N</update>
+      </value>
+      <value>
+        <name>partner_id</name>
+        <rename>partner_id</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>object_type</name>
+        <rename>object_type</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>object_id</name>
+        <rename>object_id</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>version</name>
+        <rename>VERSION</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>object_sub_type</name>
+        <rename>object_sub_type</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>dc</name>
+        <rename>dc</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>original</name>
+        <rename>original</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>created_at</name>
+        <rename>created_at</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>updated_at</name>
+        <rename>updated_At</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>ready_at</name>
+        <rename>ready_at</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>sync_time</name>
+        <rename>sync_time</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>status</name>
+        <rename>STATUS</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>file_type</name>
+        <rename>file_type</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>linked_id</name>
+        <rename>linked_id</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>link_count</name>
+        <rename>link_count</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>file_root</name>
+        <rename>file_root</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>file_path</name>
+        <rename>file_path</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>file_size</name>
+        <rename>file_size</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>dwh_creation_date</name>
+        <rename>now</rename>
+        <update>N</update>
+      </value>
+      <value>
+        <name>dwh_update_date</name>
+        <rename>now</rename>
+        <update>Y</update>
+      </value>
+    </lookup>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>525</xloc>
+      <yloc>170</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Insert &#47; Update File Sync old record</name>
+    <type>InsertUpdate</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <connection>KalturaDW</connection>
+    <commit>100</commit>
+    <update_bypassed>N</update_bypassed>
+    <lookup>
+      <schema/>
+      <table>dwh_dim_file_sync</table>
+      <key>
+        <name>id</name>
+        <field>id</field>
+        <condition>=</condition>
+        <name2/>
+      </key>
+      <value>
+        <name>id</name>
+        <rename>id</rename>
+        <update>N</update>
+      </value>
+      <value>
+        <name>partner_id</name>
+        <rename>partner_id</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>object_type</name>
+        <rename>object_type</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>object_id</name>
+        <rename>object_id</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>version</name>
+        <rename>VERSION</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>object_sub_type</name>
+        <rename>object_sub_type</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>dc</name>
+        <rename>dc</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>original</name>
+        <rename>original</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>created_at</name>
+        <rename>created_at</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>updated_at</name>
+        <rename>updated_At</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>ready_at</name>
+        <rename>ready_at</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>sync_time</name>
+        <rename>sync_time</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>status</name>
+        <rename>STATUS</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>file_type</name>
+        <rename>file_type</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>linked_id</name>
+        <rename>linked_id</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>link_count</name>
+        <rename>link_count</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>file_root</name>
+        <rename>file_root</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>file_path</name>
+        <rename>file_path</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>file_size</name>
+        <rename>file_size</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>dwh_creation_date</name>
+        <rename>now</rename>
+        <update>N</update>
+      </value>
+      <value>
+        <name>dwh_update_date</name>
+        <rename>now</rename>
+        <update>Y</update>
+      </value>
+    </lookup>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>526</xloc>
+      <yloc>797</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Insert &#47; Update entries</name>
+    <type>InsertUpdate</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <connection>KalturaDW</connection>
+    <commit>100</commit>
+    <update_bypassed>Y</update_bypassed>
+    <lookup>
+      <schema/>
+      <table>dwh_dim_entries</table>
+      <key>
+        <name>object_id</name>
+        <field>entry_id</field>
+        <condition>=</condition>
+        <name2/>
+      </key>
+      <value>
+        <name>entry_id</name>
+        <rename>object_id</rename>
+        <update>N</update>
+      </value>
+      <value>
+        <name>ri_ind</name>
+        <rename>RI_IND</rename>
+        <update>N</update>
+      </value>
+      <value>
+        <name>int_id</name>
+        <rename>int_id</rename>
+        <update>N</update>
+      </value>
+    </lookup>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>1083</xloc>
+      <yloc>266</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Select RI  fields</name>
+    <type>SelectValues</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <fields>      <field>        <name>object_id</name>
+        <rename/>
+        <length>-2</length>
+        <precision>-2</precision>
+      </field>      <field>        <name>object_type</name>
+        <rename/>
+        <length>-2</length>
+        <precision>-2</precision>
+      </field>      <field>        <name>VERSION</name>
+        <rename/>
+        <length>-2</length>
+        <precision>-2</precision>
+      </field>      <field>        <name>now</name>
+        <rename/>
+        <length>-2</length>
+        <precision>-2</precision>
+      </field>        <select_unspecified>N</select_unspecified>
+    </fields>     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>648</xloc>
+      <yloc>171</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Select values</name>
+    <type>SelectValues</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <fields>      <field>        <name>old_id</name>
+        <rename/>
+        <length>-2</length>
+        <precision>-2</precision>
+      </field>        <select_unspecified>N</select_unspecified>
+    </fields>     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>526</xloc>
+      <yloc>477</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Set RI_IND = 1</name>
+    <type>Calculator</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>3</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+       <calculation><field_name>RI_IND</field_name>
+<calc_type>CONSTANT</calc_type>
+<field_a>1</field_a>
+<field_b/>
+<field_c/>
+<value_type>-</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>N</remove>
+<conversion_mask/>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>753</xloc>
+      <yloc>173</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Set defaults</name>
+    <type>IfNull</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+      <replaceAllByValue/>
+      <replaceAllMask/>
+      <selectFields>Y</selectFields>
+      <selectValuesType>N</selectValuesType>
+    <valuetypes>
+      <valuetype>
+        <name>Number</name>
+        <value>-1</value>
+        <mask/>
+        </valuetype>
+      <valuetype>
+        <name>String</name>
+        <value>Missing Value</value>
+        <mask/>
+        </valuetype>
+      <valuetype>
+        <name>Date</name>
+        <value>01-01-2008</value>
+        <mask>dd-MM-yyyy</mask>
+        </valuetype>
+      </valuetypes>
+    <fields>
+      <field>
+        <name>id</name>
+        <value>-1</value>
+        <mask/>
+        </field>
+      <field>
+        <name>partner_id</name>
+        <value>-1</value>
+        <mask/>
+        </field>
+      <field>
+        <name>object_type</name>
+        <value>-1</value>
+        <mask/>
+        </field>
+      <field>
+        <name>object_id</name>
+        <value>-1</value>
+        <mask/>
+        </field>
+      <field>
+        <name>VERSION</name>
+        <value>-1</value>
+        <mask/>
+        </field>
+      <field>
+        <name>object_sub_type</name>
+        <value>-1</value>
+        <mask/>
+        </field>
+      <field>
+        <name>dc</name>
+        <value>-1</value>
+        <mask/>
+        </field>
+      <field>
+        <name>original</name>
+        <value>-1</value>
+        <mask/>
+        </field>
+      <field>
+        <name>ready_at</name>
+        <value>01-01-2099</value>
+        <mask>dd-MM-yyyy</mask>
+        </field>
+      <field>
+        <name>sync_time</name>
+        <value>-1</value>
+        <mask/>
+        </field>
+      <field>
+        <name>STATUS</name>
+        <value>-1</value>
+        <mask/>
+        </field>
+      <field>
+        <name>file_type</name>
+        <value>-1</value>
+        <mask/>
+        </field>
+      <field>
+        <name>linked_id</name>
+        <value>-1</value>
+        <mask/>
+        </field>
+      <field>
+        <name>link_count</name>
+        <value>-1</value>
+        <mask/>
+        </field>
+      <field>
+        <name>file_root</name>
+        <value>Missing Value</value>
+        <mask/>
+        </field>
+      <field>
+        <name>file_path</name>
+        <value>Missing Value</value>
+        <mask/>
+        </field>
+      <field>
+        <name>created_at</name>
+        <value>01-01-2099</value>
+        <mask>dd-MM-yyyy</mask>
+        </field>
+      <field>
+        <name>updated_At</name>
+        <value>01-01-2099</value>
+        <mask>dd-MM-yyyy</mask>
+        </field>
+      </fields>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>145</xloc>
+      <yloc>170</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Set defaults 2</name>
+    <type>IfNull</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+      <replaceAllByValue/>
+      <replaceAllMask/>
+      <selectFields>Y</selectFields>
+      <selectValuesType>N</selectValuesType>
+    <valuetypes>
+      <valuetype>
+        <name>Number</name>
+        <value>-1</value>
+        <mask/>
+        </valuetype>
+      <valuetype>
+        <name>String</name>
+        <value>Missing Value</value>
+        <mask/>
+        </valuetype>
+      <valuetype>
+        <name>Date</name>
+        <value>01-01-2008</value>
+        <mask>dd-MM-yyyy</mask>
+        </valuetype>
+      </valuetypes>
+    <fields>
+      <field>
+        <name>id</name>
+        <value>-1</value>
+        <mask/>
+        </field>
+      <field>
+        <name>partner_id</name>
+        <value>-1</value>
+        <mask/>
+        </field>
+      <field>
+        <name>object_type</name>
+        <value>-1</value>
+        <mask/>
+        </field>
+      <field>
+        <name>object_id</name>
+        <value>-1</value>
+        <mask/>
+        </field>
+      <field>
+        <name>VERSION</name>
+        <value>-1</value>
+        <mask/>
+        </field>
+      <field>
+        <name>object_sub_type</name>
+        <value>-1</value>
+        <mask/>
+        </field>
+      <field>
+        <name>dc</name>
+        <value>-1</value>
+        <mask/>
+        </field>
+      <field>
+        <name>original</name>
+        <value>-1</value>
+        <mask/>
+        </field>
+      <field>
+        <name>ready_at</name>
+        <value>01-01-2099</value>
+        <mask>dd-MM-yyyy</mask>
+        </field>
+      <field>
+        <name>sync_time</name>
+        <value>-1</value>
+        <mask/>
+        </field>
+      <field>
+        <name>STATUS</name>
+        <value>-1</value>
+        <mask/>
+        </field>
+      <field>
+        <name>file_type</name>
+        <value>-1</value>
+        <mask/>
+        </field>
+      <field>
+        <name>linked_id</name>
+        <value>-1</value>
+        <mask/>
+        </field>
+      <field>
+        <name>link_count</name>
+        <value>-1</value>
+        <mask/>
+        </field>
+      <field>
+        <name>file_root</name>
+        <value>Missing Value</value>
+        <mask/>
+        </field>
+      <field>
+        <name>file_path</name>
+        <value>Missing Value</value>
+        <mask/>
+        </field>
+      <field>
+        <name>created_at</name>
+        <value>01-01-2099</value>
+        <mask>dd-MM-yyyy</mask>
+        </field>
+      <field>
+        <name>updated_At</name>
+        <value>01-01-2099</value>
+        <mask>dd-MM-yyyy</mask>
+        </field>
+      </fields>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>526</xloc>
+      <yloc>617</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Set int_id = -1</name>
+    <type>Calculator</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+       <calculation><field_name>int_id</field_name>
+<calc_type>CONSTANT</calc_type>
+<field_a>-1</field_a>
+<field_b/>
+<field_c/>
+<value_type>-</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>N</remove>
+<conversion_mask/>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>963</xloc>
+      <yloc>266</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Table input</name>
+    <type>TableInput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <connection>Kaltura</connection>
+    <sql>SELECT &#47;*! SQL_NO_CACHE *&#47;	id, 
+	partner_id, 
+	object_type, 
+	object_id, 
+	VERSION, 
+	object_sub_type, 
+	dc, 
+	original, 
+	created_at,
+	updated_At,
+	ready_at, 
+	sync_time, 
+	STATUS, 
+	file_type, 
+	linked_id, 
+	link_count, 
+	file_root, 
+	file_path, 
+	file_size
+	FROM 
+	kaltura.file_sync 
+WHERE updated_at between now() - interval ${ManualStartUpdateDaysInterval} day
+and now() - interval ${ManualEndUpdateDaysInterval} day</sql>
+    <limit>0</limit>
+    <lookup/>
+    <execute_each_row>N</execute_each_row>
+    <variables_active>Y</variables_active>
+    <lazy_conversion_active>N</lazy_conversion_active>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>45</xloc>
+      <yloc>170</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Update existing row version with new ID</name>
+    <type>Update</type>
+    <description/>
+    <distribute>N</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <connection>KalturaDW</connection>
+    <skip_lookup>N</skip_lookup>
+    <commit>100</commit>
+    <error_ignored>N</error_ignored>
+    <ignore_flag_field/>
+    <lookup>
+      <schema/>
+      <table>dwh_dim_file_sync</table>
+      <key>
+        <name>object_type</name>
+        <field>object_type</field>
+        <condition>=</condition>
+        <name2/>
+        </key>
+      <key>
+        <name>object_id</name>
+        <field>object_id</field>
+        <condition>=</condition>
+        <name2/>
+        </key>
+      <key>
+        <name>VERSION</name>
+        <field>VERSION</field>
+        <condition>=</condition>
+        <name2/>
+        </key>
+      <key>
+        <name>object_sub_type</name>
+        <field>object_sub_type</field>
+        <condition>=</condition>
+        <name2/>
+        </key>
+      <key>
+        <name>dc</name>
+        <field>dc</field>
+        <condition>=</condition>
+        <name2/>
+        </key>
+      <value>
+        <name>id</name>
+        <rename>id</rename>
+        </value>
+      <value>
+        <name>partner_id</name>
+        <rename>partner_id</rename>
+        </value>
+      <value>
+        <name>original</name>
+        <rename>original</rename>
+        </value>
+      <value>
+        <name>created_at</name>
+        <rename>created_at</rename>
+        </value>
+      <value>
+        <name>updated_at</name>
+        <rename>updated_At</rename>
+        </value>
+      <value>
+        <name>ready_at</name>
+        <rename>ready_at</rename>
+        </value>
+      <value>
+        <name>sync_time</name>
+        <rename>sync_time</rename>
+        </value>
+      <value>
+        <name>status</name>
+        <rename>STATUS</rename>
+        </value>
+      <value>
+        <name>file_type</name>
+        <rename>file_type</rename>
+        </value>
+      <value>
+        <name>linked_id</name>
+        <rename>linked_id</rename>
+        </value>
+      <value>
+        <name>link_count</name>
+        <rename>link_count</rename>
+        </value>
+      <value>
+        <name>file_root</name>
+        <rename>file_root</rename>
+        </value>
+      <value>
+        <name>file_path</name>
+        <rename>file_path</rename>
+        </value>
+      <value>
+        <name>file_size</name>
+        <rename>file_size</rename>
+        </value>
+      <value>
+        <name>dwh_update_date</name>
+        <rename>now</rename>
+        </value>
+      </lookup>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>526</xloc>
+      <yloc>397</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Update missing flavor asset</name>
+    <type>Update</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <connection>KalturaDW</connection>
+    <skip_lookup>N</skip_lookup>
+    <commit>100</commit>
+    <error_ignored>N</error_ignored>
+    <ignore_flag_field/>
+    <lookup>
+      <schema/>
+      <table>dwh_dim_flavor_asset</table>
+      <key>
+        <name>id</name>
+        <field>id</field>
+        <condition>=</condition>
+        <name2/>
+        </key>
+      <key>
+        <name>none_existent_version</name>
+        <field>version</field>
+        <condition>=</condition>
+        <name2/>
+        </key>
+      <value>
+        <name>flavor_params_id</name>
+        <rename>flavor_params_id</rename>
+        </value>
+      <value>
+        <name>int_id</name>
+        <rename>int_id</rename>
+        </value>
+      <value>
+        <name>partner_id</name>
+        <rename>partner_id</rename>
+        </value>
+      <value>
+        <name>tags</name>
+        <rename>tags</rename>
+        </value>
+      <value>
+        <name>entry_id</name>
+        <rename>entry_id</rename>
+        </value>
+      <value>
+        <name>STATUS</name>
+        <rename>STATUS</rename>
+        </value>
+      <value>
+        <name>description</name>
+        <rename>description</rename>
+        </value>
+      <value>
+        <name>width</name>
+        <rename>width</rename>
+        </value>
+      <value>
+        <name>height</name>
+        <rename>height</rename>
+        </value>
+      <value>
+        <name>bitrate</name>
+        <rename>bitrate</rename>
+        </value>
+      <value>
+        <name>frame_rate</name>
+        <rename>frame_rate</rename>
+        </value>
+      <value>
+        <name>size</name>
+        <rename>size</rename>
+        </value>
+      <value>
+        <name>is_original</name>
+        <rename>is_original</rename>
+        </value>
+      <value>
+        <name>file_ext_id</name>
+        <rename>file_ext_id</rename>
+        </value>
+      <value>
+        <name>container_format_id</name>
+        <rename>container_format_id</rename>
+        </value>
+      <value>
+        <name>video_codec_id</name>
+        <rename>video_codec_id</rename>
+        </value>
+      </lookup>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>1198</xloc>
+      <yloc>14</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Write to log</name>
+    <type>WriteToLog</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+      <loglevel>log_level_basic</loglevel>
+      <displayHeader>Y</displayHeader>
+    <fields>
+      <field>
+        <name>id</name>
+        </field>
+      <field>
+        <name>old_id</name>
+        </field>
+      </fields>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>526</xloc>
+      <yloc>337</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>lookup latest flavor asset version</name>
+    <type>DynamicSQLRow</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <connection>KalturaDW</connection>
+    <rowlimit>1</rowlimit>
+    <sql>SELECT 
+	1 none_existent_version,
+	flavor_params_id, 
+	id,
+	int_id, 
+	partner_id, 
+	tags, 
+	entry_id, 
+	STATUS, 
+	description, 
+	width, 
+	height, 
+	bitrate, 
+	frame_rate, 
+	size, 
+	is_original, 
+	file_ext_id, 
+	container_format_id, 
+	video_codec_id
+	FROM 
+	dwh_dim_flavor_asset 
+</sql>
+    <outer_join>N</outer_join>
+    <replace_vars>N</replace_vars>
+    <sql_fieldname>sqlCommand</sql_fieldname>
+    <query_only_on_change>Y</query_only_on_change>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>1018</xloc>
+      <yloc>14</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Get Variables</name>
+    <type>GetVariable</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <fields>
+      <field>
+        <name>start_days_back</name>
+        <variable>${ManualStartUpdateDaysInterval}</variable>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+      </field>
+      <field>
+        <name>end_days_back</name>
+        <variable>${ManualEndUpdateDaysInterval}</variable>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+      </field>
+    </fields>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>56</xloc>
+      <yloc>39</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Time range</name>
+    <type>WriteToLog</type>
+    <description/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+      <loglevel>log_level_basic</loglevel>
+      <displayHeader>Y</displayHeader>
+    <fields>
+      </fields>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>53</xloc>
+      <yloc>102</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step_error_handling>
+      <error>
+        <source_step>Attempt to insert to flavor asset</source_step>
+        <target_step>Flavor Asset ID-Version exists</target_step>
+        <is_enabled>Y</is_enabled>
+        <nr_valuename/>
+        <descriptions_valuename>desc</descriptions_valuename>
+        <fields_valuename>fields</fields_valuename>
+        <codes_valuename>codes</codes_valuename>
+        <max_errors>-1</max_errors>
+        <max_pct_errors>-1</max_pct_errors>
+        <min_pct_rows>-1</min_pct_rows>
+      </error>
+      <error>
+        <source_step>Insert &#47; Update File Sync</source_step>
+        <target_step>Get existing file_sync combo ID</target_step>
+        <is_enabled>Y</is_enabled>
+        <nr_valuename/>
+        <descriptions_valuename/>
+        <fields_valuename/>
+        <codes_valuename/>
+        <max_errors>-1</max_errors>
+        <max_pct_errors>-1</max_pct_errors>
+        <min_pct_rows>-1</min_pct_rows>
+      </error>
+      <error>
+        <source_step>Insert &#47; Update File Sync old record</source_step>
+        <target_step>Already updated 2</target_step>
+        <is_enabled>Y</is_enabled>
+        <nr_valuename/>
+        <descriptions_valuename/>
+        <fields_valuename/>
+        <codes_valuename/>
+        <max_errors>-1</max_errors>
+        <max_pct_errors>-1</max_pct_errors>
+        <min_pct_rows>-1</min_pct_rows>
+      </error>
+      <error>
+        <source_step>Update existing row version with new ID</source_step>
+        <target_step>Already updated</target_step>
+        <is_enabled>Y</is_enabled>
+        <nr_valuename/>
+        <descriptions_valuename/>
+        <fields_valuename/>
+        <codes_valuename/>
+        <max_errors>-1</max_errors>
+        <max_pct_errors>-1</max_pct_errors>
+        <min_pct_rows>-1</min_pct_rows>
+      </error>
+  </step_error_handling>
+   <slave-step-copy-partition-distribution>
+</slave-step-copy-partition-distribution>
+   <slave_transformation>N</slave_transformation>
+</transformation>

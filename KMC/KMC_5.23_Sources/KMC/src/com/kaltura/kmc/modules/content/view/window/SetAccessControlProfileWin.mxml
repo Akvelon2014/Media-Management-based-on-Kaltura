@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!---
+	 This panel allows changing access control for entries
+-->
+<HelpTitleWindow xmlns="com.kaltura.containers.*" xmlns:mx="http://www.adobe.com/2006/mxml" 
+				 title="{resourceManager.getString('cms', 'setAccessControlTitle')}" layout="vertical"
+				 showCloseButton="true" close="closeWindow(event)" help="onHelp(event)" 
+				 xmlns:view="com.kaltura.edw.view.*">
+	<mx:Script>
+		<![CDATA[
+			import com.kaltura.analytics.GoogleAnalyticsConsts;
+			import com.kaltura.analytics.GoogleAnalyticsTracker;
+			import com.kaltura.analytics.KAnalyticsTracker;
+			import com.kaltura.analytics.KAnalyticsTrackerConsts;
+			import com.kaltura.edw.business.Cloner;
+			import com.kaltura.edw.business.IDrilldownPanel;
+			import com.kaltura.edw.constants.PanelConsts;
+			import com.kaltura.edw.model.FilterModel;
+			import com.kaltura.edw.model.datapacks.ContextDataPack;
+			import com.kaltura.edw.model.util.CompositeKBaseEntry;
+			import com.kaltura.edw.view.panels.PanelLoader;
+			import com.kaltura.edw.view.panels.PanelMetadataParser;
+			import com.kaltura.edw.view.panels.PanelMetadataVO;
+			import com.kaltura.kmc.events.KmcHelpEvent;
+			import com.kaltura.kmc.modules.content.events.EntriesEvent;
+			import com.kaltura.kmc.modules.content.events.WindowEvent;
+			import com.kaltura.kmvc.model.IDataPackRepository;
+			import com.kaltura.types.KalturaStatsKmcEventType;
+			import com.kaltura.vo.KalturaBaseEntry;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+
+
+			private var _selectedEntries:ArrayCollection;
+			
+			[Bindable]
+			private var _clonedSelectedEntries:ArrayCollection = new ArrayCollection();
+
+			[Bindable]
+			public var filterModel:FilterModel;
+			
+			public var entryDetailsModel:IDataPackRepository;
+			
+			private var _entryACP:IDrilldownPanel;
+			
+			/**
+			 * application context
+			 * */
+			public var context:ContextDataPack;
+			
+			
+			public function set selectedEntries(arr:ArrayCollection):void {
+				_selectedEntries = arr;
+				var tempArrCol:ArrayCollection = new ArrayCollection();
+				for (var i:int = 0; i < _selectedEntries.length; i++) {
+					tempArrCol.addItem(Cloner.cloneKalturaBaseEntry(_selectedEntries[i]));
+				}
+
+				_clonedSelectedEntries = tempArrCol;
+			}
+			
+			override protected function createChildren():void{
+				super.createChildren();
+				
+				// if Panel Loader not yet initialised
+				try {
+					PanelLoader.instance;
+				} 
+				catch (e:IllegalOperationError) {
+					var panelDataVO:PanelMetadataVO = PanelMetadataParser.parse(context.panelsConfig);
+					PanelLoader.initialize(panelDataVO, context.sourceUrl);
+				}
+				
+				PanelLoader.instance.createPanel(PanelConsts.ACCESS_CONTROL_PANEL, onPanelCreated);
+			}
+
+
+			private function closeWindow(event:Event = null):void {
+				var cgEvent:WindowEvent = new WindowEvent(WindowEvent.CLOSE);
+				cgEvent.dispatch();
+			}
+
+
+			private function saveData(event:Event):void {
+				if (_entryACP != null){
+					var cgEvent:EntriesEvent = new EntriesEvent(EntriesEvent.UPDATE_ENTRIES, _clonedSelectedEntries, false);
+					cgEvent.dispatch();
+	
+					for each (var etr:Object in _clonedSelectedEntries) {
+						KAnalyticsTracker.getInstance().sendEvent(KAnalyticsTrackerConsts.CONTENT,KalturaStatsKmcEventType.CONTENT_EDIT_ENTRY,
+																  "setAccessControlProfileIdForEntries", etr.id);
+	
+					}
+					GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.CONTENT_ACCESS_CONTROL,GoogleAnalyticsConsts.CONTENT);
+				}
+				closeWindow();
+			}
+
+			protected function onHelp(event:Event):void {
+				dispatchEvent(new KmcHelpEvent(KmcHelpEvent.HELP, 'section_bulk_access_control'));
+			}
+
+			private function onPanelCreated(panel:IDrilldownPanel):void{
+				_entryACP = panel;
+				addChildAt(_entryACP as DisplayObject, 1);
+				
+				addEventListener(FlexEvent.UPDATE_COMPLETE, onUpdateComplete);
+			}
+			
+			private function onUpdateComplete(event:FlexEvent):void
+			{
+				removeEventListener(FlexEvent.UPDATE_COMPLETE, onUpdateComplete);
+				_entryACP.dataPackModel = entryDetailsModel;
+				var entryVect:Vector.<KalturaBaseEntry> = Vector.<KalturaBaseEntry>(_clonedSelectedEntries.source);
+				var composite:CompositeKBaseEntry = new CompositeKBaseEntry(entryVect);
+				_entryACP.selectedEntry = composite;
+			}
+			
+		]]>
+	</mx:Script>
+	<mx:Label text="{resourceManager.getString('cms', 'accessControlOverrideMsg')}"/>
+	<mx:ControlBar width="100%" horizontalAlign="center" paddingBottom="2" paddingLeft="2" paddingRight="2"
+				   paddingTop="2">
+		<mx:Button label="{resourceManager.getString('cms', 'applyAccessControlBtn')}" useHandCursor="true"
+				   buttonMode="true" click="saveData(event)"/>
+	</mx:ControlBar>
+</HelpTitleWindow>

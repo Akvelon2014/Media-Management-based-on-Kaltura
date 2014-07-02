@@ -1,0 +1,70 @@
+AUTHOR: Jess Portnoy
+VERSION: 0.1
+LAST MODIFIED: Thu Nov 22 16:27:43 EST 2012
+
+This is a mini howto for using the auto Kaltura OnPrem auto installer.
+
+Pre-reqs:
+=========
+Download the OnPrem package. At the time of writing this document, latest can be obtained here:
+http://ciserver:9090/job/Kaltura-OnPrem-Falcon-Package/148/artifact/output/TM-v6.0.1-QA-148.tgz
+
+Note that this requires VPN access to the IL intra. If you do not have creds, please contact Shlomi Ben David <Shlomi.Ben.David@kaltura.com>.
+
+The auto install files can be obtained from:
+svn+ssh://kelev.kaltura.com/usr/local/kalsource/backend/server/trunk/on-premise/all/auto_install
+If you do not have an SVN account on kelev, please contact Shlomi Ben David <Shlomi.Ben.David@kaltura.com>.
+Files should be placed under the basedir of the OnPrem archive. For instance, if you extracted the package to:
+tar zxvf /tmp/TM-v6.0.1-QA-148.tgz -C /tmp/
+Auto installer should be placed under: /tmp/Kaltura-TM-v6.0.1
+
+Installation:
+=============
+Before running the installer, one needs to edit user_input.ini. 
+A sample file can be found under:
+svn+ssh://kelev.kaltura.com/usr/local/kalsource/backend/server/trunk/on-premise/all/auto_install/
+
+To run the auto installer, type as super user:
+# ./main.sh
+You will be presented with the following options:
+
+0. install an all in 1 instance
+1. batch instance
+2. sphinx instance
+3. Front [API] machine
+4. export Kaltura's MySQL DBs
+5. configure MySQL && Sphinx for this host
+6. unistall
+
+The installer shall perform the following actions:
+- Install the role you selected [all in 1, batch, Sphinx, front [API].
+- Create a test partner, based on the values set in user_input.ini
+- Upload sample content using a CSV file
+
+Files:
+======
+* user_input.ini - input file for the auto installer. This should be edited to reflect the details of your deployment.
+* main.sh - a simple menu for selecting the desired option
+* kaltura.rc - a library of Bourne shell compatible functions. This is used by the auto installer but can also be used by any other peace of code. Simply source kaltura.rc into your script.
+* auto_inst_falcon_centos.sh - this installs the all in 1 instance which is the base for all other role installations.
+* cleanup.sh - an uninstall script which supports the following options:
+    1. Remove Kaltura and modifications that were done to services(Apache, MySQL, PHP, Memcache) during the install. Packages will NOT be removed. (Recommended on servers that are doing other things.)
+    2. Remove Kaltura and all related services(Apache, MySQL, PHP, Memcache). Packages WILL be removed. Use this to bring the server back to near distribution clean.
+    3. Remove Kaltura and all related services EXCEPT MySQL and the data. This is good if you want to re-configure the server but keep data intact.
+* export_db.sh - a stand alone script to export the Kaltura DBs. This script is called when selecting option #4 from main.sh
+* create_partner.php - an API script to create the test partner.
+* upload_csv.php - an API script to upload test content, makes use of kaltura_batch_upload_eagle.csv which is also included under the same directory.
+* mysql_rep.sh - configures replication between MySQL master and node instances.
+
+Using kaltura.rc functions to write your own scripts:
+=====================================================
+The following sample code shall create a test partner based on the following values from user_input.ini:
+TEST_PARTNER_EMAIL=jess@kaltura.com
+TEST_PARTNER_PASSWD=jesskalt
+
+And then use the upload_assets function which makes use of upload_csv.php to perform a bulk upload operation.
+
+#!/bin/sh
+. kaltura.rc
+create_partner
+upload_assets $TEST_PARTNER_ID

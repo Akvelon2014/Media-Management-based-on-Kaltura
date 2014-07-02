@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Module layout="vertical" xmlns:mx="http://www.adobe.com/2006/mxml" implements="com.kaltura.edw.business.IDrilldownPanel"
+		   width="100%" height="100%" xmlns:view="com.kaltura.edw.view.*" xmlns:controls="com.kaltura.controls.*"
+		   xmlns:et="com.kaltura.edw.view.et.*" xmlns:et1="com.kaltura.edw.components.et.*" xmlns:control="com.kaltura.edw.control.*"
+		   label="{resourceManager.getString('drilldown','clips')}">
+	<mx:Metadata>
+		[Event(name="validationComplete", type="com.kaltura.edw.events.ValidationResultEvent")] 
+		[Event(name="panelDataSaved", type="com.kaltura.edw.events.InternalKedEvent")] 
+	</mx:Metadata>
+	<mx:Script>
+		<![CDATA[
+			import com.kaltura.edw.business.permissions.PermissionManager;
+			import com.kaltura.edw.components.et.EntryTableColumns;
+			import com.kaltura.edw.constants.PanelConsts;
+			import com.kaltura.edw.control.events.ClipEvent;
+			import com.kaltura.edw.events.InternalKedEvent;
+			import com.kaltura.edw.events.ValidationResultEvent;
+			import com.kaltura.edw.model.datapacks.ClipsDataPack;
+			import com.kaltura.kmvc.control.KMvCController;
+			import com.kaltura.kmvc.model.IDataPackRepository;
+			import com.kaltura.vo.KalturaBaseEntry;
+			
+			import mx.binding.utils.BindingUtils;
+			import mx.binding.utils.ChangeWatcher;
+			import mx.events.FlexEvent;
+			
+			/**
+			 * current selected entry
+			 * */
+			private var _selectedEntry:KalturaBaseEntry;
+			private var _dpModel:IDataPackRepository;
+			
+			public function get selectedEntry():KalturaBaseEntry {
+				return _selectedEntry;
+			}
+			public function set selectedEntry(value:KalturaBaseEntry):void {
+				_selectedEntry = value;
+			}
+			
+			public function get dataPackModel():IDataPackRepository{
+				return _dpModel;
+			}
+			public function set dataPackModel(value:IDataPackRepository):void{
+				_dpModel = value;
+				_clipsData = _dpModel.getDataPack(ClipsDataPack) as ClipsDataPack;
+//				clips = clipsData.clips;
+			}
+			
+			[Bindable]
+			private var _clipsData:ClipsDataPack; 
+			
+			public function get helpAnchor():String{
+				return "entry_clips";
+			}
+			
+//			[Bindable]
+//			/**
+//			 * vos for the clips to show in the table
+//			 * */
+//			public var clips:Array;
+			
+			/**
+			 * to watch when <code>clips</code> change
+			 * */
+			private var _cw:ChangeWatcher;
+			
+			
+			public function validate():void {
+				var e:ValidationResultEvent = new ValidationResultEvent(ValidationResultEvent.VALIDATION_COMPLETE, true);
+				dispatchEvent(e);
+			}
+			
+			
+			public function save():void {
+				dispatchEvent(new InternalKedEvent(InternalKedEvent.PANEL_DATA_SAVED));
+			}
+			
+			
+			public function clear():void {
+			}
+			
+			
+			public function init():void {
+				PermissionManager.getInstance().applyAllAttributes(this, PanelConsts.CLIPS_PANEL);
+			}
+			
+			
+			public function isChanged():Boolean {
+				return false;
+			}
+			
+			public function initData():void {
+				// reset previous data
+				var ce:ClipEvent = new ClipEvent(ClipEvent.RESET_MODEL_ENTRY_CLIPS);
+				controller.dispatch(ce);
+				// monitor data change if needed
+				if (!_cw) {
+					_cw = BindingUtils.bindSetter(removeTab, _clipsData, "clips");
+				}
+				// get data
+				getNext();
+			}
+			
+			private function getNext():void {
+				var gc:ClipEvent = new ClipEvent(ClipEvent.GET_ENTRY_CLIPS);
+				gc.data = {id: selectedEntry.id};
+				if (paging) {
+					gc.data.pager = paging.kalturaFilterPager;
+				}
+				controller.dispatch(gc);
+			}
+			
+			public function destroy():void {
+				_cw.unwatch();
+			}
+			
+			
+			private function removeColumns(event:FlexEvent):void {
+				
+				var ar:Array = [EntryTableColumns.THUMBNAIL, EntryTableColumns.ID, EntryTableColumns.NAME, 
+					EntryTableColumns.PLAYS, EntryTableColumns.CREATOR, EntryTableColumns.CREATE_AT, 
+					EntryTableColumns.IN_TIME, EntryTableColumns.DURATION, EntryTableColumns.STATUS];
+				entryTable.showColumns(ar);
+				
+			}
+			
+			/**
+			 * if entry has no clips, remove the tab.
+			 * @internal
+			 * when destroying the drilldown we reset the value on the model, 
+			 * so when the binding is first fired on creation the condition falls
+			 * on null value and the tab is not removed even if the previous 
+			 * entry did not have clips. 
+			 * */
+			private function removeTab(value:Array):void {
+				if (value && value.length == 0 && this.parent) {
+					this.parent.removeChild(this);
+				}
+			}
+			
+		]]>
+	</mx:Script>
+	<control:ClipsTabController id="controller" />
+	<mx:VBox styleName="entriesTablePagerAndButtonsVbox" width="100%" height="100%" >
+		<et1:EntryTable id="entryTable" width="100%" height="100%" kalturaSorting="false" 
+						showLinks="false" showSelection="false" 
+						dataProvider="{_clipsData.clips}"  creationComplete="removeColumns(event)"/>
+		
+		<controls:Paging id="paging" width="100%" styleName="paging"
+						 rowsInPageChange="getNext()" nextPage="getNext()" prvPage="getNext()"
+						 getPageNum="getNext()" totalCount="{_clipsData.clips.length}"
+						 showRowsInPage="true" />
+	</mx:VBox>
+</mx:Module>

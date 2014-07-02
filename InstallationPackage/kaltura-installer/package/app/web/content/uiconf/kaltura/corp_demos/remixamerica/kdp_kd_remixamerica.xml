@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layouts>
+	
+	<layout skinPath="/content/uiconf/kaltura/corp_demos/remixamerica/kdp_kd_remixamerica_skin.swf" layoutId="remix">
+		<VBox width="100%" height="100%" styleName="topLevelVbox" >
+		    <Canvas id="PlayerHolder" styleName="PlayerBackground" width="100%" height="100%" >
+				<KplayerModule id="myKplayer" styleName="centered"  k_path="kplayer/KplayerModule.swf" width="100%" height="100%" maxWidth="600" maxHeight="450"/>
+		      	<playerPlayBtn id="playerPlayBtn" styleName="centered"  width="100%" height="100%"  k_path="playerPlayPauseBtn/PlayerPlayPauseButton.swf" />
+		      	<waterMark id="kalturaWaterMark" styleName="centered"  width="100%" height="100%" maxWidth="600" maxHeight="450"  k_path="watermarks/KalturaWaterMark.swf" />
+			</Canvas>
+			<HBox styleName="controllerBox" height="20" width="100%">
+				<VBox>
+			      	<Button	 id="play" styleName="play" width="20" height="20" />
+			      	<Spacer height="1"/>
+		    	</VBox>
+		      	<Spacer width="2"/>
+				<VBox width="100%" height="19">
+					<Scrubber id="scrubber" styleName="scrubber" width="100%" height="16"/>
+					<Spacer height="3"/>
+				</VBox>
+		      	<TimerCountdown  id="timer" height="19" width="73" k_path="timertext/TimerAndTotalTime.swf" />
+		      	<Spacer width="4"/>
+		      	<VolumeModule id="volume" width="18" height="18" k_path="VolumeBars/VolumeBarA.swf" />
+				<Button id="fullScreen" width="19" height="19" styleName="fs" label="" />
+		      	<Spacer width="2"/>
+			</HBox>
+			<HBox styleName="bottomLinks"  height="40" width="100%">
+				<LinkButton id="addToFavorit" width="25%" styleName="blueButton" label="Add to Favorites"  height="40" k_click="jsInject:gotoDemoAlert" />
+				<LinkButton id="addContent" width="25%" styleName="blueButton" label="Add Comment" height="40" k_click="jsInject:gotoDemoAlert"  />
+				<LinkButton id="talkBack" width="25%" styleName="blueButton" label="Talk Back"  height="40" k_click="jsInject:gotoDemoAlert" />
+				<LinkButton id="remix" width="25%" styleName="redButton" label="Remix"  height="40" k_click="jsInject:gotoDemoAlert" />
+			</HBox>
+			
+			<HBox styleName="poweredBox" width="100%" height="18">
+		    		<poweredBy id="poweredBy" k_path="poweredby/PoweredBy.swf" styleName="poweredBy" width="120" height="14" />
+		    	</HBox>
+    	</VBox>
+	 	<popups>
+	 	</popups>
+		<javaScript>
+			<jsBlock functionName="gotoDemoAlert" id="gotoDemoAlert" params="">
+				<![CDATA[
+					function gotoDemoAlert()
+					{
+						demoAlert();
+					};
+				]]>
+			</jsBlock>
+		</javaScript>
+	</layout>
+	
+	
+</layouts>

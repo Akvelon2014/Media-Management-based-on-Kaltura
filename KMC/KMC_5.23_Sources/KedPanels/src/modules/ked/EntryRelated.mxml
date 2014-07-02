@@ -1,0 +1,378 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+
+ Modified by Akvelon Inc.
+ 2014-06-30
+ http://www.akvelon.com/contact-us
+-->
+<mx:Module layout="vertical" xmlns:mx="http://www.adobe.com/2006/mxml" implements="com.kaltura.edw.business.IDrilldownPanel" width="100%"
+		   height="100%" creationComplete="onCreationComplete()" xmlns:control="com.kaltura.edw.control.*"
+		   label="{resourceManager.getString('drilldown','relatedEntries')}">
+	<mx:Metadata>
+		[Event(name="validationComplete", type="com.kaltura.edw.events.ValidationResultEvent")] 
+		[Event(name="panelDataSaved", type="com.kaltura.edw.events.InternalKedEvent")] 
+	</mx:Metadata>
+	<mx:Script>
+		<![CDATA[
+			import com.kaltura.analytics.GoogleAnalyticsConsts;
+			import com.kaltura.analytics.GoogleAnalyticsTracker;
+			import com.kaltura.edw.business.permissions.PermissionManager;
+			import com.kaltura.edw.constants.PanelConsts;
+			import com.kaltura.edw.constants.RelatedFileActionType;
+			import com.kaltura.edw.control.events.RelatedFileEvent;
+			import com.kaltura.edw.control.events.UploadTokenEvent;
+			import com.kaltura.edw.events.InternalKedEvent;
+			import com.kaltura.edw.events.ValidationResultEvent;
+			import com.kaltura.edw.model.datapacks.RelatedFilesDataPack;
+			import com.kaltura.edw.view.ir.relatedFiles.RelatedFileActionRenderer;
+			import com.kaltura.edw.view.window.EditRelatedFileWindow;
+			import com.kaltura.edw.vo.RelatedFileVO;
+			import com.kaltura.kmvc.control.KMvCController;
+			import com.kaltura.kmvc.model.IDataPackRepository;
+			import com.kaltura.vo.KalturaAttachmentAsset;
+			import com.kaltura.vo.KalturaBaseEntry;
+			
+			import mx.binding.utils.BindingUtils;
+			import mx.collections.ArrayCollection;
+			import mx.core.Application;
+			import mx.managers.PopUpManager;
+			
+			// ===============================================================
+			// consts
+			// ===============================================================
+			
+			public static const ALLOWED_EXT:String = "*.*";
+			
+			/**
+			 * used to convert size to KB
+			 * */
+			private const KB_MULTIPLIER:int = 1024;
+			
+			/**
+			 * in files size: number of digits to show after the decimal point
+			 * */
+			private const DIGITS_AFTER_DEC_POINT:int = 2;
+			
+			
+			// ===============================================================
+			// 
+			// ===============================================================
+			
+			/**
+			 * current selected entry
+			 * */
+			private var _selectedEntry:KalturaBaseEntry;
+			private var _dpModel:IDataPackRepository;
+			
+			public function get selectedEntry():KalturaBaseEntry {
+				return _selectedEntry;
+			}
+			public function set selectedEntry(value:KalturaBaseEntry):void {
+				_selectedEntry = value;
+			}
+			
+			public function get dataPackModel():IDataPackRepository{
+				return _dpModel;
+			}
+			public function set dataPackModel(value:IDataPackRepository):void{
+				_dpModel = value;
+				var relatedData:RelatedFilesDataPack = _dpModel.getDataPack(RelatedFilesDataPack) as RelatedFilesDataPack;
+				BindingUtils.bindProperty(this, "relatedFiles", relatedData, "relatedFilesAC"); 
+//				relatedFiles = relatedData.relatedFilesAC;
+			}
+			
+			public function get helpAnchor():String{
+				return "entry_related";
+			}
+			
+			/**
+			 * entire list of related files
+			 * */
+			private var _relatedFiles:ArrayCollection;
+			
+			/**
+			 * will be used to upload new files
+			 * */
+			private var _fileReference:FileReference;
+			/**
+			 * list of related files to delete on save
+			 * */
+			private var _filesToDelete:ArrayCollection;
+			/**
+			 * list of related files to add on save
+			 * */
+			private var _filesToAdd:ArrayCollection;
+			/**
+			 * list of related files to update on save
+			 * */
+			private var _filesToUpdate:ArrayCollection;
+			/**
+			 * indicated if a change was made
+			 * */
+			private var _wasChanged:Boolean;
+			
+			
+			// ===============================================================
+			// Roles and Permissions stuff
+			// ===============================================================
+			
+			[Bindable]
+			/**
+			 * r&p
+			 * */
+			public var editable:Boolean = true;
+			
+			/**
+			 * R&P
+			 * */
+			public function get hideColumns():String {
+				return '';
+			}
+			
+			
+			public function set hideColumns(value:String):void {
+				var cols:Array = value.split(',');
+				for (var col:String in cols) {
+					var arrCol:ArrayCollection = new ArrayCollection(dataGrid.columns);
+					for (var i:int = 0; i < arrCol.length; ++i) {
+						if (arrCol[i].headerText == resourceManager.getString('drilldown', cols[col])) {
+							arrCol.removeItemAt(i);
+							break;
+						}
+					}
+				}
+				dataGrid.columns = arrCol.source;
+			}
+			
+			
+			// ===============================================================
+			// Methods
+			// ===============================================================
+			
+			private function onCreationComplete():void {
+				dataGrid.addEventListener(RelatedFileActionType.FILE_CHANGED, onFileChanged);
+				dataGrid.addEventListener(RelatedFileActionType.FILE_DELETED, onFileDeleted);
+				dataGrid.addEventListener(RelatedFileActionType.EDIT_FILE, editFile);
+			}
+			
+			
+			private function onFileChanged(event:Event):void {
+				_wasChanged = true;
+				var _changedFile:RelatedFileVO = event.target.data as RelatedFileVO;
+				//add to the updated array only if doesn't exist there yet, or doesn't belong to the added ones
+				if (_changedFile.file.id && (_filesToUpdate.getItemIndex(_changedFile) == -1))
+					_filesToUpdate.addItem(_changedFile);
+			}
+			
+			private function editFile(e:Event):void {
+				var editWindow:EditRelatedFileWindow = new EditRelatedFileWindow();
+				editWindow.file = e.target.data.file;
+				editWindow.controller = controller;
+				PopUpManager.addPopUp(editWindow, (Application.application as DisplayObject), true);
+				PopUpManager.centerPopUp(editWindow);
+			}
+			
+			
+			private function onFileDeleted(event:Event):void {
+				_wasChanged = true;
+				var deletedFile:RelatedFileVO = event.target.data as RelatedFileVO;
+				//if this file was already saved on the server
+				if (deletedFile.file.id)
+					_filesToDelete.addItem(deletedFile);
+					//look for the file in the added array, and remove it from there
+				else if (deletedFile.isNewUploaded) {
+					_filesToAdd.removeItemAt(_filesToAdd.getItemIndex(deletedFile));
+				}
+				relatedFiles.removeItemAt(relatedFiles.getItemIndex(deletedFile));
+				GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.CONTENT_DRILLDOWN_RELATED_DELETE);
+			}
+			
+			
+			[Bindable]
+			/**
+			 * related files of current entry
+			 * */
+			public function get relatedFiles():ArrayCollection {
+				return _relatedFiles;
+			}
+			
+			
+			public function set relatedFiles(value:ArrayCollection):void {
+				_relatedFiles = value;
+				_filesToAdd = new ArrayCollection();
+				_filesToDelete = new ArrayCollection();
+				_filesToUpdate = new ArrayCollection();
+			}
+			
+			public function validate():void {
+				var e:ValidationResultEvent = new ValidationResultEvent(ValidationResultEvent.VALIDATION_COMPLETE, true);
+				dispatchEvent(e);
+			}
+			
+			
+			public function clear():void {
+			}
+			
+			public function init():void {
+				PermissionManager.getInstance().applyAllAttributes(this, PanelConsts.RELATED_PANEL);
+			}
+			
+			
+			public function initData():void {
+				_wasChanged = false;
+				var list:RelatedFileEvent = new RelatedFileEvent(RelatedFileEvent.LIST_RELATED_FILES);
+				controller.dispatch(list);
+			}
+			
+			
+			public function destroy():void {
+				dataGrid.removeEventListener(RelatedFileActionType.FILE_CHANGED, onFileChanged);
+				dataGrid.removeEventListener(RelatedFileActionType.FILE_DELETED, onFileDeleted);
+				dataGrid.removeEventListener(RelatedFileActionType.EDIT_FILE, editFile);
+			}
+			
+			
+			/**
+			 * Open browse window and adds the selected file to the related files
+			 * */
+			protected function addFile(event:MouseEvent):void {
+				_fileReference = new FileReference();
+				_fileReference.addEventListener(Event.SELECT, onFileSelected);
+				_fileReference.browse(new Array(new FileFilter(resourceManager.getString('drilldown', 'files') + ' (' + ALLOWED_EXT + ')', ALLOWED_EXT)));
+			}
+			
+			
+			private function onFileSelected(event:Event):void {
+				_wasChanged = true;
+				_fileReference.removeEventListener(Event.SELECT, onFileSelected);
+				var newRelated:RelatedFileVO = new RelatedFileVO();
+				newRelated.file = new KalturaAttachmentAsset();
+				newRelated.file.filename = _fileReference.name;
+				newRelated.fileReference = _fileReference;
+				//upload the file
+				var uploadEvent:UploadTokenEvent = new UploadTokenEvent(UploadTokenEvent.UPLOAD_TOKEN, newRelated.fileReference, newRelated);
+				newRelated.fileReference.addEventListener(Event.COMPLETE, onFileUploaded);
+				newRelated.fileReference.addEventListener(IOErrorEvent.IO_ERROR, onFileFailed);
+				newRelated.fileReference.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onFileFailed);
+				controller.dispatch(uploadEvent);
+				
+				_relatedFiles.addItem(newRelated);
+				_filesToAdd.addItem(newRelated);
+			}
+			
+			
+			private function onFileUploaded(event:Event):void {
+				var targetFR:FileReference = event.target as FileReference;
+				targetFR.removeEventListener(Event.COMPLETE, onFileUploaded);
+				targetFR.removeEventListener(IOErrorEvent.IO_ERROR, onFileFailed);
+				targetFR.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, onFileFailed);
+				for each (var related:RelatedFileVO in relatedFiles) {
+					if (related.fileReference == targetFR) {
+						related.isNewUploaded = true;
+						
+						var saveEvent:RelatedFileEvent = new RelatedFileEvent(RelatedFileEvent.SAVE_ALL_RELATED);
+						var relatedArr:ArrayCollection = new ArrayCollection();
+						relatedArr.addItem(related);
+						saveEvent.relatedToAdd = relatedArr.source;
+						controller.dispatch(saveEvent);
+						_filesToAdd.removeItemAt(_filesToAdd.getItemIndex(related));
+									
+						break;
+					}
+				}
+				
+				GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.CONTENT_DRILLDOWN_RELATED_ADD);
+			}
+			
+			
+			private function onFileFailed(event:Event):void {
+				var targetFR:FileReference = event.target as FileReference;
+				targetFR.removeEventListener(Event.COMPLETE, onFileUploaded);
+				targetFR.removeEventListener(IOErrorEvent.IO_ERROR, onFileFailed);
+				targetFR.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, onFileFailed);
+				for each (var related:RelatedFileVO in relatedFiles) {
+					if (related.fileReference == targetFR) {
+						related.isNewUploadError = true;
+						related.uploadTokenId = null;
+						break;
+					}
+				}
+			}
+			
+			
+			/**
+			 * Create suitable string to display in the "File Size" column
+			 * */
+			public function getSizeText(item:Object):String {
+				var curItem:RelatedFileVO = item as RelatedFileVO;
+				var size:int;
+				if (curItem.fileReference)
+					size = curItem.fileReference.size;
+				else
+					size = curItem.file.size;
+				
+				if (size == int.MIN_VALUE)
+					return '';
+				return ((size / KB_MULTIPLIER).toFixed(DIGITS_AFTER_DEC_POINT)) + ' ' + resourceManager.getString('drilldown', 'kiloBytes');
+				
+			}
+			
+			
+			public function save():void {
+				if (isChanged()) {
+					var saveEvent:RelatedFileEvent = new RelatedFileEvent(RelatedFileEvent.SAVE_ALL_RELATED);
+					saveEvent.relatedToAdd = _filesToAdd.source;
+					saveEvent.relatedToUpdate = _filesToUpdate.source;
+					saveEvent.relatedToDelete = _filesToDelete.source;
+					controller.dispatch(saveEvent);
+				}
+				dispatchEvent(new InternalKedEvent(InternalKedEvent.PANEL_DATA_SAVED));
+			}
+			
+			
+			public function isChanged():Boolean {
+				return _wasChanged;
+			}
+		]]>
+	</mx:Script>
+	<control:RelatedTabController id="controller" />
+	
+	<mx:Text text="{resourceManager.getString('drilldown','relatedInfo')}" styleName="tipText" width="100%"/>
+	
+	<mx:Button label="{resourceManager.getString('drilldown','addFiles')}" click="addFile(event)" visible="{editable}"
+			   includeInLayout="{editable}"/>
+	
+	<mx:DataGrid id="dataGrid" dataProvider="{relatedFiles}" width="100%" height="100%" rowHeight="30">
+		<mx:columns>
+			<mx:DataGridColumn headerText="{resourceManager.getString('drilldown','fileName')}" sortable="false"
+							   itemRenderer="com.kaltura.edw.view.ir.relatedFiles.RelatedFileNameRenderer"/>
+			<mx:DataGridColumn headerText="{resourceManager.getString('drilldown','fileType')}" sortable="false"
+							   itemRenderer="com.kaltura.edw.view.ir.relatedFiles.RelatedFileTypeRenderer"/>
+			<mx:DataGridColumn headerText="{resourceManager.getString('drilldown','fileSize')}" sortable="false">
+				<mx:itemRenderer>
+					<mx:Component>
+						<mx:VBox paddingLeft="5" verticalAlign="middle">
+							<mx:Label text="{outerDocument.getSizeText(data)}"/>
+						</mx:VBox>
+					</mx:Component>
+				</mx:itemRenderer>
+			</mx:DataGridColumn>
+			<mx:DataGridColumn headerText="{resourceManager.getString('drilldown','kalturaId')}" sortable="false">
+				<mx:itemRenderer>
+					<mx:Component>
+						<mx:VBox paddingLeft="5" verticalAlign="middle">
+							<mx:Label text="{data.file.id}" selectable="true"/>
+						</mx:VBox>
+					</mx:Component>
+				</mx:itemRenderer>
+			</mx:DataGridColumn>
+			<mx:DataGridColumn headerText="{resourceManager.getString('drilldown','actions')}" sortable="false"
+							   width="200" itemRenderer="com.kaltura.edw.view.ir.relatedFiles.RelatedFileActionRenderer"/>
+		</mx:columns>
+	</mx:DataGrid>
+</mx:Module>

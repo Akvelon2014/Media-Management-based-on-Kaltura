@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin
+   id="FetchFTPFilePlugin"
+   iconfile="FTP.png"
+   description="Fetch FTP file"
+   tooltip="This is input plugin that fetches file over FTP"
+   category="Input"
+   classname="org.kaltura.fetchftpfile.FetchFTPFileMeta">
+   <libraries>
+    <library name="fetchftpfile.jar"/>
+    </libraries>
+    
+   <localized_category>
+     <category locale="en_US">Input</category>
+   </localized_category>
+   <localized_description>
+     <description locale="en_US">Fetch FTP file</description>
+   </localized_description>
+   <localized_tooltip>
+     <tooltip locale="en_US">This is input plugin that fetches file over FTP</tooltip>
+   </localized_tooltip>
+   
+</plugin>

@@ -1,0 +1,44 @@
+<layouts>
+<layout skinPath="/content/uiconf/templates/simple2d/simple2d_skin_kdp.swf">
+	
+		<VBox width="100%" height="100%" styleName="topLevelVBox"  >
+	     
+	      <Canvas id="PlayerHolder" styleName="PlayerBackground" width="100%" height="100%" >
+	        <KplayerModule id="myKplayer" styleName="centered" k_path="kplayer/KplayerModule.swf" width="100%" height="100%" maxWidth="600" maxHeight="450"/>
+	      </Canvas>
+	      
+	     <HBox width="100%" height="45" styleName="controller" >
+	       
+	       <HBox width="68" height="25" styleName="col1" >
+	         <Button id="play" styleName="play" width="20" height="16" />
+	         <VBox styleName="timer" width="30" height="25">
+	          <TimerCountdown id="timer" width="100%" height="15" k_path="timertext/SimpleTimer.swf" />
+	         </VBox>
+	       </HBox>
+	      
+	       <VBox width="100%" height="100%" styleName="col2">
+	         <Scrubber id="scrubber" styleName="scrubber" width="100%" height="10"/>
+	         <HBox width="100%" height="20" styleName="extraButtons">
+	           <LinkButton id="add" width="89" height="100%" styleName="btn1" label="Add Video" />
+	           <LinkButton id="remix" width="89" height="100%" styleName="btn1" label="Remix Video" />
+	           <LinkButton id="share" width="89" height="100%" styleName="btn1" label="Share" />
+	            </HBox>
+	       </VBox>
+	      
+	       <VBox width="56" height="100%" styleName="col3">
+	         <HBox styleName="col1" height="16" width="100%">
+	            <VolumeModule id="volume" width="20" height="20" k_path="VolumeBars/VolumeBarA.swf" />
+	            <Button id="fullScreen" width="20" height="20" styleName="fs" label="" />  
+	         </HBox>
+	            <poweredBy id="poweredBy" k_path="poweredby/PoweredBy2.swf" styleName="poweredBy" width="120" height="16"/>
+	       </VBox>
+	       
+	        </HBox>
+	       </VBox>
+   <popups>
+        <SharePop id="SharePop" k_path="popups/SharePopup.swf" width="350" height="350"/>
+   </popups>
+   <javaScript>
+  </javaScript>
+ </layout>
+</layouts>

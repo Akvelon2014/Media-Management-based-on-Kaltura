@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:tabbar="com.kaltura.controls.tabbar.*"
+		 xmlns:categoryTabs="com.kaltura.kmc.modules.content.view.window.cdw.components.categoryTabs.*"
+		 horizontalAlign="center" styleName="noPadding" creationComplete="creationCompleteHandler(event)">
+	<mx:Metadata>
+		[Event(name="validationComplete",type="com.kaltura.edw.events.ValidationResultEvent")]
+		[Event(name="saved",type="flash.events.Event")]
+	</mx:Metadata>
+	<mx:Script>
+		<![CDATA[
+			import com.kaltura.analytics.GoogleAnalyticsConsts;
+			import com.kaltura.analytics.GoogleAnalyticsTracker;
+			import com.kaltura.edw.business.permissions.PermissionManager;
+			import com.kaltura.edw.events.InternalKedEvent;
+			import com.kaltura.edw.events.ValidationResultEvent;
+			import com.kaltura.edw.model.FilterModel;
+			import com.kaltura.kmc.modules.content.model.CategoriesModel;
+			import com.kaltura.kmc.modules.content.view.window.cdw.ICategoryDrilldownPanel;
+			import com.kaltura.vo.KalturaCategory;
+			
+			import flash.utils.setTimeout;
+			
+			import mx.controls.Alert;
+			import mx.core.UIComponent;
+			import mx.events.FlexEvent;
+
+			[Bindable]
+			public var filterModel:FilterModel;
+
+			[Bindable]
+			public var model:CategoriesModel;
+
+			public var isNewCategory:Boolean;
+
+			private var _category:KalturaCategory;
+
+			private var _tabs:Vector.<ICategoryDrilldownPanel>;
+			
+			
+			/**
+			 * stores returned events after calls to <code>validate()</code>
+			 * or <code>save()</code>.
+			 *
+			 * @internal
+			 * it is ok to use the same array because
+			 * the processes cannot happen simultanously.
+			 * */
+			private var _results:Array;
+
+			/**
+			 * RnP
+			 * */
+			public var showEndUsersTab:Boolean = true;
+
+			
+			public function get helpAnchor():String {
+				switch (viewStack.selectedChild) {
+					case metadata:
+						return 'section_category_metadata';
+						break;
+					case endUsers:
+						return 'section_category_users';
+						break;
+					case subCategories:
+						return 'section_category_subcats';
+						break;
+				}
+				return null;
+			}
+			
+			// --------------------------------
+			// validation
+			// --------------------------------
+			
+			public function validate():Boolean {
+				_results = new Array();
+				var tab:ICategoryDrilldownPanel;
+				for (var i:int = 0; i<viewStack.numChildren; i++) {
+					tab = viewStack.getChildAt(i) as ICategoryDrilldownPanel;
+					if (!tab.hasEventListener(ValidationResultEvent.VALIDATION_COMPLETE)) {
+						tab.addEventListener(ValidationResultEvent.VALIDATION_COMPLETE, onPanelValidationComplete);
+					}
+					tab.validate();
+				}
+				return true;
+			}
+
+			
+			/**
+			 * wait for all panels validation to complete while keeping VREs
+			 * */
+			private function onPanelValidationComplete(e:ValidationResultEvent):void {
+				_results.push(e);
+				if (_results.length == viewStack.numChildren) {
+					// all panels returned results
+					var success:Boolean = true;
+					for each (var vre:ValidationResultEvent in _results) {
+						if (!vre.success) {
+							handleValidationError(vre.target as UIComponent, vre.errorMessage, vre.errorTitle);
+							success = false;
+							// no need to go over other results
+							break;
+						}
+					}
+					if (success) {
+						dispatchEvent(new ValidationResultEvent(ValidationResultEvent.VALIDATION_COMPLETE, true));
+					}
+				}
+			}
+			
+			
+			/**
+			 * displays the validation error and navigates to the relevant tab
+			 * */
+			private function handleValidationError(tabToGo:DisplayObject, errorString:String = '', errorTitle:String = ''):void {
+				if (errorString != '')
+					Alert.show(errorString, errorTitle);
+//				isUiEnabled = true;
+//				_nextPendingEntry = 0;
+				viewStack.selectedIndex = viewStack.getChildIndex(tabToGo);
+			}
+			
+			// --------------------------------
+			// save
+			// --------------------------------
+
+			public function save():void {
+				_results = new Array();
+				
+				var tab:ICategoryDrilldownPanel;
+				for (var i:int = 0; i<viewStack.numChildren; i++) {
+					tab = viewStack.getChildAt(i) as ICategoryDrilldownPanel;
+					if (!tab.hasEventListener(InternalKedEvent.PANEL_DATA_SAVED)) {
+						tab.addEventListener(InternalKedEvent.PANEL_DATA_SAVED, onPanelSaveComplete);
+					}
+					tab.save();
+				}
+			}
+			
+			private function onPanelSaveComplete(e:InternalKedEvent):void {
+				_results.push(e);
+				if (_results.length == viewStack.numChildren) {
+					// all panels finished their save/update process
+					dispatchEvent(new Event("saved"));
+				}
+			}
+
+
+
+			private function onCreationComplete(event:FlexEvent):void {
+				PermissionManager.getInstance().applyAllAttributes(this, "categoryDrilldown");
+				metadata.nameInput.setFocus();
+				if (isNewCategory) {
+					viewStack.removeChild(subCategories);
+				}
+				if (!showEndUsersTab) {
+					// assuming permission manager ran before, remove 
+					// endUsers tab so it won't be added to _tabs
+					viewStack.removeChild(endUsers);
+				}
+
+				_tabs = new Vector.<ICategoryDrilldownPanel>;
+				for (var index:int = viewStack.numChildren-1; index >= 0; index--) {
+					// some tabs remove themselves on initData, so we need to run from the top down
+					var tab:ICategoryDrilldownPanel = viewStack.getChildAt(index) as ICategoryDrilldownPanel;
+					_tabs.unshift(tab); // add in reverse order
+					tab.init();
+					if (_category != null) {
+						tab.initData();
+					}
+				}
+			}
+
+
+			public function isChanged():Boolean {
+				var tab:ICategoryDrilldownPanel;
+				for (var i:int = 0; i<viewStack.numChildren; i++) {
+					tab = viewStack.getChildAt(i) as ICategoryDrilldownPanel;
+					if (tab.isChanged()) {
+						return true;
+					}
+				}
+
+				return false;
+			}
+			
+			public function isMetadataChanged():Boolean {
+				return metadata.isChanged();
+			}
+
+			
+			private function initTabsData(refreshView:Boolean):void {
+				for each (var tab:ICategoryDrilldownPanel in _tabs) {
+					if (refreshView) {
+						viewStack.addChild(tab as DisplayObject);
+					}
+					tab.initData();
+				}
+			}
+			
+			
+
+			
+			[Bindable]
+			public function set category(value:KalturaCategory):void {
+				var refreshView:Boolean = !_category; 	// first opeing the drilldown
+				if (!isNewCategory) {
+					refreshView ||= value.id != _category.id;
+				}
+				_category = value;
+				
+				if (_tabs != null) {
+					// need to clear the stack trace so the new category will be updated on the panels 
+					setTimeout(initTabsData, 0, refreshView);
+				}
+			}
+
+
+			public function get category():KalturaCategory {
+				return _category;
+			}
+
+
+			public function clear():void {
+				for each (var tab:ICategoryDrilldownPanel in _tabs) {
+					tab.clear();
+				}
+			}
+
+
+			public function destroy():void {
+				for each (var tab:ICategoryDrilldownPanel in _tabs) {
+					tab.destroy();
+				}
+			}
+
+			private function creationCompleteHandler(event:FlexEvent):void
+			{
+				PermissionManager.getInstance().applyAllAttributes(this, "categoryDrilldown");
+			}
+			
+			/**
+			 * send tracking events about the current page
+			 * @panelId		page (panel) id
+			 * */
+			private function trackNavigation():void {
+				var event:String = '';
+				switch (viewStack.selectedChild) {
+					case metadata:
+						event = GoogleAnalyticsConsts.CONTENT_CAT_DRILLDOWN_METADATA;
+						break;
+					case endUsers:
+						event = GoogleAnalyticsConsts.CONTENT_CAT_DRILLDOWN_ENTITLEMENTS;
+						break;
+					case subCategories:
+						event = GoogleAnalyticsConsts.CONTENT_CAT_DRILLDOWN_SUBCATS;
+						break;
+				}
+				GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.PAGE_VIEW + event, GoogleAnalyticsConsts.CONTENT);
+			}
+
+		]]>
+	</mx:Script>
+	<mx:HBox width="100%" height="100%" styleName="categoryDetails">
+		<mx:TabBar id="tabBar" width="140" dataProvider="{viewStack}" direction="vertical" styleName="dtn"
+				   useHandCursor="true" buttonMode="true" tabHeight="25" enabled="{!model.loadingFlag}"/>
+
+		<mx:ViewStack id="viewStack" width="100%" height="100%" change="{trackNavigation()}" creationPolicy="all"
+					  creationComplete="onCreationComplete(event)" styleName="sectionViewStack"
+					  selectedIndex="{tabBar.selectedIndex}">
+			<categoryTabs:CategoryMetadata id="metadata" label="{resourceManager.getString('cms', 'categoryMetadata')}" width="100%"
+										   height="100%" category="{category}" filterModel="{filterModel}"
+										   model="{model}"/>
+			<categoryTabs:CategoryEndUserAccess id="endUsers" width="100%" height="100%" 
+												label="{resourceManager.getString('cms', 'endUserAccess')}"
+												category="{category}" model="{model}" />
+			<categoryTabs:SubCategories id="subCategories" width="100%" height="100%"
+										subCategories="{model.subCategories}" category="{category}"
+										label="{resourceManager.getString('cms', 'categorySubCategories')}"/>
+
+		</mx:ViewStack>
+	</mx:HBox>
+
+</mx:VBox>

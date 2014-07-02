@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin
+   id="MapperFieldRunner"
+   iconfile="MAP.png"
+   description="Mapping With Field Input"
+   tooltip="This is a mapping that accepts fields."
+   category="Mapping"
+   classname="org.kaltura.mapping.MappingFieldRunnerMeta">
+   <libraries>
+    <library name="mappingfieldrunner.jar"/>
+    </libraries>
+    
+   <localized_category>
+     <category locale="en_US">Mapping</category>
+   </localized_category>
+   <localized_description>
+     <description locale="en_US">Mapping with Field Input</description>
+   </localized_description>
+   <localized_tooltip>
+     <tooltip locale="en_US">This is a mapping that accepts fields</tooltip>
+   </localized_tooltip>
+   
+</plugin>

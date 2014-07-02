@@ -1,0 +1,1 @@
+ALTER TABLE kalturadw.dwh_dim_domain MODIFY domain_name VARCHAR(255) DEFAULT 'missing value';

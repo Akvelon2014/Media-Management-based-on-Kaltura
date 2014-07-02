@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin
+   id="GetFTPFileNamesPlugin"
+   iconfile="FTP.png"
+   description="Get FTP file names"
+   tooltip="This is input plugin that print a remote dir content using FTP"
+   category="Input"
+   classname="org.kaltura.getftpfilenames.GetFTPFileNamesMeta">
+   <libraries>
+    <library name="getftpfilenames.jar"/>
+    </libraries>
+    
+   <localized_category>
+     <category locale="en_US">Input</category>
+   </localized_category>
+   <localized_description>
+     <description locale="en_US">Get FTP file names</description>
+   </localized_description>
+   <localized_tooltip>
+     <tooltip locale="en_US">This is input plugin that print a remote dir content using FTP</tooltip>
+   </localized_tooltip>
+   
+</plugin>

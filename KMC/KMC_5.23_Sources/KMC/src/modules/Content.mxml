@@ -1,0 +1,874 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modules:KmcModule xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:modules="com.kaltura.kmc.modules.*"
+				   xmlns:business="com.kaltura.kmc.modules.content.business.*"
+				   xmlns:control="com.kaltura.kmc.modules.content.control.*" xmlns:view="com.kaltura.kmc.modules.content.view.*" 
+				   implements="com.kaltura.edw.business.IDataOwner" layout="vertical" 
+				   minWidth="950" verticalGap="0" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0"
+				   preloader="com.kaltura.preloaders.KmcPreloader"
+				   enabled="{!_model.loadingFlag &amp;&amp; !KMvCModel.getInstance().loadingFlag}" >
+
+	<mx:Metadata>
+		[ResourceBundle("cms")]
+		[ResourceBundle("common")]
+		[ResourceBundle("customFields")]
+	</mx:Metadata>
+
+	<mx:Script>
+		<![CDATA[
+			import com.kaltura.analytics.GoogleAnalyticsConsts;
+			import com.kaltura.analytics.GoogleAnalyticsTracker;
+			import com.kaltura.analytics.KAnalyticsTracker;
+			import com.kaltura.analytics.KAnalyticsTrackerConsts;
+			import com.kaltura.containers.ConfinedTitleWindow;
+			import com.kaltura.edw.business.IDataOwner;
+			import com.kaltura.edw.business.permissions.PermissionManager;
+			import com.kaltura.edw.components.playlist.ManualPlaylistWindow;
+			import com.kaltura.edw.control.DataTabController;
+			import com.kaltura.edw.control.KedController;
+			import com.kaltura.edw.control.events.KedEntryEvent;
+			import com.kaltura.edw.control.events.MetadataProfileEvent;
+			import com.kaltura.edw.events.KedDataEvent;
+			import com.kaltura.edw.model.datapacks.ContentDataPack;
+			import com.kaltura.edw.model.datapacks.ContextDataPack;
+			import com.kaltura.edw.model.datapacks.CuePointsDataPack;
+			import com.kaltura.edw.model.datapacks.CustomDataDataPack;
+			import com.kaltura.edw.model.datapacks.EntryDataPack;
+			import com.kaltura.edw.model.datapacks.FlavorsDataPack;
+			import com.kaltura.edw.model.types.WindowsStates;
+			import com.kaltura.edw.view.EntryDetailsWin;
+			import com.kaltura.events.AccessControlProfileEvent;
+			import com.kaltura.events.FileUploadEvent;
+			import com.kaltura.kmc.business.JSGate;
+			import com.kaltura.kmc.events.KmcHelpEvent;
+			import com.kaltura.kmc.modules.content.business.IContentPanel;
+			import com.kaltura.kmc.modules.content.events.*;
+			import com.kaltura.kmc.modules.content.model.CmsModelLocator;
+			import com.kaltura.kmc.modules.content.view.window.RulePlaylistWindow;
+			import com.kaltura.kmc.modules.content.view.window.SetSchedulingWin;
+			import com.kaltura.kmc.modules.content.view.window.cdw.CategoryDetailsWin;
+			import com.kaltura.kmvc.model.KMvCModel;
+			import com.kaltura.managers.FileUploadManager;
+			import com.kaltura.types.KalturaMediaType;
+			import com.kaltura.types.KalturaStatsKmcEventType;
+			import com.kaltura.utils.KUtils;
+			import com.kaltura.utils.ObjectHelpers;
+			import com.kaltura.utils.SoManager;
+			import com.kaltura.vo.KalturaBaseEntryFilter;
+			import com.kaltura.vo.KalturaMediaEntry;
+			import com.kaltura.vo.KalturaMediaEntryFilter;
+			import com.kaltura.vo.KalturaPlaylistFilter;
+			
+			import mx.binding.utils.BindingUtils;
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.core.IFlexDisplayObject;
+			import mx.core.UIComponent;
+			import mx.events.FlexEvent;
+			import mx.events.IndexChangedEvent;
+			import mx.events.ResizeEvent;
+			import mx.managers.CursorManager;
+			import mx.resources.ResourceManager;
+			import mx.utils.Base64Decoder;
+
+			
+			/**
+			 * layout: navigation buttons height
+			 * */
+			private static const SUB_MENU_HEIGHT : int = 18;
+
+			/**
+			 * max number of categories an entry may be associated with,
+			 * may be overriden with maxNumCategories flashvar
+			 * */
+			private static const DEFAULT_CATEGORIES_NUM:int = 32;
+
+
+			[Bindable]
+			/**
+			 * application model
+			 * */
+			private var _model:CmsModelLocator = CmsModelLocator.getInstance();
+
+			[Bindable]
+			/**
+			 * entry data
+			 * */
+			private var _entryData:EntryDataPack = KMvCModel.getInstance().getDataPack(EntryDataPack) as EntryDataPack;
+
+			/**
+			 * custom data information
+			 * */
+			private var _customDataData:CustomDataDataPack = KMvCModel.getInstance().getDataPack(CustomDataDataPack) as CustomDataDataPack;
+
+			[Bindable]
+			/**
+			 * reference to the current files in the upload file list
+			 * */
+			private var _files : ArrayCollection = FileUploadManager.getInstance().filesCollection;
+
+
+			/**
+			 * in case we want to start from a tab other than the
+			 * first, name of the initial tab (as in locale)
+			 * */
+			private var _initialTab:String;
+
+			/**
+			 * indicates start() has finished executing so all initial
+			 * data is present, and children can be created safely.
+			 * */
+			protected var _ready:Boolean = false;
+
+			/**
+			 * KMC is responsible to use the value of
+			 * this const as the id of this module.
+			 * */
+			public static const NAME:String = "content";
+
+
+			override public function getModuleName():String {
+				return NAME;
+			}
+
+
+
+
+			override public function showSubtab(subtab:String, data:Object = null):void {
+				// save data in the attic
+				if (data) {
+					putInAttic(data);
+				}
+				// show the tab
+				_initialTab = subtab;
+				
+				if (_ready) {
+					if (subtab == contentView.selectedChild.id && subtab != manage.id) {
+						return;
+					}
+					handleEntryId();
+					_model.filterModel.loadingRequired = true;
+					(_model.entryDetailsModel.getDataPack(FlavorsDataPack) as FlavorsDataPack).conversionProfileLoaded = false;
+					switchToTab(subtab);
+					//loads data that might have changed from a different tab
+					loadChangableData();
+				}
+			}
+
+			
+			/**
+			 * postpone createChildren until after start()
+			 * */
+			override protected function createChildren():void {
+				if (_ready) {
+					super.createChildren();
+				}
+			}
+
+
+			override protected function start():void {
+				Security.allowDomain('*');
+				systemManager.addEventListener(ResizeEvent.RESIZE, stopEvent, false, 1);
+
+				// flashvars and uiconf vars processing
+				if (!_flashvars.maxnumcategories) {
+					_flashvars.maxnumcategories = DEFAULT_CATEGORIES_NUM;
+				}
+				saveUiconfVars();
+				initModelContext(_flashvars);
+				initModel(_flashvars);
+
+
+				//Bindings 
+				BindingUtils.bindSetter(changeWindowState, _model, "windowState");
+				BindingUtils.bindSetter(toggleLoading, _model, "loadingFlag");
+
+				//Register Event Listenters
+				addEventListener(Event.RESIZE, windowsManager.centerPopups);
+
+				setAlert();
+
+				if (stage) {
+					initTrackers();
+				}
+				else {
+					addEventListener(Event.ADDED_TO_STAGE, initTrackers);
+				}
+				_ready = true;
+
+				FileUploadManager.getInstance().addEventListener(FileUploadEvent.UPLOAD_ERROR, showError);
+
+				addEventListener(FlexEvent.CREATION_COMPLETE, initChildren);
+				createChildren();
+
+			}
+
+
+			/**
+			 * a workaround to allow the windowsManager access to this method
+			 * */
+			public function pEnableHtmlTabs(enable:Boolean):void {
+				enableHtmlTabs(enable);
+			}
+
+			private function stopEvent(e:Event):void {
+				var cl:String = getQualifiedClassName(e);
+				if (e.type == "resize" &&  cl == "fl.events::ComponentEvent") {
+					// this is a flash event and Flex will not know how to "eat" it,
+					// it probably came from KDP.
+					e.stopImmediatePropagation();
+					e.preventDefault();
+				}
+			}
+
+			/**
+			 * create a new audio entry
+			 * */
+			public function createAudioEntry():void {
+				var entry:KalturaMediaEntry = new KalturaMediaEntry();
+				entry.name = resourceManager.getString('cms','defaultEntryName');
+				entry.mediaType = KalturaMediaType.AUDIO;
+				var addMedia:EntriesEvent = new EntriesEvent(EntriesEvent.ADD_ENTRY);
+				addMedia.data = entry;
+				addMedia.dispatch();
+			}
+
+			/**
+			 * create a new video entry
+			 * */
+			public function createVideoEntry():void {
+				var entry:KalturaMediaEntry = new KalturaMediaEntry();
+				entry.name = resourceManager.getString('cms','defaultEntryName');
+				entry.mediaType = KalturaMediaType.VIDEO;
+				var addMedia:EntriesEvent = new EntriesEvent(EntriesEvent.ADD_ENTRY);
+				addMedia.data = entry;
+				addMedia.dispatch();
+			}
+
+
+			/**
+			 * create a new livestream entry
+			 * */
+			public function createLiveEntry():void {
+				var cgEvent:WindowEvent = new WindowEvent(WindowEvent.OPEN, WindowsStates.ADD_LIVE_STREAM);
+				cgEvent.dispatch();
+			}
+
+
+
+			protected function showError(e:FileUploadEvent):void {
+				Alert.show(e.error, ResourceManager.getInstance().getString('cms', 'error'));
+			}
+
+
+			/**
+			 * entry details data loaded (triggered by command)
+			 * */
+			public function onRequestedDataLoaded():void {
+			}
+
+
+			/**
+			 * if there is entryid to start with, open the entry drilldown
+			 * loads info required for drill down
+			 * */
+			protected function handleEntryId():void {
+				//get default metadata view if needed
+				if (_model.filterModel.enableCustomData) {
+					if (!_customDataData.metadataDefaultUiconfXML) {
+						var getMetadataUiconf:MetadataProfileEvent = new MetadataProfileEvent(MetadataProfileEvent.GET_METADATA_UICONF);
+						DataTabController.getInstance().dispatch(getMetadataUiconf);
+					}
+				}
+				// if there is entryid to start with, open the entry drilldown.
+				if (_model.attic.entryid) {
+					// need to set a dummy dispatcher, so we'll know when the entry is loaded.
+					_entryIdDispatcher = new EventDispatcher();
+					_entryIdDispatcher.addEventListener(KedDataEvent.OPEN_ENTRY, windowsManager.handleKedEvents, false, 0, true);
+					(_model.entryDetailsModel.getDataPack(ContextDataPack) as ContextDataPack).dispatcher = _entryIdDispatcher;
+					// get the entry
+					var kEvent:KedEntryEvent = new KedEntryEvent(KedEntryEvent.GET_ENTRY_AND_DRILLDOWN, null, _model.attic.entryid);
+					KedController.getInstance().dispatch(kEvent);
+					_model.attic.entryid = null;
+				}
+			}
+
+
+			/**
+			 * when opening KMC with a drilldown, need to supply ked with
+			 * a dummy dispatcher because the the drilldown only updates
+			 * this value after it is created. use this.
+			 * */
+			private var _entryIdDispatcher:IEventDispatcher;
+
+			/**
+			 * put things on the attic object.
+			 * don't change the object, add attributes.
+			 * */
+			protected function putInAttic(o:Object):void {
+				if (_model.attic == null) {
+					_model.attic = new Object();
+				}
+				o = ObjectHelpers.lowerNoUnderscore(o);
+				for (var prop:String in o) {
+					_model.attic[prop] = o[prop];
+				}
+			}
+
+
+
+			/**
+			 * init the panels in the view after all data is ready
+			 * */
+			private function initChildren(e:FlexEvent):void {
+				removeEventListener(FlexEvent.CREATION_COMPLETE, initChildren);
+
+				handleEntryId();
+
+				// roles and permissions 
+				var tabsToHide:Array = PermissionManager.getInstance().getRelevantSubTabsToHide(NAME);
+				for each (var subtabName:String in tabsToHide) {
+					var indexToRemove:int = contentView.getChildIndex(this[subtabName]);
+					contentView.removeChildAt(indexToRemove);
+					if (indexToRemove < leftBtnsHBox.numChildren)
+						leftBtnsHBox.removeChildAt(indexToRemove);
+					else
+						rightBtnsHBox.removeChildAt(indexToRemove - leftBtnsHBox.numChildren);
+
+				}
+
+				if (!_initialTab) {
+					_initialTab = "manage";
+				}
+				switchToTab(_initialTab);
+				
+				setModuleReady();
+
+			}
+
+
+
+			/**
+			 * set Alert locale for this module
+			 * */
+			private function setAlert():void {
+				Alert.yesLabel = resourceManager.getString('cms', 'yes');
+				Alert.noLabel = resourceManager.getString('cms', 'no');
+				Alert.okLabel = resourceManager.getString('cms', 'ok');
+				Alert.cancelLabel = resourceManager.getString('cms', 'cancel');
+			}
+
+
+			/**
+			 * creates a KalturaMediaEntryFilter from encoded data
+			 * @param filter	encoded filter data
+			 * */
+			private function createFilterFromString(filter:String):KalturaBaseEntryFilter {
+				var dec:Base64Decoder = new Base64Decoder();
+				dec.decode(filter);
+				var filterString:String = dec.toByteArray().toString();
+				var filterArray:Array = filterString.split("&");
+
+				// distinguish between playlist and entry:
+				var kmef:KalturaBaseEntryFilter;
+				for (var j:int = 0; j < filterArray.length; j++) {
+					if (filterArray[j].indexOf("objectType") == 0) {
+						var cls:String = filterArray[j].split("=")[1];
+						if (cls == "KalturaPlaylistFilter") {
+							kmef = new KalturaPlaylistFilter();
+						}
+						else {
+							kmef = new KalturaMediaEntryFilter();
+						}
+						break;
+					}
+				}
+
+				var att:Array;
+				for (var i:int = 0; i < filterArray.length; i++) {
+					att = filterArray[i].split("=");
+					if (att[1]) {
+						// KalturaMediaEntryFilter is dynamic, ok to put all values without testing
+						kmef[att[0]] = att[1];
+					}
+				}
+
+				return kmef;
+			}
+
+
+			/**
+			 * dispatches events that trigger data loading, for data that can be changed from other
+			 * tabs such as "settings"
+			 * */
+			private function loadChangableData():void {
+				var listAccessControlProfs:AccessControlProfileEvent = new AccessControlProfileEvent(AccessControlProfileEvent.LIST_ACCESS_CONTROLS_PROFILES);
+				listAccessControlProfs.dispatch();
+
+				if (_model.filterModel.enableCustomData) {
+					var lmdp:MetadataProfileEvent = new MetadataProfileEvent(MetadataProfileEvent.LIST);
+					DataTabController.getInstance().dispatch(lmdp);
+	
+					// Should happen soon enough before it's needed - Biton. 
+					var listCategoryMetadata:CategoryEvent = new CategoryEvent(CategoryEvent.LIST_METADATA_PROFILES);
+					listCategoryMetadata.dispatch();
+				}
+				
+				if (contentView.selectedChild == manage) {
+					manage.loadEntries();
+				}
+			}
+
+
+			/**
+			 * initialize analytics trackers (GA needs the stage for debug mode)
+			 * */
+			private function initTrackers(e:Event = null):void {
+				if (willTrigger(Event.ADDED_TO_STAGE)) {
+					removeEventListener(Event.ADDED_TO_STAGE, initTrackers);
+				}
+				GoogleAnalyticsTracker.getInstance().setBasePath("KMC/content");
+				var ka:KAnalyticsTracker = KAnalyticsTracker.getInstance();
+
+				// intialize local data
+				SoManager.getInstance().getLocalData("kmc", _model.context.userId);
+
+				ka.init(_model.context.kc, "content", "4", _model.context.userId);
+			}
+
+
+			/**
+			 * saves value of vars passed via uiconf
+			 * */
+			private function saveUiconfVars():void {
+				var confFile:XML = new XML(_uiconf.confFile);
+
+				// context:
+				_model.context.moderationUiconf = confFile.uiconf.kdp.moderation.text().toString();
+				_model.context.drilldownUiconf = confFile.uiconf.kdp.drilldown.text().toString();
+				_model.context.drilldownAdsUiconf = confFile.uiconf.kdp.drilldownAds.text().toString();
+				_model.context.captureThumbnailUiconf = confFile.uiconf.kdp.captureThumbnail.text().toString();
+				_model.context.kClipAdsUiconf = confFile.uiconf.kclip.ads.text().toString();
+				_model.context.panelsConfig = confFile.uiconf.entryDrilldown.panels[0];
+
+				// model:
+				_customDataData.metadataDefaultUiconf = confFile.uiconf.metadata.text().toString();
+				(_model.entryDetailsModel.getDataPack(CuePointsDataPack)as CuePointsDataPack).cuepointsSamplesUrl = getFullUrl(confFile.cuepoints.text().toString());
+
+//				// Remove this later? - Biton.
+//				if (confFile.uiconf.entryDrilldown.mixesTab.text().toString() != '') {
+//					(_model.entryDetailsModel.getDataPack(ContentDataPack) as ContentDataPack).showMixesTab = (confFile.uiconf.entryDrilldown.mixesTab.text().toString() == "true");
+//				}
+
+				(_model.entryDetailsModel.getDataPack(FlavorsDataPack) as FlavorsDataPack).fileFilters = confFile.filters.filter;
+
+				(_model.entryDetailsModel.getDataPack(ContextDataPack) as ContextDataPack).singleLevelMaxCategories = parseInt(confFile.categories.@singleLevelMax);
+
+				categoriesTracker.sampleRate = parseInt(confFile.categories.@sampleRate);
+			}
+
+			protected function getFullUrl(url:String):String {
+				if (url.indexOf('://') == -1) {
+					// no protocol, concat from client
+					url = _kc.protocol + _kc.domain + url; 
+				}
+				return url;
+			}
+
+
+			/**
+			 * initialize application model according to flashvars data
+			 * @param objParam	"lowercased" parameters object
+			 * */
+			private function initModel(objParam:Object):void {
+				_model.app = this as IFlexDisplayObject;
+
+				if (objParam.opencw) {
+					_model.bulkUploadModel.openCw = objParam.opencw;
+				}
+
+				if (objParam.openplaylist) {
+					_model.openPlaylist = objParam.openplaylist;
+				}
+
+				if (objParam.openplayer) {
+					_model.openPlayer = objParam.openplayer;
+				}
+
+				_entryData.maxNumCategories = objParam.maxnumcategories;
+
+				_model.categoriesModel.client = _kc;
+			}
+
+
+			/**
+			 * initialize application context according to flashvars data
+			 * @param objParam	"lowercased" parameters object
+			 * */
+			private function initModelContext(objParam:Object):void {
+				// flashvars:
+				_model.context.debugMode = objParam.debugmode;
+				_model.context.userId = objParam.uid;
+				_model.context.subpId = objParam.subpid;
+				_model.context.rootUrl = KUtils.hostFromCode(objParam.host);
+				_model.context.cdnHost = objParam.cdnhost ? objParam.cdnhost : _model.context.rootUrl;
+				_model.context.kc = _kc;
+			}
+
+
+			/**
+			 * fix race condition, application added or tab switch from initial flashvar
+			 */
+			private function switchToTab(tab:String = ""):void {
+				var kmef:KalturaBaseEntryFilter;
+				if (_model.attic.filter) {
+					kmef = createFilterFromString(_model.attic.filter);
+					_model.attic.filter = null;
+					_model.attic.kmef = kmef;
+				}
+				
+				// get the correct index from the viewstack, so it'll work after removing items as well.
+				var selectedIndex:int = getSubtabIndex(tab);
+				if (selectedIndex != contentView.selectedIndex) { 
+					//unselect old tab
+					setSelectionValueToButton(contentView.selectedIndex, false);
+					contentView.selectedIndex = selectedIndex;
+					setSelectionValueToButton(contentView.selectedIndex, true);
+				}
+				// init selected
+				if (selectedIndex == 0) {
+					// otherwise the "change" event will trigger these
+					(contentView.selectedChild as IContentPanel).init(_model.attic.kmef);
+					JSGate.writeUrlHash(NAME, contentView.selectedChild.id);
+				}
+			}
+
+
+			/**
+			 * returns the index of a given subtab in the content viewstack
+			 * @param name	subtab name
+			 * @return index of the given subtab in viewstack, or -1 if not found
+			 * */
+			private function getSubtabIndex(name:String):int {
+				var t:int = contentView.numChildren;
+				var tab:UIComponent;
+				var res:int = -1;
+				for (var i:int = 0; i < t; i++) {
+					tab = contentView.getChildAt(i) as UIComponent;
+					if (tab.id.toLowerCase() == name) {
+						res = i;
+						break;
+					}
+				}
+				return res;
+			}
+
+
+
+			/**
+			 * check after changing <code>_model.windowState</code> if
+			 * something has to be refreshed
+			 *
+			 * we are closing the top window on the list - this is triggered
+			 * before removing it, so the popup to be removed is still on the list.
+			 * */
+			private function refreshDataByPopupType():void {
+				if (!_model.popups.length)
+					return;
+
+				var top:ConfinedTitleWindow = _model.topPopup;
+				var prev:ConfinedTitleWindow = _model.prevPopup;
+
+				if (prev is RulePlaylistWindow && top is EntryDetailsWin) {
+					// closing entry drilldown opened from rulebased playlist window
+					(prev as RulePlaylistWindow).simpleRule.runRule();
+				}
+				else if (prev is ManualPlaylistWindow && top is EntryDetailsWin) {
+					// closing entry drilldown opened from manual playlist window
+					(prev as ManualPlaylistWindow).loadEntries();
+				}
+				else if (top is EntryDetailsWin && _model.refreshEntriesRequired) {
+					// closing entry drilldown, refresh current screen
+					if (contentView.selectedChild == manage) {
+						manage.loadEntries();
+					}
+					else if (contentView.selectedChild == moderation) {
+						moderation.loadEntries();
+					}
+				}
+				else if (top is CategoryDetailsWin && _model.categoriesModel.refreshCategoriesRequired) {
+					// closing cat drilldown in "categories"
+					categories.loadCategories(true);
+				}
+				else if (top is SetSchedulingWin){
+					// setting scheduling from "more options" menu
+					manage.loadEntries();
+				}
+			}
+
+
+
+
+			/**
+			 * opens or closes needed popup windows according to new state
+			 * */
+			private function changeWindowState(newState:String):void {
+				windowsManager.changeWindowState(newState);
+			}
+
+
+
+
+
+
+			/**
+			 * shows or hides the loading (busy) cursor
+			 * */
+			private function toggleLoading(isLoading:Boolean):void {
+				if (isLoading) {
+					CursorManager.setBusyCursor();
+					this.enabled = false;
+				}
+				else {
+					CursorManager.removeBusyCursor();
+					this.enabled = true;
+				}
+			}
+
+
+			/**
+			 * will be called when clicking one of the left tab buttons
+			 * */
+			private function leftTabClicked(event:Event):void {
+				setNewTabSelection(event);
+				contentView.selectedIndex = leftBtnsHBox.getChildIndex(event.target as Button);
+				trackTabChange(event);
+			}
+
+
+			/**
+			 * will be called when clicking one of the right tab buttons
+			 * */
+			private function rightTabClicked(event:Event):void {
+				setNewTabSelection(event);
+				contentView.selectedIndex = rightBtnsHBox.getChildIndex(event.target as Button) + leftBtnsHBox.numChildren;
+				trackTabChange(event);
+			}
+
+
+			/**
+			 * unselects the previous selected tab, and sets the new tab to selected (only the buttons)
+			 * */
+			private function setNewTabSelection(event:Event):void {
+				//unselect old tab
+				setSelectionValueToButton(contentView.selectedIndex, false);
+				//select new
+				(event.target as Button).selected = true;
+			}
+
+
+			/**
+			 * Sets the given selection value to the correct button - in leftBtnsHbox or rightBtnsHbox, according to index
+			 * */
+			private function setSelectionValueToButton(btnIndex:int, value:Boolean):void {
+				if (btnIndex < leftBtnsHBox.numChildren)
+					(leftBtnsHBox.getChildAt(btnIndex) as Button).selected = value;
+				else
+					(rightBtnsHBox.getChildAt(btnIndex - leftBtnsHBox.numChildren) as Button).selected = value;
+			}
+
+
+			/**
+			 * track tab changes in analytics and URL hash
+			 * */
+			private function trackTabChange(evt:Event):void {
+				switch (contentView.selectedChild) {
+					case manage:
+						KAnalyticsTracker.getInstance().sendEvent(KAnalyticsTrackerConsts.CONTENT, KalturaStatsKmcEventType.CONTENT_PAGE_VIEW, "pagingInEntryTable>Manage");
+						GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.PAGE_VIEW + GoogleAnalyticsConsts.CONTENT_ENTRIES, GoogleAnalyticsConsts.CONTENT);
+						break;
+					case playlists:
+						KAnalyticsTracker.getInstance().sendEvent(KAnalyticsTrackerConsts.CONTENT, KalturaStatsKmcEventType.CONTENT_PAGE_VIEW, "pagingInPlaylistTable>Playlists");
+						GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.PAGE_VIEW + GoogleAnalyticsConsts.CONTENT_PLAYLISTS, GoogleAnalyticsConsts.CONTENT);
+						break;
+					case moderation:
+						KAnalyticsTracker.getInstance().sendEvent(KAnalyticsTrackerConsts.CONTENT, KalturaStatsKmcEventType.CONTENT_PAGE_VIEW, "pagingInModerationTable>Moderate");
+						GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.PAGE_VIEW + GoogleAnalyticsConsts.CONTENT_MODERATION, GoogleAnalyticsConsts.CONTENT)
+						break;
+					case syndication:
+						KAnalyticsTracker.getInstance().sendEvent(KAnalyticsTrackerConsts.CONTENT, KalturaStatsKmcEventType.CONTENT_PAGE_VIEW, "pagingInSyndicateTable>Syndicate");
+						GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.PAGE_VIEW + GoogleAnalyticsConsts.CONTENT_SYNDICATION, GoogleAnalyticsConsts.CONTENT);
+						break;
+					case categories:
+						GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.PAGE_VIEW + GoogleAnalyticsConsts.CONTENT_CATEGORIES, GoogleAnalyticsConsts.CONTENT);
+						break;
+					case uploads:
+						KAnalyticsTracker.getInstance().sendEvent(KAnalyticsTrackerConsts.CONTENT, KalturaStatsKmcEventType.CONTENT_PAGE_VIEW, "pagingInBulkUploadTable>Upload");
+						GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.PAGE_VIEW + GoogleAnalyticsConsts.CONTENT_BULK_UPLOADS, GoogleAnalyticsConsts.CONTENT);
+						break;
+					case dropFolders:
+						KAnalyticsTracker.getInstance().sendEvent(KAnalyticsTrackerConsts.CONTENT, KalturaStatsKmcEventType.CONTENT_PAGE_VIEW, "navigateToDropFoldersPage");
+						GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.PAGE_VIEW + GoogleAnalyticsConsts.CONTENT_DROP_FOLDERS, GoogleAnalyticsConsts.CONTENT);
+						break;
+				}
+
+				// reset data when moving between tabs
+				_model.selectedEntries = [];
+			}
+
+
+			private function onHelpClick(event:Event):void {
+				var tab:DisplayObject = contentView.selectedChild;
+				var anchor:String;
+				switch (tab) {
+					case manage:  {
+						anchor = 'section_entries';
+						break;
+					}
+					case moderation:  {
+						anchor = 'section_moderation';
+						break;
+					}
+					case playlists:  {
+						anchor = 'section_playlists';
+						break;
+					}
+					case syndication:  {
+						anchor = 'section_syndication';
+						break;
+					}
+					case categories:  {
+						anchor = 'section_categories';
+						break;
+					}
+					case uploads:  {
+						if (uploads.uploadViewStack.selectedIndex == 0) {
+							// your uploads
+							anchor = 'section_uploads';
+						}
+						else {
+							// bulk log
+							anchor = 'section_bulk_log';
+						}
+						break;
+					}
+					case dropFolders:
+						anchor = 'section_drop_folders';
+						break;
+
+					default:  {
+						Alert.show("Help for unknown tab !");
+						return;
+					}
+				}
+				dispatchEvent(new KmcHelpEvent(KmcHelpEvent.HELP, anchor));
+			}
+
+
+			/**
+			 * initialize the selected view
+			 * */
+			protected function initSelectedTab(event:IndexChangedEvent):void {
+				// initialize the new panel with filter saved in the attic, if any.
+				(contentView.getChildAt(event.newIndex) as IContentPanel).init(_model.attic.kmef);
+				JSGate.writeUrlHash(NAME, contentView.selectedChild.id);
+			}
+
+
+			/**
+			 * refresh bulk uploads list
+			 * @internal
+			 * triggered from add menu
+			 * */
+			public function refreshBulk():void {
+				if (uploads.bulk) {
+					uploads.bulk.loadEntries();
+				}
+			}
+
+			private function getUploadsTabLabel(files:int):String {
+				var s:String = resourceManager.getString('cms','uploads'); 
+				if (files > 0) {
+					s += resourceManager.getString('cms','parantheses',[files]);
+				}
+				return s; 
+			}
+		]]>
+	</mx:Script>
+
+	<!-- the FrontController, containing Commands specific to this appliation -->
+	<control:CMSController/>
+
+	<business:WindowsManager id="windowsManager" model="{_model}" refreshData="refreshDataByPopupType()" 
+							 contentView="{contentView}" owner="{this}"/>
+	<business:CategoriesStatusTracker id="categoriesTracker" enabled="true" />
+	<business:GeneralPermissionsSetter id="generalPermissions"/>
+
+	<mx:VBox id="mainView" width="100%" height="100%" styleName="mainView" verticalGap="10" verticalScrollPolicy="off">
+		<mx:HBox width="100%" styleName="tabsContainer" verticalAlign="middle">
+			<mx:HBox id="leftBtnsHBox" styleName="tln">
+				<mx:Button id="manageBtn" label="{ResourceManager.getInstance().getString('cms','entriesTitle')}"
+						   click="leftTabClicked(event)"
+						   styleName="{manageBtn.selected ? 'tlnSelectedTabStyle' : 'tlnUnSelectedTabStyle'}"
+						   buttonMode="true" toggle="true" selected="true" height="{SUB_MENU_HEIGHT}"/>
+				<mx:Button id="moderationBtn" label="{ResourceManager.getInstance().getString('cms','moderation')}"
+						   click="leftTabClicked(event)"
+						   styleName="{moderationBtn.selected ? 'tlnSelectedTabStyle' : 'tlnUnSelectedTabStyle'}"
+						   buttonMode="true" toggle="true" height="{SUB_MENU_HEIGHT}"/>
+				<mx:Button id="playlistsBtn" label="{ResourceManager.getInstance().getString('cms','playlistTitle')}"
+						   click="leftTabClicked(event)"
+						   styleName="{playlistsBtn.selected ? 'tlnSelectedTabStyle' : 'tlnUnSelectedTabStyle'}"
+						   buttonMode="true" toggle="true" height="{SUB_MENU_HEIGHT}"/>
+				<mx:Button id="syndicationBtn"
+						   label="{ResourceManager.getInstance().getString('cms','externalSyndication')}"
+						   click="leftTabClicked(event)"
+						   styleName="{syndicationBtn.selected ? 'tlnSelectedTabStyle' : 'tlnUnSelectedTabStyle'}"
+						   buttonMode="true" toggle="true" height="{SUB_MENU_HEIGHT}"/>
+				<mx:Button id="categoriesBtn"
+						   label="{ResourceManager.getInstance().getString('cms','categoriesPageTitle')}"
+						   click="leftTabClicked(event)"
+						   styleName="{categoriesBtn.selected ? 'tlnSelectedTabStyle' : 'tlnUnSelectedTabStyle'}"
+						   buttonMode="true" toggle="true" height="{SUB_MENU_HEIGHT}"/>
+			</mx:HBox>
+			<mx:Spacer width="100%"/>
+			<mx:HBox id="rightBtnsHBox">
+				<mx:Button id="uploadsBtn" height="{SUB_MENU_HEIGHT}" 
+						   label="{getUploadsTabLabel(_files.length)}"
+						   click="rightTabClicked(event)" 
+						   styleName="{uploadsBtn.selected ? 'rightTlnSelectedTabStyle' : 'rightTlnUnSelectedTabStyle'}"
+						   buttonMode="true" toggle="true" />
+				<mx:Button id="dropFoldersBtn" label="{resourceManager.getString('cms','dropFoldersTitle')}" height="{SUB_MENU_HEIGHT}"
+						   styleName="{dropFoldersBtn.selected ? 'rightTlnSelectedTabStyle' : 'rightTlnUnSelectedTabStyle'}"
+						   buttonMode="true" toggle="true" click="rightTabClicked(event)"/>
+
+				<mx:Button styleName="help" buttonMode="true" click="{onHelpClick(event)}"/>
+			</mx:HBox>
+		</mx:HBox>
+		<mx:ViewStack id="contentView" width="100%" height="100%" styleName="contentViewStack" 
+					  change="initSelectedTab(event)" >
+			<view:Entries id="manage" height="100%" styleName="pageStyle"
+						  entryDetailsModel="{_model.entryDetailsModel}" 
+						  filterModel="{_model.filterModel}" showEmbed="{_model.showSingleEntryEmbedCode}"
+						  windowState="{_model.windowState}"/>
+			<view:Moderation id="moderation" styleName="pageStyle" height="100%" entryDetailsModel="{_model.entryDetailsModel}"
+							 context="{_model.context}" filterModel="{_model.filterModel}" moderationModel="{_model.moderationModel}" />
+			<view:Playlist id="playlists" width="100%" height="100%" styleName="pageStyle"
+						   selectedEntry="{_entryData.selectedEntry}"
+						   showEmbed="{_model.showPlaylistEmbedCode}"/>
+			<view:ExternalSyndication id="syndication" styleName="pageStyle" 
+									  flavorParams="{_model.filterModel.flavorParams}"
+									  rootUrl="{_model.context.rootUrl}" extSynModel="{_model.extSynModel}"/>
+			<view:Categories id="categories" width="100%" height="100%" styleName="pageStyle"
+							 entryDetailsModel="{_model.entryDetailsModel}" 
+							 filterModel="{_model.filterModel}" 
+							 categoriesModel="{_model.categoriesModel}"/>
+
+			<view:Uploads id="uploads" width="100%" height="100%" 
+						  files="{_files}"
+						  styleName="pageStyle" 
+						  bulkUploadDataProvider="{_model.bulkUploadModel}" />
+			<view:DropFolders id="dropFolders" width="100%" height="100%" styleName="pageStyle"	  
+							  dropFolderModel="{_model.dropFolderModel}" />
+
+		</mx:ViewStack>
+	</mx:VBox>
+</modules:KmcModule>

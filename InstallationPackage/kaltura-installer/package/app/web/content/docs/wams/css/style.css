@@ -1,0 +1,124 @@
+/**
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+* Copyright 2014 Akvelon Inc.
+* http://www.akvelon.com/contact-us
+*/
+
+body {
+    font-family: Verdana,Arial,sans-serif;
+    font-size: 10pt;
+    line-height: normal;
+    color: #4f4f4f;
+}
+
+img {
+    display: block;
+    position: relative;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    max-width: 100%;
+}
+
+H1 {
+    line-height: normal;
+    page-break-after: avoid;
+    margin: 9pt 0pt 7pt;
+    font-family: "Verdana","sans-serif";
+    font-size: 18pt;
+    font-weight: bold;
+}
+
+H2 {
+    line-height: normal;
+    page-break-after: avoid;
+    margin: 9pt 0pt 7pt;
+    font-family: "Verdana","sans-serif";
+    font-size: 16pt;
+    font-weight: bold;
+}
+
+H2 {
+    line-height: normal;
+    page-break-after: avoid;
+    margin: 9pt 0pt 7pt;
+    font-family: "Verdana","sans-serif";
+    font-size: 14pt;
+    font-weight: bold;
+}
+
+P {
+    line-height: 14pt;
+    margin: 5pt 0pt 0pt;
+    font-family: "Verdana","sans-serif";
+    font-size: 10pt;
+}
+
+P.subtitle {
+    font-size: 10pt;
+    color: gray;
+}
+
+ol {
+    line-height: 14pt;
+    margin: 3pt 0pt 3pt;
+    font-family: "Verdana","sans-serif";
+    font-size: 10pt;
+}
+
+table {
+    margin: 10pt 0pt 10pt;
+    border-collapse: collapse;
+}
+
+table, th, td {
+    border: 1px solid #4f4f4f;;
+}
+
+caption {
+    font-style: italic;
+}
+
+a.external_link {
+    color: #1b75bb;
+    text-decoration: none;
+}
+
+a.external_link:hover {
+    text-decoration: underline;
+}
+
+div.contents {
+    height: 100%;
+    overflow: auto;
+    position: fixed;
+    top: 0;
+    width: 300px;
+}
+
+div.content {
+    margin-left: 300px;
+}
+
+ul.main_contents {
+    list-style: none;
+    padding-left: 10px;
+}
+
+ul.main_contents a {
+    text-decoration: none;
+    color: #4f4f4f;
+}
+
+ul.main_contents a:hover {
+    background-color: #d3d3d3;
+}
+
+ul.sub_contents {
+    list-style: none;
+    padding-left: 15px;
+}

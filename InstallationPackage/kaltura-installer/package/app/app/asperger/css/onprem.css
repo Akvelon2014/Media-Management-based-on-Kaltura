@@ -1,0 +1,68 @@
+body.onprem {
+	text-align:center;
+}
+
+table.onprem {
+        width: 100%;
+	border-width: 1px;
+	border-spacing: 2px;
+	border-style: outset;
+	border-color: gray;
+	border-collapse: collapse;
+	background-color: white;
+}
+table.onprem th {
+	border-width: 2px;
+	padding: 2px;
+	border-style: inset;
+	border-color: gray;
+	background-color: gray;
+	text-align: center
+	-moz-border-radius: 0px 0px 0px 0px;
+}
+table.onprem td {
+	border-width: 2px;
+	padding: 2px;
+	border-style: inset;
+	border-color: gray;
+	background-color: white;
+	-moz-border-radius: 0px 0px 0px 0px;
+}
+
+table.onprem tr {
+	border-width: 2px;
+	padding: 2px;
+	border-style: inset;
+	border-color: gray;
+	background-color: white;
+	-moz-border-radius: 0px 0px 0px 0px;
+}
+
+tr.red td{
+	border-width: 2px;
+	padding: 2px;
+	border-style: inset;
+	border-color: gray;
+	background-color:#FFBBBB;
+	-moz-border-radius: 0px 0px 0px 0px;
+}
+tr.yellow td {
+	border-width: 2px;
+	padding: 2px;
+	border-style: inset;
+	border-color: gray;
+	background-color:#FEFFC1;
+	-moz-border-radius: 0px 0px 0px 0px;
+}
+tr.green td {
+	border-width: 2px;
+	padding: 2px;
+	border-style: inset;
+	border-color: gray;
+	background-color:#98FB98;
+	-moz-border-radius: 0px 0px 0px 0px;
+}
+/*onprem h3 {
+	background-color: gray;
+	text-align: left
+}*/

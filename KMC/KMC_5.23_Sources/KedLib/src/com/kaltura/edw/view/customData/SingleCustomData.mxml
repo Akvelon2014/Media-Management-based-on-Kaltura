@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!---
+	visual component to show UI controls for all the fields of a single 
+	custom data profile in the custom data tab of EntryDetailsWin
+-->
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="onCreationComplete(event)"
+		 styleName="customDataProfileContainer" width="100%" minWidth="50">
+	<mx:Script>
+		<![CDATA[
+			import com.kaltura.edw.business.EntryFormBuilder;
+			import com.kaltura.edw.business.base.FormBuilderBase;
+			import com.kaltura.edw.business.permissions.PermissionManager;
+			import com.kaltura.edw.control.events.MetadataProfileEvent;
+			import com.kaltura.edw.vo.CustomMetadataDataVO;
+			import com.kaltura.kmvc.control.KMvCController;
+			import com.kaltura.types.KalturaMetadataProfileStatus;
+			
+			import mx.binding.utils.BindingUtils;
+			import mx.binding.utils.ChangeWatcher;
+			import mx.controls.Alert;
+			import mx.core.Container;
+			import mx.core.UIComponent;
+
+			/**
+			 * value of the "type" property for the scrollToTop event
+			 * */
+			public static const SCROLL_TO_TOP:String = "scrollToTop";
+
+			[Bindable]
+			/**
+			 * show profile name 
+			 * */
+			public var visibleHeader:Boolean;
+			
+			/**
+			 * a watcher to trigger building the form when the final view is received
+			 * */
+			private var _metadataViewWatcher:ChangeWatcher;
+			
+			
+			/**
+			 * the uicomponent with all form elements 
+			 * created to display profile data for the entry
+			 * */
+			private var _form:UIComponent;
+			
+			
+			/**
+			 * a flag indicating the <code>creationComplete</code> event was received
+			 * */
+			private var _creationCompleted:Boolean = false;
+
+			
+			/**
+			 * the mxml that defines the components needed to display profile + entry data
+			 * */
+			private var _finalMxml:XML;
+			
+			
+			/**
+			 * the component that builds the form for the current entry + profile
+			 * */
+			private var _formBuilder:FormBuilderBase;
+
+			
+			/**
+			 * @copy #metadataEditable
+			 * */
+			private var _metadataEditable:Boolean = true;
+
+
+			[Bindable]
+			/**
+			 * roles and permissions: if we can edit metadata
+			 * */
+			public function get metadataEditable():Boolean {
+				return _metadataEditable;
+			}
+
+
+			public function set metadataEditable(value:Boolean):void {
+				_metadataEditable = value;
+				if (_form && !value) {
+					_formBuilder.disableComponents(_form as Container);
+				}
+			}
+
+
+			/**
+			 * The form builder for current custom data profile
+			 * */
+			public function get formBuilder():FormBuilderBase {
+				return _formBuilder;
+			}
+
+
+			public function set formBuilder(value:FormBuilderBase):void {
+				_formBuilder = value;
+				_metadataViewWatcher = BindingUtils.bindSetter(setFinalMXML, _formBuilder, ["metadataInfo", "finalViewMxml"]);
+			}
+
+
+			private function onCreationComplete(event:Event):void {
+				_creationCompleted = true;
+				PermissionManager.getInstance().applyAllAttributes(this, "entryCustomData");
+				initStuff();
+			}
+
+
+			/**
+			 * check for the state of the profile
+			 * once the window is ready and all relevant data is ready
+			 * */
+			private function initStuff():void {
+				if (_creationCompleted && _finalMxml) {
+					profileName.text = _formBuilder.metadataProfile.profile.name;
+					buildForm();
+				}
+			}
+
+
+			/**
+			 * will be called when the final mxml is ready
+			 * */
+			private function setFinalMXML(finalMxml:XML):void {
+				if (finalMxml) {
+					_finalMxml = finalMxml;
+					initStuff();
+				}
+			}
+
+
+			/**
+			 * build the form
+			 * once the formBuilder and the _finalmxml are available
+			 * */
+			private function buildForm():void {
+				//clear old data
+				all.removeAllChildren();
+				
+				_form = _formBuilder.buildLayout(_finalMxml);
+				all.addChild(_form);
+				if (_form && !all.enabled) {
+					_formBuilder.disableComponents(_form as Container);
+				}
+			}
+
+
+			public function destroy():void {
+				if (_metadataViewWatcher)
+					_metadataViewWatcher.unwatch();
+			}
+			
+		]]>
+	</mx:Script>
+	<mx:Metadata>
+		[Event(name="scrollToTop", type="flash.events.Event")] 
+	</mx:Metadata>
+	<mx:Spacer height="16" includeInLayout="{visibleHeader}"/>
+	<mx:HRule width="100%" visible="{visibleHeader}" includeInLayout="{visibleHeader}" />
+	<mx:Label id="profileName" styleName="drillDownTitleLabel" visible="{visibleHeader}" includeInLayout="{visibleHeader}"/>
+	<mx:VBox id="all" width="100%" disabledOverlayAlpha="0" enabled="{metadataEditable}"/>
+	<mx:HBox width="100%" horizontalAlign="right">
+		<mx:LinkButton label="{resourceManager.getString('drilldown','backToTop')}" styleName="upIconBtn"
+					   click="{dispatchEvent(new Event(SCROLL_TO_TOP))}"/>
+	</mx:HBox>
+
+	<!--	<mx:HRule width="100%"/>-->
+	<!--	<mx:Spacer height="16"/>-->
+</mx:VBox>

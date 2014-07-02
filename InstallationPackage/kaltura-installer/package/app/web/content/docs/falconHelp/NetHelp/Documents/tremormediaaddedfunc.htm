@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html><head><title>Tremor Media Added Functionality</title><link rel="stylesheet" type="text/css" href="../LinksExt/Kaltura_Management_Console_(KMC)_User_Manual_Falcon_good.css" />
+<meta name="topicId" content="f93e4d66-4525-4284-9220-39b67d2400ef" />
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<script src="../js/nethelp.redirector.js" type="text/javascript"></script>
+<link rel="prev" href="tremormedia.htm" /><link rel="next" href="adaptv.htm" />
+<meta name="Generator" content="ComponentOne Doc-To-Help v.2012.2.0.723" />
+<meta name="D2HTheme" content="Falcon_theme" />
+</head>
+<body>
+<h3>Tremor Media Added Functionality</h3>
+<p class="MsoNormal">The following lists functionality that has been added to the 
+Tremor plugin.</p>
+<table style="BORDER-BOTTOM: medium none; BORDER-LEFT: medium none; BORDER-COLLAPSE: collapse; MARGIN-LEFT: 5.4pt; BORDER-TOP: medium none; BORDER-RIGHT: medium none" class="MsoNormalTable" border="1" cellspacing="0" cellpadding="0" width="609">
+  <thead>
+  <tr style="PAGE-BREAK-INSIDE: avoid">
+    <td style="BORDER-BOTTOM: #c5c5c5 1pt solid; BORDER-LEFT: white 1pt solid; PADDING-BOTTOM: 0pt; PADDING-LEFT: 5.4pt; WIDTH: 94.5pt; PADDING-RIGHT: 5.4pt; BACKGROUND: #c5c5c5; BORDER-TOP: white 1pt solid; BORDER-RIGHT: white 1pt solid; PADDING-TOP: 0pt" valign="top" width="126">
+      <p class="TableHeading">Functionality</p></td>
+    <td style="BORDER-BOTTOM: #c5c5c5 1pt solid; BORDER-LEFT: medium none; PADDING-BOTTOM: 0pt; PADDING-LEFT: 5.4pt; WIDTH: 177.65pt; PADDING-RIGHT: 5.4pt; BACKGROUND: #c5c5c5; BORDER-TOP: white 1pt solid; BORDER-RIGHT: white 1pt solid; PADDING-TOP: 0pt" valign="top" width="237">
+      <p class="TableHeading">Description</p></td>
+    <td style="BORDER-BOTTOM: #c5c5c5 1pt solid; BORDER-LEFT: medium none; PADDING-BOTTOM: 0pt; PADDING-LEFT: 5.4pt; WIDTH: 184.65pt; PADDING-RIGHT: 5.4pt; BACKGROUND: #c5c5c5; BORDER-TOP: white 1pt solid; BORDER-RIGHT: white 1pt solid; PADDING-TOP: 0pt" valign="top" width="246">
+      <p class="TableHeading">Example</p></td></tr></thead>
+  <tbody>
+  <tr>
+    <td style="BORDER-BOTTOM: #c5c5c5 1pt solid; BORDER-LEFT: #c5c5c5 1pt solid; PADDING-BOTTOM: 0pt; PADDING-LEFT: 5.4pt; WIDTH: 94.5pt; PADDING-RIGHT: 5.4pt; BORDER-TOP: medium none; BORDER-RIGHT: #c5c5c5 1pt solid; PADDING-TOP: 0pt" valign="top" width="126">
+      <p class="TableBodyText">Passing dynamic data</p>
+      <p class="TableBodyText"> </p></td>
+    <td style="BORDER-BOTTOM: #c5c5c5 1pt solid; BORDER-LEFT: medium none; PADDING-BOTTOM: 0pt; PADDING-LEFT: 5.4pt; WIDTH: 177.65pt; PADDING-RIGHT: 5.4pt; BORDER-TOP: medium none; BORDER-RIGHT: #c5c5c5 1pt solid; PADDING-TOP: 0pt" valign="top" width="237">
+      <p class="TableBodyText">By inserting specific key-value pairs in the 
+      uivars, a Kaltura partner can define that any Kaltura metadata gets passed 
+      to TremorMedia via the TremorMedia plugin. Then, using the Tremor ad 
+      server, the partner can decide how to target ads via the 
+      metadata.<b></b></p>
+      <p class="TableBodyText">To enable this functionality, a custom ad path must 
+      be inserted into the uiconf. <b></b></p>
+      <p class="TableBodyText"> </p></td>
+    <td style="BORDER-BOTTOM: #c5c5c5 1pt solid; BORDER-LEFT: medium none; PADDING-BOTTOM: 0pt; PADDING-LEFT: 5.4pt; WIDTH: 184.65pt; PADDING-RIGHT: 5.4pt; BORDER-TOP: medium none; BORDER-RIGHT: #c5c5c5 1pt solid; PADDING-TOP: 0pt" valign="top" width="246">
+      <p class="TableCode">:  &lt;var key="customAd.paramKey1" 
+      value="duration" /&gt;     &lt;var 
+      key="customAd.paramValue1" value="{mediaProxy.entry.duration}" 
+      /&gt;     &lt;var key="customAd.paramKey2" 
+      value="entryId" /&gt;     &lt;var 
+      key="customAd.paramValue2" value="{mediaProxy.entry.id}" 
+      /&gt;     &lt;var key="customAd.paramKey3" 
+      value="categories" /&gt;     &lt;var 
+      key="customAd.paramValue3" value="{mediaProxy.entry.categories}" 
+      /&gt;     &lt;var key="customAd.paramKey4" 
+      value="ContentRating" /&gt;     &lt;var 
+      key="customAd.paramValue4" 
+      value="{mediaProxy.entryMetadata.ContentRating}" 
+      /&gt;     &lt;var key="requiredMetadataFields" 
+      value="true" /&gt;<span style="COLOR: black; FONT-SIZE: 12pt"> <span style="BACKGROUND: white"></span></span></p>
+      <p class="TableBodyText">Note: The Content Rating custom data field, has a 
+      slightly different value from the rest of the metadata.</p></td></tr>
+  <tr>
+    <td style="BORDER-BOTTOM: #c5c5c5 1pt solid; BORDER-LEFT: #c5c5c5 1pt solid; PADDING-BOTTOM: 0pt; PADDING-LEFT: 5.4pt; WIDTH: 94.5pt; PADDING-RIGHT: 5.4pt; BORDER-TOP: medium none; BORDER-RIGHT: #c5c5c5 1pt solid; PADDING-TOP: 0pt" valign="top" width="126">
+      <p class="MsoNormal">Internal companion ads</p>
+      <p class="TableBodyText"> </p></td>
+    <td style="BORDER-BOTTOM: #c5c5c5 1pt solid; BORDER-LEFT: medium none; PADDING-BOTTOM: 0pt; PADDING-LEFT: 5.4pt; WIDTH: 177.65pt; PADDING-RIGHT: 5.4pt; BORDER-TOP: medium none; BORDER-RIGHT: #c5c5c5 1pt solid; PADDING-TOP: 0pt" valign="top" width="237">
+      <p class="MsoNormal">The ability to insert a companion ad directly on the 
+      list part of the playlist.</p>
+      <p class="TableBodyText">The companion ad must be inserted as a custom ad 
+      path via the uiconf or via <a class="topic-link" href="additionalparameters.htm" target="proc">Additional Parameters and 
+      Plugins</a>.</p></td>
+    <td style="BORDER-BOTTOM: #c5c5c5 1pt solid; BORDER-LEFT: medium none; PADDING-BOTTOM: 0pt; PADDING-LEFT: 5.4pt; WIDTH: 184.65pt; PADDING-RIGHT: 5.4pt; BORDER-TOP: medium none; BORDER-RIGHT: #c5c5c5 1pt solid; PADDING-TOP: 0pt" valign="top" width="246">
+      <p class="TableBodyText"> </p></td></tr>
+  <tr>
+    <td style="BORDER-BOTTOM: #c5c5c5 1pt solid; BORDER-LEFT: #c5c5c5 1pt solid; PADDING-BOTTOM: 0pt; PADDING-LEFT: 5.4pt; WIDTH: 94.5pt; PADDING-RIGHT: 5.4pt; BORDER-TOP: medium none; BORDER-RIGHT: #c5c5c5 1pt solid; PADDING-TOP: 0pt" valign="top" width="126">
+      <p class="MsoNormal">Capping ads</p>
+      <p class="MsoNormal"> </p></td>
+    <td style="BORDER-BOTTOM: #c5c5c5 1pt solid; BORDER-LEFT: medium none; PADDING-BOTTOM: 0pt; PADDING-LEFT: 5.4pt; WIDTH: 177.65pt; PADDING-RIGHT: 5.4pt; BORDER-TOP: medium none; BORDER-RIGHT: #c5c5c5 1pt solid; PADDING-TOP: 0pt" valign="top" width="237">
+      <p class="MsoNormal">A Kaltura partner can cap ads via the KMC based on the 
+      creation date. <b></b></p>
+      <p class="MsoNormal">To configure the Tremor plugin with the 
+      startDateOffset, with the parameter key maxAge, add the following 2 
+      attributes to the XML (if the file is maintained manually): <b></b></p>
+      <p class="MsoNormal"><span style="FONT-FAMILY: 'Courier New'; COLOR: #0000e1">paramKey1=</span><span style="FONT-FAMILY: 'Courier New'; COLOR: navy">"duration"</span><span style="FONT-FAMILY: 'Courier New'; COLOR: black"> </span><span style="FONT-FAMILY: 'Courier New'; COLOR: #0000e1">paramValue1=</span><span style="FONT-FAMILY: 'Courier New'; COLOR: navy">"{tremor.createdAtOffset}"<b></b></span></p>
+      <p class="MsoNormal">or the equivalent uivars/flashvars line<span style="FONT-FAMILY: 'Calibri','sans-serif'; FONT-SIZE: 11pt"></span></p>
+      <p class="MsoNormal"><span style="FONT-FAMILY: 'Courier New'; COLOR: #0000e1">paramKey1=</span><span style="FONT-FAMILY: 'Courier New'; COLOR: navy">duration&amp;</span><span style="FONT-FAMILY: 'Courier New'; COLOR: #0000e1">paramValue1=</span><span style="FONT-FAMILY: 'Courier New'; COLOR: navy">{tremor.createdAtOffset}</span></p>
+      <p class="MsoNormal">This is based on the assumption that the Tremor xml 
+      node has the id set to '<span style="FONT-FAMILY: 'Courier New'; COLOR: navy">tremor</span> '. If using 
+      a studio player the id would be 'customAd'.</p></td>
+    <td style="BORDER-BOTTOM: #c5c5c5 1pt solid; BORDER-LEFT: medium none; PADDING-BOTTOM: 0pt; PADDING-LEFT: 5.4pt; WIDTH: 184.65pt; PADDING-RIGHT: 5.4pt; BORDER-TOP: medium none; BORDER-RIGHT: #c5c5c5 1pt solid; PADDING-TOP: 0pt" valign="top" width="246">
+      <p class="TableBodyText"> </p></td></tr></tbody></table><span id="related-topics"></span></body></html>

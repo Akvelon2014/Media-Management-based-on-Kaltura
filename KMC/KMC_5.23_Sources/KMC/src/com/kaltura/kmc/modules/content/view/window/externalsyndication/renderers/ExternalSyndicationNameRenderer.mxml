@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" verticalAlign="middle"
+		 horizontalScrollPolicy="off" verticalScrollPolicy="off">
+	<mx:Script>
+		<![CDATA[
+			import com.kaltura.kmc.modules.content.vo.ExternalSyndicationVO;
+			
+			public static const PROFILE_NAME_CLICK:String = "profile_name_click";
+
+
+			private function onClickProfileName(event:Event):void {
+				dispatchEvent(new Event(PROFILE_NAME_CLICK, true));
+			}
+		]]>
+	</mx:Script>
+
+	<mx:LinkButton label="{(data as ExternalSyndicationVO).kSyndicationFeed.name}" click="onClickProfileName(event)"/>
+</mx:HBox>
+

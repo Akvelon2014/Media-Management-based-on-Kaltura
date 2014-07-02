@@ -1,0 +1,126 @@
+<layouts>
+	<layout layoutId="" skinPath="/content/uiconf/kaltura/kmc/embedplayers/rounded_kdp_hover-controls.swf">
+		<Canvas width="100%" height="100%" styleName="topLevelLayout">
+			<HBox width="100%" height="100%" styleName="noGapsNoPadding">
+				<VBox id="player" width="100%" height="100%" styleName="noGapsNoPadding">
+					<HBox height="100%" styleName="playerContainer" id="playerContainer" width="100%">
+						<Canvas height="100%" id="PlayerHolder" styleName="PlayerBackground" width="100%">
+							<Module id="fadeEffect" includeInLayout="false" visible="false" 
+								k_path="effects/RollInAndOutEffect.swf"  /> 
+							<Module height="0" id="stats" k_path="stats/KalturaStatsModule.swf" width="0"/>
+							<KplayerModule height="100%" id="myKplayer" k_path="kplayer/KplayerModule.swf" styleName="centered" width="100%"/>
+							<Canvas id="playerInnerShadow" styleName="playerInnerShadow" height="100%" width="100%"/>
+							<screens height="100%" id="screens" styleName="centered" width="100%" k_path="screens/Screens.swf" 
+							k_end_screen_id="endScreen" k_end_screen_over_id="endScreen"
+							 k_pause_screen_id="startScreen" k_pause_screen_over_id="startScreen"
+							  k_play_screen_id="emptyScreen" k_play_screen_over_id="emptyScreen"
+							   k_start_screen_id="startScreen" k_start_screen_over_id="startScreen"/>
+	
+							<VBox width="100%" height="100%" styleName="noGapsNoPadding">
+
+								<VBox id="ControllerScreen" width="100%" height="100%" styleName="noGapsNoPadding">
+									<Spacer height="12" />
+									<HBox width="100%" height="100%" styleName="noGapsNoPadding">
+										<Spacer width="100%" />
+										        <Button id="poweredByControllerScreen" width="32" height="20"
+										         k_click="navigate('http://www.kaltura.com')" styleName="kalturaLogoDark" k_theme_change="true"/>
+										<Spacer width="10" />
+									</HBox>
+							
+									<HBox width="100%" height="14" styleName="noGapsNoPadding">
+										<Spacer width="10" />
+										<HBox id="ControllerScreenInner" width="100%" height="14" styleName="controllerBoxLight">
+											<Spacer width="6" />
+											<Button id="playBtnControllerScreen" command="play" width="10" height="14" styleName="play" tooltip=""/>
+											<Spacer width="3" />
+												<VBox height="14" width="100%">
+													<Scrubber id="scrubberControllerScreen" styleName="scrubberLight" width="100%" height="12" />
+													<Spacer height="6" />
+												</VBox>
+											<VolumeModule width="20" height="14" id="volumeBarControllerScreen" k_buttonType="buttonLabelControllerArea"
+											 k_path="VolumeBars/VolumeBarB.swf" styleName="volumebarLight" tooltip="" /> 
+											<Spacer width="6"/>
+										</HBox>
+										<Spacer width="10" />
+									</HBox>
+									<Spacer height="9" />
+								</VBox>
+
+						</VBox>
+					</Canvas>
+
+				</HBox>
+			</VBox>
+		</HBox>
+	</Canvas>
+	<popups>
+		<module height="100%" id="report" k_path="popups/Report.swf" width="100%" styleName="report"/>
+		<module height="100%" id="credits" k_path="credits/CreditsWindow.swf" width="100%" styleName="credits"/>
+	</popups>
+	<screens>
+		<screen id="startScreen">
+	        <VBox height="100%" id="screenContainer" styleName="screenContainer" width="100%">
+	          <Tile styleName="TileContainer">
+	            <Button id="onVideoPlayBtnStartScreen"
+	            		command="play" 
+	            		minWidth="75" 
+	            		minHeight="75" 
+	            		width="autoSize" 
+						height="autoSize" 
+						label="" 
+						labelPlacement="top" 
+
+						styleName="statesPlayBtn" 
+						tooltip="" />
+	          </Tile>
+	        </VBox>
+      	</screen>
+		<screen id="endScreen">
+	        <VBox height="100%" id="screenContainer" styleName="screenContainer" width="100%">
+	          <Tile styleName="TileContainer">
+	            <Button id="onVideoPlayBtnStartScreen"
+	            		command="replay" 
+	            		minWidth="75" 
+	            		minHeight="75" 
+	            		width="autoSize" 
+						height="autoSize" 
+						label="" 
+						labelPlacement="top" 
+
+						styleName="statesPlayBtn" 
+						tooltip="" />
+	          </Tile>
+	        </VBox>
+      	</screen>
+     
+
+	</screens>
+	<visual>
+      <theme id="dark1">
+        <primaryColor>0xCCCCCC</primaryColor>
+        <secondaryColor>0</secondaryColor>
+        <tertiaryColor>16777215</tertiaryColor>
+        <fourthColor>4294967295</fourthColor>
+        <fifthColor>0</fifthColor>
+			<cssSelector componentId="movieName" newClass="movieNameDark"/>
+			<cssSelector componentId="scrubberControllerScreen" newClass="scrubberDark"/>
+			<cssSelector componentId="volumeBarControllerScreen" newClass="volumebarDark"/>
+			<cssSelector componentId="plContainer" newClass="playlistBgDark"/>
+			<cssSelector componentId="listDemo" newClass="plItemsListDark"/>
+			<cssSelector componentId="TopTitleScreen" newClass="controllerBoxDark"/>
+			<cssSelector componentId="ControllerScreen" newClass="controllerBoxDark"/>
+			<cssSelector componentId="poweredByControllerScreen" newClass="kalturaLogoDark"/>
+			<cssSelector componentId="plTabs" newClass="scrollingTabsDark"/>
+			<cssSelector componentId="plPrevButton" newClass="nextPrevButtonsDark"/>
+        <font>Arial</font>
+        <fontSize>12</fontSize>
+      </theme>
+	</visual>
+	<javaScript>
+	</javaScript>
+	<extraData>
+	</extraData>
+		<uiVars>
+		</uiVars>
+	</layout>
+</layouts>

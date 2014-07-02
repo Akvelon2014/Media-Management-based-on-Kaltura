@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" horizontalAlign="left" verticalAlign="middle" 
+	verticalScrollPolicy="off" horizontalScrollPolicy="off" paddingLeft="5" >
+	<mx:Script>
+		<![CDATA[
+			import com.kaltura.utils.KCountriesUtil;
+			
+			import mx.controls.Image;
+			
+			
+			override public function set data(value:Object):void {
+				super.data = value;
+				if (value) {
+					flagImg.source = KCountriesUtil.instance.getCountryFlag(data.code);
+				}
+				else {
+					flagImg.source = null;
+				}
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:Image id="flagImg" /> 
+	<mx:Label text="{data.name}"/>
+</mx:HBox>

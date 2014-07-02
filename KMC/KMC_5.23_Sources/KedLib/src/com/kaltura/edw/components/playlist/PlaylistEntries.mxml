@@ -1,0 +1,391 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="onCreationComplete()" verticalGap="0"
+		 xmlns:et="com.kaltura.edw.components.et.*">
+	
+	<mx:Metadata>
+		[Event(name="showEntryDetails", type="com.kaltura.edw.events.KedDataEvent")] 
+		[Event(name="moveItem", type="flash.events.Event")] 
+		[Event(name="updatedData", type="flash.events.Event")] 
+	</mx:Metadata>
+	
+	<mx:Script>
+		<![CDATA[
+			import com.kaltura.edw.components.et.EntryTableColumns;
+			import com.kaltura.edw.components.et.events.EntryTableEvent;
+			import com.kaltura.edw.components.playlist.events.ManualPlaylistWindowEvent;
+			import com.kaltura.edw.events.KedDataEvent;
+			import com.kaltura.types.KalturaPlayableEntryOrderBy;
+			import com.kaltura.utils.KTimeUtil;
+			import com.kaltura.vo.KalturaBaseEntry;
+			import com.kaltura.vo.KalturaMediaEntry;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.controls.dataGridClasses.DataGridColumn;
+			import mx.events.CollectionEvent;
+			import mx.events.ListEvent;
+
+			public static const MAX_ENTRIES_IN_PL:int = 200;
+			
+			
+			private static const MOVE_TO_BOTTOM:String = "bottom";
+			private static const MOVE_TO_TOP:String = "top";
+			private static const DELETE:String = "deleteItem";
+			
+			
+			public static const MOVE_ITEM:String = "moveItem";
+			public static const UPDATED_DATA:String = "updatedData";
+			
+
+			[Bindable]
+			public var limit:uint = 20;
+
+			[Bindable]
+			private var _dataProvider:ArrayCollection;
+
+			[Bindable]
+			[Inspectable(enumeration = "true,false")]
+			/**
+			 * make entries names in the table clickable (open details)
+			 * */
+			public var showLinks:Boolean = true;
+
+			[Bindable]
+			[Inspectable(enumeration = "true,false")]
+			/**
+			 * show the selection column in the entry table
+			 * */
+			public var showTableSelection:Boolean = true;
+
+			[Bindable]
+			[Inspectable(enumeration = "true,false")]
+			public var allowSort:Boolean = false;
+			
+			[Bindable]
+			[Inspectable(enumeration = "true,false")]
+			public var allowManualActions:Boolean = true;
+			
+			[Bindable]
+			[Inspectable(enumeration = "true,false")]
+			public var allowRuleBasedActions:Boolean = true;
+
+			[Bindable]
+			public var tableTitle:String = '';
+
+
+			[ArrayElementType("String")]
+			public static const ORDER_BY_ARR:Array = [KalturaPlayableEntryOrderBy.PLAYS_DESC,
+				KalturaPlayableEntryOrderBy.RECENT_DESC,
+				KalturaPlayableEntryOrderBy.RANK_DESC];
+
+
+			[Bindable]
+			public function get dataProvider():ArrayCollection {
+				return _dataProvider;
+			}
+
+
+			public function set dataProvider(dataProvider:ArrayCollection):void {
+				if (_dataProvider)
+					_dataProvider.removeEventListener(CollectionEvent.COLLECTION_CHANGE, onDpChange);
+
+				_dataProvider = dataProvider;
+				_dataProvider.addEventListener(CollectionEvent.COLLECTION_CHANGE, onDpChange);
+				onDpChange();
+			}
+
+			
+			/**
+			 * move selected item in playlistEntries one step down
+			 */
+			private function moveItemDown():void {
+				if (playlistEntriesList.selectedItem) {
+					if (playlistEntriesList.selectedItems.length > 1) {
+						// only allow if a single item is selected
+						Alert.show(resourceManager.getString('cms', 'singleItemAction'));
+						return;
+					}
+					var oldIndex:uint = playlistEntriesList.selectedIndex;
+					if ((oldIndex == (_dataProvider as ArrayCollection).length - 1))
+						return;
+					var o:KalturaBaseEntry = _dataProvider.removeItemAt(oldIndex) as KalturaBaseEntry;
+					_dataProvider.addItemAt(o, (oldIndex + 1));
+					playlistEntriesList.selectedItem = o;
+				}
+				dispatchEvent(new Event(MOVE_ITEM));
+			}
+			
+			
+			/**
+			 * move selected item in playlistEntries one step up
+			 */
+			private function moveItemUp():void {
+				if (playlistEntriesList.selectedItem) {
+					if (playlistEntriesList.selectedItems.length > 1) {
+						// only allow if a single item is selected
+						Alert.show(resourceManager.getString('cms', 'singleItemAction'));
+						return;
+					}
+					var oldIndex:uint = playlistEntriesList.selectedIndex;
+					if (oldIndex == 0)
+						return;
+					var o:KalturaBaseEntry = _dataProvider.removeItemAt(oldIndex) as KalturaBaseEntry;
+					_dataProvider.addItemAt(o, (oldIndex - 1));
+					playlistEntriesList.selectedItem = o;
+				}
+				dispatchEvent(new Event(MOVE_ITEM));
+			}
+
+			
+			
+			private function actionsCB_changeHandler(event:ListEvent):void {
+				if (!playlistEntriesList.selectedItems || playlistEntriesList.selectedItems.length == 0) {
+					(event.target as ComboBox).selectedIndex = -1;
+					return;
+				}
+				
+				var entry:KalturaBaseEntry;
+				var entries:Array = playlistEntriesList.selectedItems.concat();
+				switch ((event.target as ComboBox).selectedItem) {
+					case MOVE_TO_TOP:
+						for each (entry in entries) {
+							moveToTop(entry);
+						}
+						playlistEntriesList.selectedItems = entries;
+						break;
+					case MOVE_TO_BOTTOM:
+						for each (entry in entries) {
+							moveToBottom(entry);
+						}
+						playlistEntriesList.selectedItems = entries;
+						break;
+					case DELETE:
+						for each (entry in entries) {
+							remove(entry);
+						}
+						playlistEntriesList.selectedItem = null;
+						break;
+				}
+				
+				dispatchEvent(new Event(MOVE_ITEM));
+				(event.target as ComboBox).selectedIndex = -1;
+			}
+			
+
+			/**
+			 * removes the given entry from the list.
+			 * it is assumed the entry IS IN the list.
+			 * @param entry		entry to remove
+			 * */
+			private function remove(entry:KalturaBaseEntry):void {
+				var oldIndex:int = _dataProvider.getItemIndex(entry);
+				_dataProvider.removeItemAt(oldIndex);
+			}
+
+			/**
+			 * moves the given entry to the bottom of the list.
+			 * it is assumed the entry IS IN the list.
+			 * @param entry		entry to move
+			 * */
+			private function moveToBottom(entry:KalturaBaseEntry):void {
+				var oldIndex:int = _dataProvider.getItemIndex(entry);
+				if (oldIndex == _dataProvider.length - 1) {
+					// item is already at bottom of list
+					return;
+				}
+				_dataProvider.removeItemAt(oldIndex);
+				_dataProvider.addItem(entry);
+			}
+			
+			
+			/**
+			 * moves the given entry to the top of the list.
+			 * it is assumed the entry IS IN the list.
+			 * @param entry		entry to move
+			 * */
+			private function moveToTop(entry:KalturaBaseEntry):void {
+				var oldIndex:int = _dataProvider.getItemIndex(entry);
+				if (oldIndex == 0) {
+					// item is already at top of list
+					return;
+				}
+				_dataProvider.removeItemAt(oldIndex);
+				_dataProvider.addItemAt(entry, 0);
+				
+			}
+			
+			
+			
+
+			private function onCreationComplete():void {
+				_dataProvider.addEventListener(CollectionEvent.COLLECTION_CHANGE, onDpChange);
+			}
+
+
+			private function onDpChange(evt:CollectionEvent = null):void {
+				if (dataProvider) {
+					var sum:Number = 0;
+					for (var i:uint; i < dataProvider.length; i++) {
+						KalturaMediaEntry
+						if (dataProvider[i].hasOwnProperty("duration"))
+							sum += dataProvider[i]["duration"];
+					}
+					playlistDuration.text = KTimeUtil.formatTime(sum);
+				}
+			}
+
+
+			public function getSelectedOrderBy():String {
+				var index:int = ruleBasedPlaylistOrderBy.selectedIndex;
+				if (index > -1) {
+					return ORDER_BY_ARR[index].toString();
+				}
+				return null;
+			}
+
+
+			public function setSelectedOrderBy(orderBy:String):void {
+				if (orderBy == KalturaPlayableEntryOrderBy.CREATED_AT_DESC) {
+					// somewhere during Caasiopeia we broke backwards compat., this is a fix.
+					orderBy = KalturaPlayableEntryOrderBy.RECENT_DESC;
+				}
+				for (var i:uint = 0; i < ORDER_BY_ARR.length; i++) {
+					if (ORDER_BY_ARR[i] == orderBy)
+						ruleBasedPlaylistOrderBy.selectedIndex = i;
+				}
+			}
+
+
+			public function getPlaylistLimit():int {
+				return maxEntriesInPlaylist.value;
+			}
+
+
+			private function onEntryTableCreatedComplete():void {
+				var ar:Array = [EntryTableColumns.NAME, EntryTableColumns.MEDIA_TYPE,
+					EntryTableColumns.PLAYS, EntryTableColumns.DURATION];
+				playlistEntriesList.showColumns(ar);
+
+			}
+
+
+			/**
+			 * notify that the numeric stepper or order by wer changed
+			 */
+			private function changedData():void {
+				dispatchEvent(new Event(UPDATED_DATA));
+			}
+
+			private var numericStepperTimer:Timer;
+
+
+			/**
+			 * send notification about changes with deley so every click will not make a new search
+			 */
+			private function onNumericChange():void {
+				if (numericStepperTimer)
+					numericStepperTimer.stop();
+				numericStepperTimer = null;
+				numericStepperTimer = new Timer(700, 1);
+				numericStepperTimer.addEventListener(TimerEvent.TIMER_COMPLETE, onTimer);
+				numericStepperTimer.start();
+			}
+
+
+			private function onTimer(evt:TimerEvent):void {
+				numericStepperTimer.removeEventListener(TimerEvent.TIMER_COMPLETE, onTimer);
+				numericStepperTimer.stop();
+				numericStepperTimer = null;
+				changedData();
+			}
+
+
+			public function get editable():Boolean {
+				return upBtn.enabled;
+			}
+
+
+			public function set editable(value:Boolean):void {
+				upBtn.enabled = value;
+				upBtn.buttonMode = value;
+				downBtn.enabled = value;
+				downBtn.buttonMode = value;
+				ruleBasedPlaylistOrderBy.enabled = value;
+				maxEntriesInPlaylist.enabled = value;
+				showLinks = value;
+			}
+
+
+			private function playlistEntriesList_showDetailsHandler(event:EntryTableEvent):void {
+				var e:KedDataEvent = new KedDataEvent(ManualPlaylistWindowEvent.SHOW_ENTRY_DETAILS);
+				e.data = event.data as KalturaBaseEntry;
+				dispatchEvent(e);
+			}
+
+			
+			private function getActionLabel(item:Object):String {
+				var str:String;
+				switch (item) {
+					case MOVE_TO_BOTTOM:
+						str = resourceManager.getString('cms', 'moveToBottom');
+						break;
+					case MOVE_TO_TOP:
+						str = resourceManager.getString('cms', 'moveToTop');
+						break;
+					case DELETE:
+						str = resourceManager.getString('cms', 'deletePlaylistItem');
+						break;
+				}
+				return str;
+			}
+			
+		]]>
+	</mx:Script>
+
+
+	<mx:Label text="{tableTitle}" width="100%" styleName="formLabel"/>
+
+	<et:EntryTable id="playlistEntriesList" width="100%" height="100%" kalturaSorting="false"
+				   sortableColumns="{allowSort}" showLinks="{showLinks}" 
+				   showSelection="{showTableSelection}" dataProvider="{dataProvider}"
+				   creationComplete="onEntryTableCreatedComplete()"
+				   showDetails="playlistEntriesList_showDetailsHandler(event)"/>
+
+	<mx:HBox width="100%" height="40" styleName="DataGridActions">
+		<mx:ComboBox id="actionsCB" includeInLayout="{allowManualActions}" visible="{allowManualActions}" width="110"
+					 selectedIndex="-1" prompt="{resourceManager.getString('cms', 'actions')}" labelFunction="getActionLabel"
+					 dataProvider="{[MOVE_TO_TOP, MOVE_TO_BOTTOM, DELETE]}" change="actionsCB_changeHandler(event)"/>
+		
+		<mx:HBox width="100%" horizontalAlign="center" horizontalGap="1">
+			<mx:Label text="{resourceManager.getString('cms', 'entries') + ':'}"/>
+			<mx:Label id="entriesAmount" text="{dataProvider.length}"/>
+			<mx:Spacer width="10"/>
+			<mx:Label text="{resourceManager.getString('cms', 'duration') + ':'}"/>
+			<mx:Label id="playlistDuration" text='00:00'/>
+		</mx:HBox>
+
+		<mx:VBox id="upDownContainer" styleName="upDownButtonsBox" includeInLayout="{allowManualActions}" visible="{allowManualActions}">
+			<mx:Button id="upBtn" buttonMode="true" styleName="movUpBtn" click="moveItemUp()"/>
+			<mx:Button id="downBtn" buttonMode="true" styleName="movDownBtn" click="moveItemDown()"/>
+		</mx:VBox>
+	</mx:HBox>
+
+	<mx:HBox id="ruleBaseBar" width="100%" styleName="DataGridActions" includeInLayout="{allowRuleBasedActions}" visible="{allowRuleBasedActions}" >
+		<mx:Label text="{resourceManager.getString('cms', 'orderBy')}"/>
+		<mx:ComboBox id="ruleBasedPlaylistOrderBy" width="150" change="{changedData()}">
+			<mx:dataProvider>
+				{[
+					resourceManager.getString('cms', 'ruleBasedPlaylistOrderBy_MostPlayer'), 
+					resourceManager.getString('cms', 'ruleBasedPlaylistOrderBy_MostRecent'), 
+					resourceManager.getString('cms', 'ruleBasedPlaylistOrderBy_HighstRated') 
+					//resourceManager.getString('cms', 'ruleBasedPlaylistOrderBy_MostViewed24H') , 
+					//resourceManager.getString('cms', 'ruleBasedPlaylistOrderBy_MostViewed7Days'),
+					//resourceManager.getString('cms', 'ruleBasedPlaylistOrderBy_MostViewed30Days')
+				]}
+			</mx:dataProvider>
+		</mx:ComboBox>
+		<mx:Label text="{resourceManager.getString('cms', 'maxDynPlst')}" />
+		<mx:NumericStepper id="maxEntriesInPlaylist" minimum="1" maximum="{MAX_ENTRIES_IN_PL}" width="52"
+						   value="{limit}" change="onNumericChange()"/>
+	</mx:HBox>
+</mx:VBox>

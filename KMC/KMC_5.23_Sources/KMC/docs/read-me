@@ -1,0 +1,49 @@
+*******************************************************
+How to run KMC from your Flash Builder
+*******************************************************
+1. Check out entire KMC workspace. 
+   "vendors" folder: check out all projects under this folder (no need to checkout the folder itself).
+2. Make sure your default sdk is 3.5.0
+3. Make sure your application will run : http://localhost/kmc/KMC/bin-debug/kmc4.html
+   a. Right click on KMC project
+   b. Properties
+   c. Run/debug settings
+   d. select KMC. edit.
+   e. under 'url or path to launch' insert: http://localhost/kmc/KMC/bin-debug/kmc4.html
+4. make sure your application will compile to {localhost root folder}/kmc/KMC/bin-debug :
+   a. Right click on KMC project
+   b. Properties
+   c. Flex build path
+   d. set proper output folder
+5. Edit configuration:
+   a. Open KMC project-->html-template-->kmc4.html
+   b. Set the proper flashvars that will determine your host, user and uiconf.
+   c. Don't forget to insert a valid KS.
+6. Compile all.
+7. Make sure your localhost is running.
+8. Run KMC.
+
+********************************
+Example for working with xampp
+********************************
+You can point your virtual host to your kmc workspace. In this case you can leave your output folder
+to be in bin-debug (no special configuration required).
+
+Point your xampp to your kmc workspace in the following manner:
+1. build your workspace under: C:\workspaces\kmc
+2. go to: C:\xampp\apache\conf\extra\
+3. open httpd-vhosts.conf
+4. add to the file:
+	<VirtualHost *:80>
+	    ServerAdmin postmaster@dummy-host2.localhost
+	    DocumentRoot "C:/workspaces/"
+	    ServerName workspace
+	    ErrorLog "logs/dummy-workspaces-error.log"
+	    CustomLog "logs/dummy-workspaces-access.log" combined
+	 	<Directory C:/workspaces>
+		 	AllowOverride All
+		 	order allow,deny
+		 	allow from all
+	 	</Directory>
+	</VirtualHost>
+5. save	

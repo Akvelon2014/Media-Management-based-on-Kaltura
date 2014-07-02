@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layouts>
+<!-- Player Only -->
+	<layout layoutId="playerOnly" skinPath="/content/uiconf/kaltura/wordpress/skin_kdp_wordpress_whiteblue.swf">
+		<VBox height="100%" styleName="mlayout" width="100%">
+			<HBox height="30" styleName="TopTitle" width="100%">
+				<Label height="22" id="movieName" label="{myKplayer.kalturaShow.kshowName,myKplayer.kalturaEntry.entryName,''}" styleName="movieName" width="100%"/>
+				<Button height="20" id="kalturaLogo" k_click="navigate:http://corp.kaltura.com/wordpress_video_plugin?general&campaign=wordpress_plugin" styleName="kalturaLogo" width="40"/>
+			</HBox>
+			<HBox height="100%" styleName="playerContainer" width="100%">
+				<Canvas height="100%" id="marginLeft" styleName="playerMarginLeft" width="5"/>
+				<Canvas height="100%" id="PlayerHolder" styleName="PlayerBackground" width="100%">
+					<KplayerModule height="100%" id="myKplayer" k_path="kplayer/KplayerModule.swf" maxHeight="480" maxWidth="640" styleName="centered" width="100%"/>
+					<EndScreen height="100%" id="endScreen" k_path="endScreen/DynamicEndScreen.swf" k_ui_id="endScreenLayout" maxHeight="480" maxWidth="640" styleName="centered" width="100%"/>
+					<Gigya height="100%" id="Gigya" k_path="addons/Gigya.swf" k_uiconf_id="511" width="100%"/>
+				</Canvas>
+				<Canvas height="100%" id="marginRight" styleName="playerMarginRight" width="5"/>
+			</HBox>
+			<HBox height="35" styleName="controllerBox" width="100%">
+				<Spacer width="1"/>
+				<VBox width="30">
+					<Button height="30" id="play" styleName="play" width="30"/>
+					<Spacer height="4"/>
+				</VBox>
+				<VBox height="100%" styleName="scrubberContainer" width="100%">
+					<Spacer height="2"/>
+					<Scrubber id="scrubber" styleName="scrubber" width="100%"/>
+					<Spacer height="4"/>
+					<HBox styleName="timerHolder">
+						<Spacer width="3"/>
+						<TimerCountdown height="8" id="timer" k_path="timertext/TimerCountdown.swf" styleName="timer" width="30"/>
+					</HBox>
+				</VBox>
+				<Spacer width="3"/>
+				<VolumeModule height="15" id="Volume" k_path="VolumeBars/VolumeBarA.swf" styleName="volumeIcon" width="15"/>
+				<Spacer width="3"/>
+				<Button height="17" id="fullScreen" label="" styleName="fs" tooltip="Full Screen" width="20"/>
+				<Spacer width="3"/>
+			</HBox>
+		</VBox>
+		<popups>
+			<HBox height="100%" id="endScreenLayout" width="100%">
+				<HBox height="100%" styleName="PlayerBackground" width="100%">
+					<Button height="30" id="play" label="REPLAY" styleName="bottomButtonsSmall" width="80"/>
+					<Spacer width="20"/>
+					<Button height="30" id="gigyaButton" label="SHARE" styleName="bottomButtonsSmall" width="80"/>
+				</HBox>
+			</HBox>
+		</popups>
+		<screens>
+			<HBox height="100%" id="endScreenLayout" width="100%">
+				<HBox height="100%" styleName="PlayerBackground" width="100%">
+					<Button height="30" id="play" label="REPLAY" styleName="bottomButtonsSmall" width="80"/>
+					<Spacer width="20"/>
+					<Button height="30" id="gigyaButton" label="SHARE" styleName="bottomButtonsSmall" width="80"/>
+				</HBox>
+			</HBox>
+		</screens>
+		<javaScript></javaScript>
+		<extraData>
+			<GigyaUI>
+				<config>
+					<display networksWithCodeBox="*" showBookmark="true" showCloseButton="true" showDesktop="false" showEmail="true" useTransitions="true"/>
+					<body>
+						<controls corner-roundness="0;10;0;10">
+							<snbuttons type="textUnder"/>
+							<servicemarker gradient-color-begin="#F4F4F4" gradient-color-end="#D5D5D5"/>
+						</controls>
+					</body>
+				</config>
+			</GigyaUI>
+		</extraData>
+	</layout>
+</layouts>

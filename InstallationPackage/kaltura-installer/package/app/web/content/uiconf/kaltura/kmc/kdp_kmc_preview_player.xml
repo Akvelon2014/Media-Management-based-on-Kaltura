@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layouts>
+	<layout layoutId="cms_preview" skinPath="/content/uiconf/kaltura/kmc/kdp_skin_simple2d.swf">
+		<VBox height="100%" styleName="topLayout" width="100%">
+			<VBox height="18" styleName="titels" width="100%">
+				<Spacer height="2" />
+				<Label height="12" id="vtitle" label="{kdpModel.Title,myKplayer.kalturaShow.kshowName,myKplayer.kalturaEntry.entryName,''}" styleName="vtitle" width="100%"/>
+				<Spacer height="2" />
+			</VBox>
+			<Canvas height="100%" id="PlayerHolder" styleName="PlayerBackground" width="100%">
+				<KplayerModule height="100%" id="myKplayer" k_path="kplayer/KplayerModule.swf" maxHeight="450" maxWidth="600" styleName="Kplayer" width="100%"/>
+			</Canvas>
+			<HBox height="20" id="controllerBox" styleName="controllerBox" width="100%">
+				<Spacer width="2"/>
+				<Button height="18" id="play" styleName="play" width="18"/>
+				<VBox height="100%" width="100%">
+					<Scrubber height="10" id="scrubber" styleName="scrubber" width="100%"/>
+					<Spacer height="15"/>
+				</VBox>
+				<VBox height="100%">
+					<TimerCountdown id="timer" k_path="timertext/SimpleTimer.swf" width="30"/>
+					<Spacer height="0"/>
+				</VBox>
+				<VolumeModule height="20" id="Volume" k_path="VolumeBars/VolumeBarA.swf" width="20"/>
+				<Spacer width="2"/>
+			</HBox>
+			<HBox height="20" id="speed" styleName="controllerBox" width="100%">
+				<Spacer width="2"/>
+					<Button height="18" command="ffwx2" id="x2" label="X2 >>"  width="60"/>
+					<Button height="18" command="ffwx4" id="x4" label="X4 >>"  width="60"/>
+					<Button height="18" command="ffwx8" id="x8" label="X8 >>"  width="60"/>
+				<Spacer width="2"/>
+			</HBox>
+		</VBox>
+	</layout>
+</layouts>

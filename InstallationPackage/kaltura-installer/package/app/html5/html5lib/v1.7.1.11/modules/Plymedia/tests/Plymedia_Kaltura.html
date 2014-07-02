@@ -1,0 +1,34 @@
+<html>
+<head>
+<title>Fall forward Plymedia</title>
+<script type="text/javascript" src="../../../tests/qunit/qunit-bootstrap.js"></script>
+<script type="text/javascript" src="../../../mwEmbedLoader.php"></script>
+<script type="text/javascript" src="../../../docs/js/doc-bootstrap.js"></script>
+
+</head>
+<body>
+<h2> Plymedia </h2>
+The following flash embed includes timed text which will be on top of the player <br/><br/>
+<div id="myVideoTarget" style="width:500px;height:396px;"></div>
+<br />
+<script>
+// clear the companions 
+$('#testLongCompanion').text('( long companion target )');
+$('#testCompanion').text( '( companion target )' );
+kWidget.featureConfig({
+	'cache_st': 99,
+	'targetId': 'myVideoTarget',
+	'wid': '_555581',
+	'uiconf_id' : '4148701',
+	'entry_id' : '1_qmk1pnre',
+	'flashvars': {
+		'plymedia': {
+			'subpos' : 90,
+			'deflang' : "eng",
+			'showbackground' : true
+		}
+	}
+})
+</script>
+</body>
+</html>

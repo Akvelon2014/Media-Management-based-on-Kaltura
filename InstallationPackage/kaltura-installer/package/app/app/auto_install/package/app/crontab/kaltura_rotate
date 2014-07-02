@@ -1,0 +1,1 @@
+30 4 * * * root /usr/sbin/logrotate -f -vv @BASE_DIR@/logrotate/kaltura_log_rotate >> @LOG_DIR@/kaltura_log_rotate.log >> @LOG_DIR@/cron.log 2>&1

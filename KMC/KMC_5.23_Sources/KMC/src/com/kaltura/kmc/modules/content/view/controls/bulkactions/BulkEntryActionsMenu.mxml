@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" styleName="DataGridActions"
+		 creationComplete="hbox1_creationCompleteHandler(event)">
+	
+	<mx:Metadata>
+		[Event(name="createNewManualPlaylist", type="flash.events.Event")] 
+		[Event(name="createNewCategory", type="flash.events.Event")] 
+	</mx:Metadata>
+	
+	<mx:Script>
+		<![CDATA[
+			import com.adobe.cairngorm.control.CairngormEvent;
+			import com.kaltura.edw.model.types.WindowsStates;
+			import com.kaltura.kmc.modules.content.events.EntriesEvent;
+			import com.kaltura.kmc.modules.content.events.WindowEvent;
+			
+			import mx.binding.utils.BindingUtils;
+			import mx.events.FlexEvent;
+			import mx.events.MenuEvent;
+
+			// http://help.adobe.com/en_US/FlashPlatform/reference/actionscript/3/mx/controls/MenuBar.html
+			
+			/**
+			 * defines the value of the type property of the createNewManualPlaylist event.
+			 * */
+			public static const CREATE_NEW_MANUAL_PLAYLIST:String = "createNewManualPlaylist";
+			
+			/**
+			 * defines the value of the type property of the createNewCategory event.
+			 * */
+			public static const CREATE_NEW_CATEGORY:String = "createNewCategory";
+			
+			[Bindable]
+			/**
+			 * RnP: show tags actions
+			 * */
+			public var includeTags:Boolean = true;
+
+			[Bindable]
+			/**
+			 * RnP: show scheduling action
+			 * */
+			public var includeScheduling:Boolean = true;
+
+			[Bindable]
+			/**
+			 * RnP: show access control action
+			 * */
+			public var includeAccessControl:Boolean = true;
+			
+			[Bindable]
+			/**
+			 * RnP: show dnld action
+			 * */
+			public var includeDownload:Boolean = true;
+			
+			[Bindable]
+			/**
+			 * RnP: show playlist actions
+			 * */
+			public var includePlaylist:Boolean = true;
+			
+			[Bindable]
+			/**
+			 * RnP: show delete action
+			 * */
+			public var includeDelete:Boolean = true;
+			
+			[Bindable]
+			/**
+			 * RnP: show change owner action
+			 * */
+			public var includeOwner:Boolean = true;
+
+			[Bindable]
+			/**
+			 * the actions shown in the menu
+			 * */
+			protected var actions:Array;
+
+
+
+			protected function hbox1_creationCompleteHandler(event:FlexEvent):void {
+				createMenu();
+			}
+
+
+			protected function createMenu():void {
+				actions = [];
+
+				var topLevel:MenuItemVo = new MenuItemVo();
+				topLevel.label = resourceManager.getString('cms', 'bulkActions');
+				topLevel.data = "bulk";
+				topLevel.children = [];
+				actions.push(topLevel);
+
+				var mi:MenuItemVo, smi:MenuItemVo;
+				// --- 
+				
+				mi = new MenuItemVo();
+				mi.label = resourceManager.getString('cms', 'setScheduling');
+				mi.data = "scheduling";
+				BindingUtils.bindProperty(mi, "enabled", this, "includeScheduling");
+				topLevel.children.push(mi);
+				
+				mi = new MenuItemVo();
+				mi.label = resourceManager.getString('cms', 'setAccessCOntrolProfile');
+				mi.data = "accessControl";
+				BindingUtils.bindProperty(mi, "enabled", this, "includeAccessControl");
+				topLevel.children.push(mi);
+
+				// --- TAGS
+				mi = new MenuItemVo();
+				mi.label = resourceManager.getString('cms', 'editTags');
+				mi.children = [];
+				BindingUtils.bindProperty(mi, "enabled", this, "includeTags");
+				topLevel.children.push(mi);
+
+				smi = new MenuItemVo();
+				smi.label = resourceManager.getString('cms', 'addTags');
+				smi.data = "addTags";
+				mi.children.push(smi);
+
+				smi = new MenuItemVo();
+				smi.label = resourceManager.getString('cms', 'removeTags');
+				smi.data = "removeTags";
+				mi.children.push(smi);
+				
+				// --- CATEGORIES
+				mi = new MenuItemVo();
+				mi.label = resourceManager.getString('cms', 'editCategories');
+				mi.children = [];
+				topLevel.children.push(mi);
+
+				smi = new MenuItemVo();
+				smi.label = resourceManager.getString('cms', 'addCategories');
+				smi.data = "addCategories";
+				mi.children.push(smi);
+
+				smi = new MenuItemVo();
+				smi.label = resourceManager.getString('cms', 'removeCategories');
+				smi.data = "removeCategories";
+				mi.children.push(smi);
+
+				// --- PLAYLIST/CATEGORIES
+				mi = new MenuItemVo();
+				mi.label = resourceManager.getString('cms', 'addCat_pl');
+				mi.children = [];
+				topLevel.children.push(mi);
+
+				smi = new MenuItemVo();
+				smi.label = resourceManager.getString('cms', 'addCategory');
+				smi.data = "addCategory";
+				mi.children.push(smi);
+
+				smi = new MenuItemVo();
+				smi.label = resourceManager.getString('cms', 'createManualPlaylist');
+				smi.data = "addPlaylist";
+				BindingUtils.bindProperty(smi, "enabled", this, "includePlaylist");
+				mi.children.push(smi);
+				
+				// --- CHANGE OWNER
+				mi = new MenuItemVo();
+				mi.label = resourceManager.getString('cms', 'changeOwner');
+				mi.data = "owner";
+				BindingUtils.bindProperty(mi, "enabled", this, "includeOwner");
+				topLevel.children.push(mi);
+
+				// --- DOWNLOAD
+				mi = new MenuItemVo();
+				mi.label = resourceManager.getString('cms', 'download');
+				mi.data = "download";
+				BindingUtils.bindProperty(mi, "enabled", this, "includeDownload");
+				topLevel.children.push(mi);
+
+				// --- DELETE
+				mi = new MenuItemVo();
+				mi.label = resourceManager.getString('cms', 'delete');
+				mi.data = "delete";
+				BindingUtils.bindProperty(mi, "enabled", this, "includeDelete");
+				topLevel.children.push(mi);
+			}
+
+
+			protected function menu_itemClickHandler(event:MenuEvent):void {
+				var cgEvent:CairngormEvent;
+				switch (event.item.data) {
+					case "scheduling":
+						cgEvent = new WindowEvent(WindowEvent.OPEN, WindowsStates.SETTING_SCHEDULING_WINDOW);
+						cgEvent.dispatch();
+						break;
+
+					case "accessControl":
+						cgEvent = new WindowEvent(WindowEvent.OPEN,
+							WindowsStates.SETTING_ACCESS_CONTROL_PROFILES_WINDOW);
+						cgEvent.dispatch();
+						break;
+
+					case "owner":
+						cgEvent = new WindowEvent(WindowEvent.OPEN,
+							WindowsStates.CHANGE_ENTRY_OWNER_WINDOW);
+						cgEvent.dispatch();
+						break;
+
+					case "addTags":
+						cgEvent = new WindowEvent(WindowEvent.OPEN, WindowsStates.ADD_ENTRY_TAGS_WINDOW);
+						cgEvent.dispatch()
+						break;
+
+					case "removeTags":
+						cgEvent = new WindowEvent(WindowEvent.OPEN , WindowsStates.REMOVE_ENTRY_TAGS_WINDOW);
+						cgEvent.dispatch();
+						break;
+
+					case "addCategories":
+						cgEvent = new WindowEvent(WindowEvent.OPEN , WindowsStates.ADD_CATEGORIES_WINDOW);
+						cgEvent.dispatch();
+						break;
+
+					case "removeCategories":
+						cgEvent = new WindowEvent(WindowEvent.OPEN , WindowsStates.REMOVE_CATEGORIES_WINDOW);
+						cgEvent.dispatch();
+						break;
+
+					case "addCategory":
+						dispatchEvent(new Event(CREATE_NEW_CATEGORY));
+						break;
+
+					case "addPlaylist":
+						dispatchEvent(new Event(CREATE_NEW_MANUAL_PLAYLIST));
+						break;
+
+					case "download":
+						cgEvent = new WindowEvent(WindowEvent.OPEN, WindowsStates.DOWNLOAD_WINDOW);
+						cgEvent.dispatch();
+						break;
+
+					case "delete":
+						cgEvent = new EntriesEvent(EntriesEvent.DELETE_ENTRIES);
+						cgEvent.dispatch();
+						break;
+				}
+			}
+
+			protected function menu_updateCompleteHandler(event:FlexEvent):void {
+				if (menu.menuBarItems.length > 0) {
+					menu.menuBarItems[0].width = 151;
+				}
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:MenuBar id="menu" dataProvider="{actions}" itemClick="menu_itemClickHandler(event)" height="26"
+				styleName="bulkActionsStyle" updateComplete="menu_updateCompleteHandler(event)" />
+</mx:HBox>

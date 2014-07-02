@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layouts>
+	<!-- sizes="400_394" -->
+	<layout skinPath="/content/uiconf/kaltura/wiki/wiki.swf">
+		<VBox height="100%" styleName="mlayout" width="100%">
+			<HBox height="46" styleName="TopTitle" width="100%">
+				<VBox height="100%" styleName="titels" width="100%">
+					<Label height="20" width="100%" id="vtitle" label="{kdpModel.Title,myKplayer.kalturaShow.kshowName,myKplayer.kalturaEntry.entryName,''}"  styleName="vtitleSmall"/>
+					<Label height="16" width="100%" id="vdescript" label="{kdpModel.Description,myKplayer.kalturaShow.description,''}" styleName="vdescript"/>
+				</VBox>
+				<VBox height="38" id="topButtonsBox" styleName="topButtonsBox" width="70">
+					<LinkButton height="15" id="credits" k_click="popup:Credits" label="Credits" styleName="topLinkButtons"/>
+					<LinkButton height="15" id="sharePopUp" k_click="popup:SharePop" label="Share" styleName="topLinkButtons"/>
+				</VBox>
+			</HBox>
+			<Canvas height="100%" id="PlayerHolder" styleName="PlayerBackground" width="100%">
+				<KplayerModule height="100%" id="myKplayer" k_path="kplayer/KplayerModule.swf" maxHeight="450" maxWidth="600" width="100%"/>
+			</Canvas>
+			<HBox height="28" styleName="controllerBox" width="100%">
+				<Spacer width="4"/>
+				<Button height="20" id="play" styleName="play" width="20"/>
+				<VBox height="100%" styleName="noPaddingNoGaps" width="100%">
+					<Scrubber id="scrubber" styleName="scrubber" width="100%"/>
+					<Spacer height="4"/>
+				</VBox>
+				<VBox height="100%" styleName="noPaddingNoGaps" width="40">
+					<Spacer height="1"/>
+					<TimerCountdown height="30" id="timer" k_path="timertext/TimerCountdown.swf" styleName="timer" vp="myKplayer" width="40"/>
+				</VBox>
+				<VolumeModule height="18" id="Volume" k_path="VolumeBars/VolumeBarA.swf" styleName="pp" width="18"/>
+				<Spacer width="2"/>
+			</HBox>
+			<HBox height="20" styleName="colaborate" width="100%">
+				<poweredBy height="14" id="poweredBy" k_path="poweredby/PoweredBy.swf" kcolor="0x0000FF" styleName="poweredBy" width="120"/>
+			</HBox>
+		</VBox>
+		<popups>
+			<SharePop height="350" id="SharePop" k_path="popups/SharePopup.swf" width="350"/>
+			<Credits height="280" id="Credits" k_path="credits/CreditsWindow.swf" width="350"/>
+		</popups>
+		<javaScript>
+		</javaScript>
+	</layout>
+</layouts>

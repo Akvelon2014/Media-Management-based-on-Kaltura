@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layouts>
+<layout skinPath="/content/uiconf/kaltura/corp/kdp_skin_simple2d.swf">
+
+  <VBox width="100%" height="100%" styleName="topLevelVBox">
+  
+	<Label id="movieName" styleName="movieName" height="22" width="100%" label="{myKplayer.kalturaShow.kshowName,myKplayer.kalturaEntry.entryName,''}"/>
+		
+   	<Canvas id="PlayerHolder" styleName="PlayerBackground" width="100%" height="100%" >
+   	 	<KplayerModule id="myKplayer" styleName="centered" k_path="kplayer/KplayerModule.swf" width="100%" height="100%" maxWidth="600" maxHeight="450"/>
+   	   <waterMark id="loadedWaterMark" k_watermark_path="/content/uiconf/kaltura/generic/kaltura_watermark.png" styleName="centered"  width="100%" height="100%" maxWidth="600" maxHeight="450"  k_path="watermarks/WaterMarkLoader.swf" />
+   	</Canvas>
+   <Spacer height="5" />
+   <HBox width="100%" height="50" styleName="controller">
+	    <HBox width="68" height="25" styleName="col1" >
+	     <Button id="play" styleName="play" width="20" height="20" />
+	     <VBox styleName="timer" width="30" height="25">
+	      	<TimerCountdown id="timer" width="100%" height="15" k_path="timertext/SimpleTimer.swf" />
+	     </VBox>
+	    </HBox>
+	
+	    <VBox width="100%" height="100%" styleName="col2">
+	     <Scrubber id="scrubber" styleName="scrubber" width="100%" height="10"/>
+	     <HBox width="100%" height="20" styleName="extraButtons">
+	        <LinkButton id="addToReel" width="100" styleName="addToReel" label="Add to this video" height="20" k_click="jsInject:gotoContribWizard" />
+      		<LinkButton id="editReel"  width="100" styleName="editReel" label="Remix this video" height="20" k_click="jsInject:gotoEditorWindow" />
+	     </HBox>
+	    </VBox>
+
+	    <VBox width="54" height="100%" styleName="col3">
+	     <HBox styleName="col1" height="18" width="100%">
+	      <VolumeModule id="volume" width="15" height="20" styleName="volumeModule" k_path="VolumeBars/VolumeBarA.swf" />
+	      <Spacer width="12" />
+	      <Button id="fullScreen" width="15" height="20" styleName="fs" label="" />  
+	     </HBox>
+	     <poweredBy id="poweredBy" k_path="poweredby/PoweredByGeneric.swf" width="53" height="30"/>
+	    </VBox>
+   </HBox>
+  </VBox>
+    
+    
+    <popups>
+    	<SharePop id="SharePop" k_path="popups/SharePopup.swf" width="350" height="350"/> 
+	 </popups>
+	 <javaScript>
+			<jsBlock id="gotoContribWizard" functionName="gotoContribWizard" params="kshowId" >
+				<![CDATA[
+					function gotoContribWizard(kshowId)
+					{
+						setTimeout("gotoCW('"+kshowId+"');", 0);
+					};
+				]]>
+			</jsBlock>
+			
+			<jsBlock id="gotoEditorWindow" functionName="gotoEditorWindow" params="kshowId" >
+				<![CDATA[
+					function gotoEditorWindow(kshowId)
+					{
+						setTimeout("gotoEditor('"+kshowId+"');", 0);
+					};
+				]]>
+			</jsBlock>
+			
+		</javaScript>
+    
+</layout>
+	
+	
+	
+</layouts>

@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!---
+Captions tab of EntryDetailsWin
+-->
+<mx:Module layout="vertical" xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%"
+		   xmlns:validators="com.kaltura.validators.*"
+		   implements="com.kaltura.edw.business.IDrilldownPanel"
+		   creationComplete="onCreationComplete(event)"
+		   xmlns:captionsComponents="com.kaltura.edw.view.captions.*" xmlns:control="com.kaltura.edw.control.*"
+		   label="{resourceManager.getString('drilldown','captions')}">
+	
+	<mx:Metadata>
+		[Event(name="validationComplete", type="com.kaltura.edw.events.ValidationResultEvent")] 
+		[Event(name="panelDataSaved", type="com.kaltura.edw.events.InternalKedEvent")] 
+	</mx:Metadata>
+	<mx:Script>
+		<![CDATA[
+			import com.kaltura.analytics.GoogleAnalyticsConsts;
+			import com.kaltura.analytics.GoogleAnalyticsTracker;
+			import com.kaltura.edw.business.permissions.PermissionManager;
+			import com.kaltura.edw.constants.KLangList;
+			import com.kaltura.edw.constants.PanelConsts;
+			import com.kaltura.edw.control.events.CaptionsEvent;
+			import com.kaltura.edw.events.GeneralNonCairngormEvent;
+			import com.kaltura.edw.events.InternalKedEvent;
+			import com.kaltura.edw.events.ValidationResultEvent;
+			import com.kaltura.edw.model.datapacks.CaptionsDataPack;
+			import com.kaltura.edw.vo.EntryCaptionVO;
+			import com.kaltura.edw.vo.EntryDetailsValidationError;
+			import com.kaltura.kmvc.model.IDataPackRepository;
+			import com.kaltura.types.KalturaCaptionType;
+			import com.kaltura.types.KalturaLanguage;
+			import com.kaltura.types.KalturaNullableBoolean;
+			import com.kaltura.vo.KalturaBaseEntry;
+			import com.kaltura.vo.KalturaCaptionAsset;
+			
+			import mx.binding.utils.BindingUtils;
+			import mx.events.FlexEvent;
+			
+			public static const CAPTIONS_URL:String = "captionsUrl";
+			public static const CAPTIONS_LANGUAGE:String = "captionsLanguage";
+			
+			
+			/**
+			 * @copy #selectedEntry
+			 * */
+			private var _selectedEntry:KalturaBaseEntry;
+			private var _dpModel:IDataPackRepository;
+			
+			public function get selectedEntry():KalturaBaseEntry {
+				return _selectedEntry;
+			}
+			
+			public function set selectedEntry(value:KalturaBaseEntry):void {
+				_selectedEntry = value;
+			}
+			
+			public function get dataPackModel():IDataPackRepository{
+				return _dpModel;
+			}
+			public function set dataPackModel(value:IDataPackRepository):void{
+				_dpModel = value;
+				var captionsData:CaptionsDataPack = _dpModel.getDataPack(CaptionsDataPack) as CaptionsDataPack;
+				BindingUtils.bindProperty(this, "entryCaptionsArr", captionsData, "captionsArray");
+			}
+			
+			public function get helpAnchor():String{
+				return "entry_captions";
+			}
+			
+			[Bindable]
+			/**
+			 * The current entry available captions.
+			 * captionEntryVO elements
+			 * */
+			public var entryCaptionsArr:Array;
+			
+			private var _captionsToRemove:Array;
+			
+			/**
+			 * the EntryCaptionVO that is set as default
+			 * */
+			private var _defaultCaption:EntryCaptionVO;
+			
+			[Bindable]
+			/**
+			 * for r&p
+			 * */
+			public var editable:Boolean = true;
+			
+			
+			public function destroy():void {
+			}
+			
+			
+			public function clear():void {
+			}
+			
+			
+			public function init():void {
+				PermissionManager.getInstance().applyAllAttributes(this, PanelConsts.CAPTIONS_PANEL);
+			}
+			
+			
+			/**
+			 * initialize required data
+			 * */
+			public function initData():void {
+				var listCaptionsEvt:CaptionsEvent = new CaptionsEvent(CaptionsEvent.LIST_CAPTIONS);
+				controller.dispatch(listCaptionsEvt);
+			}
+			
+			
+			/**
+			 * only changes the UI, data is only saved on "save".
+			 * */
+			private function changeDefaultCaption(event:GeneralNonCairngormEvent):void {
+				var caption:EntryCaptionVO = event.data as EntryCaptionVO;
+				_defaultCaption = caption;
+				GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.CONTENT_DRILLDOWN_CAPTIONS_DEFAULT);
+			}
+			
+			
+			/**
+			 * remember the removed caption for save
+			 * */
+			private function removeCaption(event:GeneralNonCairngormEvent):void {
+				if ((event.data as EntryCaptionVO).caption.id) {
+					_captionsToRemove.push(event.data);
+				}
+				GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.CONTENT_DRILLDOWN_CAPTIONS_DELETE);
+			}
+			
+			
+			private function trackDownload(event:GeneralNonCairngormEvent):void {
+				GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.CONTENT_DRILLDOWN_CAPTIONS_DNLD);
+			}
+			
+			private function onCreationComplete(event:FlexEvent):void {
+				_captionsToRemove = new Array();
+			}
+			
+			
+			/**
+			 * add a new empty Caption to captions VBox
+			 * */
+			private function addCaption():void {
+				var captionVO:EntryCaptionVO = new EntryCaptionVO();
+				captionVO.caption = new KalturaCaptionAsset();
+				captionVO.caption.format = KalturaCaptionType.SRT;  // srt is the default value
+				captionVO.kmcStatus = EntryCaptionVO.EMPTY;
+				// add it to the dp
+				entryCaptionsArr.push(captionVO);
+				captionsTable.invalidateList();
+				GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.CONTENT_DRILLDOWN_CAPTIONS_ADD);
+			}
+			
+			
+			public function validate():void {
+				var success:Boolean = true;	// validation result
+				var errorMessage:String;
+				var errorTitle:String;
+				var captionVo:EntryCaptionVO;
+				for (var i:int = 0; i < entryCaptionsArr.length; i++) {
+					captionVo = entryCaptionsArr[i];
+					if (captionVo.isChanged) {
+						var curCaptionRes:EntryDetailsValidationError = validateCaption(captionVo);
+						if (curCaptionRes.error) {
+							if (curCaptionRes.error == CAPTIONS_URL) {
+								errorMessage = resourceManager.getString('drilldown', 'missingURLError');
+							}
+							else if (curCaptionRes.error == CAPTIONS_LANGUAGE) {
+								errorMessage = resourceManager.getString('drilldown', 'missingLanguageError');
+							}
+							errorTitle = resourceManager.getString('drilldown', 'captionsError');
+							success = false;
+							break;
+						}
+					}
+				}
+				var e:ValidationResultEvent = new ValidationResultEvent(ValidationResultEvent.VALIDATION_COMPLETE, success, errorMessage, errorTitle);
+				dispatchEvent(e);
+			}
+			
+			
+			/**
+			 * save all changes - added/removed captions. <br>
+			 * if no changes were made skips the actual save.
+			 * */
+			public function save():void {
+				if (isChanged()) {
+					var captionsToSave:Array = new Array();
+					var captionVo:EntryCaptionVO;
+					
+					for (var i:int = 0; i < entryCaptionsArr.length; i++) {
+						captionVo = entryCaptionsArr[i];
+						if (captionVo.isChanged) {
+							captionsToSave.push(captionVo);
+						}
+					}
+					
+					var saveEvent:CaptionsEvent = new CaptionsEvent(CaptionsEvent.SAVE_ALL);
+					saveEvent.captionsToSave = captionsToSave;
+					saveEvent.captionsToRemove = _captionsToRemove;
+					if (_defaultCaption)
+						saveEvent.defaultCaption = _defaultCaption;
+					controller.dispatch(saveEvent);
+				}
+				dispatchEvent(new InternalKedEvent(InternalKedEvent.PANEL_DATA_SAVED));
+			}
+			
+			
+			/**
+			 * validate data on the caption: legal url, valid language
+			 * */
+			private function validateCaption(vo:EntryCaptionVO):EntryDetailsValidationError {
+				var error:EntryDetailsValidationError = new EntryDetailsValidationError();
+				if (vo.kmcStatus != EntryCaptionVO.UPLOADING && !vo.isNewUploaded) {
+					if (vo.resourceUrl) {
+						// if text never changed, vo.resourceUrl is null but there is no reason to validate the value.
+						var singleResult:mx.events.ValidationResultEvent = urlValidator.validate(vo.resourceUrl); 
+						if (singleResult.results) {
+							error.error = CAPTIONS_URL;
+						}
+					}
+				}
+				
+				if (!vo.caption.language) {
+					error.error = CAPTIONS_LANGUAGE;
+				}
+				
+				return error;
+			}
+			
+			
+			/**
+			 * return true if there are changes to save:
+			 * new captions, removed captions, edited captions, set default.
+			 * */
+			public function isChanged():Boolean {
+				// are there captions to be removed?
+				if (_captionsToRemove && _captionsToRemove.length) {
+					return true;
+				}
+				
+				// did the default caption change?
+				if (_defaultCaption && _defaultCaption.caption.isDefault != KalturaNullableBoolean.TRUE_VALUE) {
+					return true;
+				}
+				
+				// are there new / edited captions?
+				var caption:EntryCaptionVO;
+				if (entryCaptionsArr) { // during initialisation there's no entryCaptionsArr yet
+					for (var i:int = 0; i < entryCaptionsArr.length; i++) {
+						caption = entryCaptionsArr[i];
+						if (caption.isChanged) {
+							return true;
+						}
+					}
+				}
+				
+				return false;
+				
+			}
+		]]>
+	</mx:Script>
+	<control:CaptionsTabController id="controller" />
+	<validators:URLValidator id="urlValidator" property="text" required="true"
+							 requiredFieldError="{resourceManager.getString('drilldown','emptyUrlError')}"/>
+	<mx:NumberValidator id="comboValidator" property="selectedIndex"
+						maxValue="{KLangList.LANGUAGES_ARRAY.length -1}" minValue="0"
+						lowerThanMinError="{resourceManager.getString('drilldown','emptyLanguageError')}"/>
+	
+	<mx:Text text="{resourceManager.getString('drilldown','captionsInfo')}" styleName="tipText" width="100%"/>
+	<mx:Button label="{resourceManager.getString('drilldown','addCaptions')}" click="addCaption()" visible="{editable}"/>
+	<captionsComponents:CaptionsTable id="captionsTable" width="100%" height="100%" dataProvider="{entryCaptionsArr}"
+									  captionRemoved="removeCaption(event)" changeDefault="changeDefaultCaption(event)"
+									  captionDownloaded="trackDownload(event)" controller="{controller}" rowHeight="90"/>
+	
+</mx:Module>

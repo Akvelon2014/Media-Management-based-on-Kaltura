@@ -1,0 +1,44 @@
+﻿.c1-splitter {
+    width: 5px;
+    cursor: col-resize;
+    overflow: visible;
+    z-index: 100;
+    border: none;
+    background-image: none;
+}
+.c1-splitter .splitter-icon {
+    position: absolute;
+    top: 50%;
+    margin-top: -8px;
+    left: 50%;
+    margin-left: -8px;
+}
+.c1-splitter .splitter-button {
+    background-image: none;
+    border: 0 none;
+    height: 50px;
+    top: 50%;
+    margin-top: -25px;
+    width: 10px;
+    right: -10px;
+    overflow: hidden;
+    cursor: pointer;
+}
+[dir="rtl"] .c1-splitter .splitter-button {
+    right: auto;
+    left: -10px;
+    direction: ltr; /* Fix corners in IE */
+}
+.c1-splitter .splitter-icon-hide,
+.c1-splitter .splitter-icon-show {
+    position: absolute;
+    top: 50%;
+    margin-top: -8px;
+    left: 50%;
+    margin-left: -8px;
+    display: none;
+}
+.c1-splitter .splitter-button-hide .splitter-icon-hide,
+.c1-splitter .splitter-button-show .splitter-icon-show {
+    display: block;
+}

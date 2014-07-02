@@ -1,0 +1,6 @@
+*/30 * * * * root echo `date` >> @LOG_DIR@/cron.log && @APP_DIR@/scripts/watch.batchMgr.sh >> @LOG_DIR@/cron.log 2>&1 
+30 4 * * * root /usr/sbin/logrotate -f -vv @BASE_DIR@/logrotate/kaltura_log_rotate >> @LOG_DIR@/kaltura_log_rotate.log >> @LOG_DIR@/cron.log 2>&1
+*/15 * * * * root echo `date` >> @LOG_DIR@/cron.log && @APP_DIR@/alpha/crond/kaltura/clear_cache.sh >> @LOG_DIR@/cron.log 2>&1
+0 2 * * * root  echo `date` >> @LOG_DIR@/cron.log && @APP_DIR@/alpha/crond/kaltura/delete_old_content.sh >> @LOG_DIR@/cron.log 2>&1
+#* * * * * root  echo `date` >> @LOG_DIR@/cron.log && @APP_DIR@/plugins/sphinx_search/scripts/watch.populate.sh @APP_DIR@/plugins/sphinx_search/scripts/configs/server-sphinx.php >> @LOG_DIR@/kaltura_log_populate.log >> @LOG_DIR@/cron.log 2>&1
+0 10 * * * root  echo `date` >> @LOG_DIR@/cron.log && @APP_DIR@/scripts/dwh/dwh_plays_views_sync.sh >> @LOG_DIR@/cron.log

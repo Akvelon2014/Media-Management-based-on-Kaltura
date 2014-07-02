@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" 
+		 implements="com.kaltura.kmc.modules.content.view.window.cdw.ICategoryDrilldownPanel"
+		 creationComplete="creationCompleteHandler(event)">
+	<mx:Metadata>
+		[Event(name="validationComplete", type="com.kaltura.edw.events.ValidationResultEvent")] 
+		[Event(name="panelDataSaved", type="com.kaltura.edw.events.InternalKedEvent")] 
+	</mx:Metadata>
+	<mx:Script>
+		<![CDATA[
+			import com.adobe.cairngorm.control.CairngormEvent;
+			import com.kaltura.edw.events.InternalKedEvent;
+			import com.kaltura.edw.events.ValidationResultEvent;
+			import com.kaltura.kmc.modules.content.events.CategoryEvent;
+			import com.kaltura.kmc.modules.content.model.CategoriesModel;
+			import com.kaltura.kmc.modules.content.view.window.cdw.ICategoryDrilldownPanel;
+			import com.kaltura.kmc.modules.content.view.window.cdw.components.categoryTabs.renderers.CategoryPositionRenderer;
+			import com.kaltura.vo.KalturaCategory;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			import mx.events.PropertyChangeEvent;
+			
+			public var category:KalturaCategory;
+			
+			[Bindable]
+			private var _subCategories:ArrayCollection;
+			
+			/**
+			 * list of categories for reordering
+			 * */
+			public function set subCategories(value:ArrayCollection):void {
+				_subCategories = value;
+				if (value) {
+					if (value.length == 0 || value.length > CategoriesModel.SUB_CATEGORIES_LIMIT) {
+						if (this.parent) {
+							this.parent.removeChild(this);
+						}
+					}
+					else {
+						setFirstLast();
+					}
+				}
+			}
+			
+			public function get subCategories():ArrayCollection {
+				return _subCategories;
+			}
+			
+			private function creationCompleteHandler(event:FlexEvent):void {
+				addEventListener(CategoryPositionRenderer.MOVE_DOWN, handleMove, false, 0, true);
+				addEventListener(CategoryPositionRenderer.MOVE_UP, handleMove, false, 0, true);
+			}
+			
+			
+			/**
+			 * tell the head and tail of the list they are head and tail
+			 * */
+			private function setFirstLast():void {
+				// reset all
+				for each (var kCat:KalturaCategory in _subCategories) {
+					kCat.isFirst = false;
+					kCat.isLast = false;
+				}
+				// set new
+				_subCategories.getItemAt(0).isFirst = true;
+				_subCategories.getItemAt(_subCategories.length-1).isLast = true;
+			}
+			
+			
+			/**
+			 * reorder categories according to event. <br/>
+			 * use 2 dynamic props to handle moving: <br/>
+			 * <code>isFirst/isLast</code> to decide if up/down buttons should be shown 
+			 * */
+			private function handleMove(e:Event):void {
+				_changeFlag = true;
+				var cat:KalturaCategory = e.target.data as KalturaCategory;
+				var ind:int = _subCategories.getItemIndex(cat);
+				
+				if (e.type == CategoryPositionRenderer.MOVE_DOWN) {
+					_subCategories.removeItemAt(ind);
+					_subCategories.addItemAt(cat, ind + 1);
+				}
+				else if (e.type == CategoryPositionRenderer.MOVE_UP) {
+					_subCategories.removeItemAt(ind);
+					_subCategories.addItemAt(cat, ind - 1);
+				}
+				setFirstLast();
+			}
+			
+			
+			public function validate():void {
+				var ivre:ValidationResultEvent = new ValidationResultEvent(ValidationResultEvent.VALIDATION_COMPLETE, true); 
+				dispatchEvent(ivre);
+			}
+			
+			public function save():void {
+				if (isChanged()) {
+					var updated:Array = [];
+					var cat:KalturaCategory;
+					for (var i:int = 0; i<_subCategories.length; i++) {
+						cat = _subCategories.getItemAt(i) as KalturaCategory;
+						if (cat.partnerSortValue != i) {
+							cat.partnerSortValue = i;
+							updated.push(cat);
+						}
+					}
+					if (updated.length > 0) {
+						var cgEvent:CairngormEvent = new CategoryEvent(CategoryEvent.UPDATE_SUB_CATEGORIES);
+						cgEvent.data = updated;
+						cgEvent.dispatch();
+					}
+				}
+				_changeFlag = false;
+				dispatchEvent(new InternalKedEvent(InternalKedEvent.PANEL_DATA_SAVED));
+			}
+			
+			public function destroy():void {
+			
+			}
+			
+			public function clear():void {
+				var cgEvent:CairngormEvent = new CategoryEvent(CategoryEvent.RESET_SUB_CATEGORIES);
+				cgEvent.dispatch();
+			}
+			
+			public function initData():void {
+				if (this.parent) {
+					if (category.directSubCategoriesCount < 1 || category.directSubCategoriesCount > CategoriesModel.SUB_CATEGORIES_LIMIT) {
+						this.parent.removeChild(this);
+					}
+					else {
+						_changeFlag = false;
+						var cgEvent:CairngormEvent = new CategoryEvent(CategoryEvent.GET_SUB_CATEGORIES);
+						cgEvent.dispatch();
+					}
+				}
+			}
+			
+			public function init():void {
+			}
+			
+			private var _changeFlag:Boolean = false;
+			
+			public function isChanged():Boolean {
+				return _changeFlag;
+			}
+			
+
+		]]>
+	</mx:Script>
+	
+	<mx:Label text="{resourceManager.getString('cms', 'subcatsDescription')}" />
+	<mx:DataGrid id="catsList" dataProvider="{_subCategories}" width="100%" height="100%">
+		<mx:columns>
+			<mx:DataGridColumn id="catName" dataField="name" 
+							   headerText="{resourceManager.getString('cms', 'subcat')}"/>
+			<mx:DataGridColumn id="catPosition" width="120"
+							   headerText="{resourceManager.getString('cms', 'subcatsPosition')}"
+				itemRenderer="com.kaltura.kmc.modules.content.view.window.cdw.components.categoryTabs.renderers.CategoryPositionRenderer"/>
+		</mx:columns>
+	</mx:DataGrid>
+	
+	<!--<mx:Button click="clear()"  label="clear"/>
+	<mx:Button click="save()"  label="save"/>-->
+</mx:VBox>

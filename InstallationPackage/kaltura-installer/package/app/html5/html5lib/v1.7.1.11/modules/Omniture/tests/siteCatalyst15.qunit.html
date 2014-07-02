@@ -1,0 +1,99 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Omniture siteCatalyst15 test</title>
+<script type="text/javascript" src="../../../tests/qunit/qunit-bootstrap.js"></script>
+<script type="text/javascript" src="../../../mwEmbedLoader.php"></script>
+<script type="text/javascript" src="../../../docs/js/doc-bootstrap.js"></script>
+<script type="text/javascript">	
+function jsKalturaPlayerTest( videoId ){
+	
+	// Name this module
+	module( "Omniture siteCatalyst15 test" );
+
+}
+</script>
+<script>
+	function jsCallbackReady( videoId ){
+		if( console && console.log ){
+			console.log( 'jsCallbackReady: ' + videoId );
+		}
+	}
+</script>
+
+<!-- qunit-kaltura must come after qunit-bootstrap.js and after mwEmbedLoader.php and after any jsCallbackReady stuff-->
+<script type="text/javascript" src="../../KalturaSupport/tests/resources/qunit-kaltura-bootstrap.js"></script>
+</head>
+<body>
+<h2> Omniture siteCatalyst15 test </h2>
+<div id="siteCatalyst15Settings"></div>
+<div id="playbackModeSelector"></div>
+<br />
+
+<div id="kaltura_player" style="float:left;width:400px;height:330px"></div>
+<script>
+kWidget.featureConfig( {
+	'targetId': 'kaltura_player',
+	'wid' : '_243342',
+	'uiconf_id' : '11138511',
+	'entry_id' : '0_uka1msg4',
+	'flashvars' :  {
+		'siteCatalyst15': {
+			'sCodePath' : null,
+			'plugin' : true,
+			'path' : 'http://projects.kaltura.com/demos/omniture/siteCatalyst15/v1/siteCatalyst15Plugin.swf',
+			
+			'trackEventMonitor' : 'omnitureLogMediaCall',
+			
+			'relativeTo' : 'video',
+			'position' : 'before',
+			'trackingServer' : 'corp1.d1.sc.omtrdc.net',
+			'visitorNamespace' : 'corp1',
+			'account' : 'myrsid',
+			'segmentByMilestones' : true,
+			'contentType' : 'eVar43',
+			'timePlayed' : 'event27',
+			
+			'mediaName' : 'eVar41',
+			'mediaSegment' : 'eVar42',
+			'mediaSegmentView' : 'event34',
+			'mediaView' : 'event28',
+			'mediaComplete' : 'event33',
+			
+			'trackMilestones' : '25,50,75',
+			'milestonesEvents' : 'event25,event50,event75',
+			
+			'openFullscreenEvent' : 'event23',
+			'openFullscreenEvar1' : 'eVar18',
+			'openFullscreenEvar1Value' : '{mediaProxy.entry.id}',
+			
+			'shareEvent' : 'event22',
+			'shareEventEvar1' : 'eVar18',
+			'shareEventEvar1Value' : '{mediaProxy.entry.id}',
+			'shareEventEvar2' : 'eVar19',
+			'shareEventEvar2Value' : '{configProxy.flashvars.referer}',
+			'shareEventProp1' : 'prop33',
+			'shareEventprop1Value' : '{mediaProxy.entry.id',
+			'shareEventProp2' : 'prop32',
+			'shareEventprop2Value' : '{configProxy.flashvars.referer}'
+		}
+	}
+});
+</script>
+<div style="float:left;width:600px;margin-left:5px;">
+ Event log for omniture dispatch ( kalturaEventName: s key value pairs );
+<textarea id="txtlog" style="width:800px;height:330px;float:left"></textarea>
+</div>
+<script> 
+	window['omnitureLogMediaCall'] = function( mediaCallArgs ){
+		$('#txtlog').append( 's.Media.' + mediaCallArgs[0] + ' ( ' + mediaCallArgs.slice(1).join(', ') + ' ) ' + "\n" );
+	}
+	window['omnitureLogSendNotification'] = function( kalturaEventName, omnitureEvent ){
+		$('#txtlog').append(
+			kalturaEventName + ': ' + 
+			JSON.stringify( omnitureEvent ) + "\n"
+		)
+	}
+</script>
+</body>
+</html>

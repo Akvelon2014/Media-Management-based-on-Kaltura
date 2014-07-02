@@ -1,0 +1,16 @@
+alter table `kalturadw`.`dwh_dim_entries`
+add column `access_control_id` int(11) default NULL,
+add column `conversion_profile_id` int(11) default NULL,
+add column `categories` varchar(4096) default NULL,
+add column `categories_ids` varchar(1024) default NULL,
+add column `search_text_discrete` varchar(4096) default NULL,
+add column `flavor_params_ids` varchar(512) default NULL,
+add column `start_date` datetime default NULL,
+add column `start_date_id` int(11),
+add column `start_hour_id` tinyint(4),
+add column `end_date` datetime default NULL,
+add column `end_date_id` int(11),
+add column `end_hour_id` tinyint(4),
+add KEY `entry_FI_3` (`access_control_id`),
+add KEY `entry_FI_5` (`conversion_profile_id`),
+add FULLTEXT KEY `search_text_discrete_index` (`search_text_discrete`);

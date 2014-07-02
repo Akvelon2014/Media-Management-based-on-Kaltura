@@ -1,0 +1,162 @@
+<xml>
+  <objectType>KalturaMetadataProfile</objectType>
+  <name>Faculty Repository for EDU Accounts</name>
+  <systemName>KALTURA_EDU_FR1</systemName>
+  <metadataObjectType>1</metadataObjectType>
+  <createMode>2</createMode>
+  <xsd>
+    <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+      <xsd:element name="metadata">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element id="md_6BBFF0C9-8028-4DF1-699F-AF6924F100ED" name="SuitableFor" minOccurs="1" maxOccurs="unbounded">
+              <xsd:annotation>
+                <xsd:documentation></xsd:documentation>
+                <xsd:appinfo>
+                  <label>Suitable for</label>
+                  <key>Suitable for</key>
+                  <searchable>true</searchable>
+                  <timeControl>false</timeControl>
+                  <description></description>
+                </xsd:appinfo>
+              </xsd:annotation>
+              <xsd:simpleType>
+                <xsd:restriction base="listType">
+                  <xsd:enumeration value="Undergraduates"/>
+                  <xsd:enumeration value="Graduates"/>
+                  <xsd:enumeration value="Postgraduates"/>
+                </xsd:restriction>
+              </xsd:simpleType>
+            </xsd:element>
+            <xsd:element id="md_A1074C91-04A6-7F68-8CC0-AEE46A1F606A" name="PresenterLecturer" minOccurs="0" maxOccurs="1" type="textType">
+              <xsd:annotation>
+                <xsd:documentation></xsd:documentation>
+                <xsd:appinfo>
+                  <label>Presenter/Lecturer</label>
+                  <key>Presenter/Lecturer</key>
+                  <searchable>true</searchable>
+                  <timeControl>false</timeControl>
+                  <description></description>
+                </xsd:appinfo>
+              </xsd:annotation>
+            </xsd:element>
+            <xsd:element id="md_5A865575-155E-D46A-0C6E-AEE50C4B3012" name="MediaLanguage" minOccurs="0" maxOccurs="1">
+              <xsd:annotation>
+                <xsd:documentation></xsd:documentation>
+                <xsd:appinfo>
+                  <label>Media Language</label>
+                  <key>Media Language</key>
+                  <searchable>true</searchable>
+                  <timeControl>false</timeControl>
+                  <description></description>
+                </xsd:appinfo>
+              </xsd:annotation>
+              <xsd:simpleType>
+                <xsd:restriction base="listType">
+                  <xsd:enumeration value="English"/>
+                  <xsd:enumeration value="Afrikaans"/>
+                  <xsd:enumeration value="Albanian"/>
+                  <xsd:enumeration value="Azeri"/>
+                  <xsd:enumeration value="Basque"/>
+                  <xsd:enumeration value="Belarusian"/>
+                  <xsd:enumeration value="Bulgarian"/>
+                  <xsd:enumeration value="Catalan"/>
+                  <xsd:enumeration value="Croatian"/>
+                  <xsd:enumeration value="Czech"/>
+                  <xsd:enumeration value="Danish"/>
+                  <xsd:enumeration value="Dutch"/>
+                  <xsd:enumeration value="Estonian"/>
+                  <xsd:enumeration value="Faeroese"/>
+                  <xsd:enumeration value="Finnish"/>
+                  <xsd:enumeration value="French"/>
+                  <xsd:enumeration value="Galician"/>
+                  <xsd:enumeration value="German"/>
+                  <xsd:enumeration value="Greek"/>
+                  <xsd:enumeration value="Hungarian"/>
+                  <xsd:enumeration value="Icelandic"/>
+                  <xsd:enumeration value="Indonesian"/>
+                  <xsd:enumeration value="Italian"/>
+                  <xsd:enumeration value="Japanese"/>
+                  <xsd:enumeration value="Latvian"/>
+                  <xsd:enumeration value="Lithuanian"/>
+                  <xsd:enumeration value="Macedonian"/>
+                  <xsd:enumeration value="Malay"/>
+                  <xsd:enumeration value="Mongolian"/>
+                  <xsd:enumeration value="Norwegian"/>
+                  <xsd:enumeration value="Polish"/>
+                  <xsd:enumeration value="Portuguese"/>
+                  <xsd:enumeration value="Romanian"/>
+                  <xsd:enumeration value="Russian"/>
+                  <xsd:enumeration value="Serbian"/>
+                  <xsd:enumeration value="Slovak"/>
+                  <xsd:enumeration value="Slovenian"/>
+                  <xsd:enumeration value="Spanish"/>
+                  <xsd:enumeration value="Swahili"/>
+                  <xsd:enumeration value="Swedish"/>
+                  <xsd:enumeration value="Tatar"/>
+                  <xsd:enumeration value="Turkish"/>
+                  <xsd:enumeration value="Ukrainian"/>
+                  <xsd:enumeration value="Uzbek"/>
+                </xsd:restriction>
+              </xsd:simpleType>
+            </xsd:element>
+            <xsd:element id="md_DAE2CA56-5E9B-5543-C906-AEE640E365FF" name="YearOfPublication" minOccurs="0" maxOccurs="1" type="textType">
+              <xsd:annotation>
+                <xsd:documentation></xsd:documentation>
+                <xsd:appinfo>
+                  <label>Year of publication</label>
+                  <key>Year of publication</key>
+                  <searchable>true</searchable>
+                  <timeControl>false</timeControl>
+                  <description></description>
+                </xsd:appinfo>
+              </xsd:annotation>
+            </xsd:element>
+            <xsd:element id="md_669D6E6F-BAEA-75C5-820F-AEE875D462DE" name="ContributorComment" minOccurs="0" maxOccurs="1" type="textType">
+              <xsd:annotation>
+                <xsd:documentation></xsd:documentation>
+                <xsd:appinfo>
+                  <label>Contributor comment</label>
+                  <key>Contributor comment</key>
+                  <searchable>true</searchable>
+                  <timeControl>false</timeControl>
+                  <description></description>
+                </xsd:appinfo>
+              </xsd:annotation>
+            </xsd:element>
+            <xsd:element id="md_8DACBD20-B3F7-C8AA-02EF-AEE933191CED" name="ToUdateinternal" minOccurs="0" maxOccurs="1" type="textType">
+              <xsd:annotation>
+                <xsd:documentation></xsd:documentation>
+                <xsd:appinfo>
+                  <label>ToU_date_internal</label>
+                  <key>ToU_date_internal</key>
+                  <searchable>true</searchable>
+                  <timeControl>false</timeControl>
+                  <description></description>
+                </xsd:appinfo>
+              </xsd:annotation>
+            </xsd:element>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:complexType name="textType">
+        <xsd:simpleContent>
+          <xsd:extension base="xsd:string"/>
+        </xsd:simpleContent>
+      </xsd:complexType>
+      <xsd:complexType name="dateType">
+        <xsd:simpleContent>
+          <xsd:extension base="xsd:long"/>
+        </xsd:simpleContent>
+      </xsd:complexType>
+      <xsd:complexType name="objectType">
+        <xsd:simpleContent>
+          <xsd:extension base="xsd:string"/>
+        </xsd:simpleContent>
+      </xsd:complexType>
+      <xsd:simpleType name="listType">
+        <xsd:restriction base="xsd:string"/>
+      </xsd:simpleType>
+    </xsd:schema>
+  </xsd>
+</xml>

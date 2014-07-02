@@ -1,0 +1,619 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!---
+	 adding or editing a rule based playlist
+-->
+<HelpTitleWindow xmlns="com.kaltura.containers.*" showCloseButton="true" xmlns:mx="http://www.adobe.com/2006/mxml"
+				 help="{onHelp()}" creationComplete="creationCompleteHandler()" verticalScrollPolicy="off"
+				 horizontalAlign="center" width="780" height="585" layout="vertical" styleName="TitleWindowType2"
+				 close="{onClose()}" 
+				 xmlns:window="com.kaltura.kmc.modules.content.view.window.*"
+				 implements="com.kaltura.edw.business.IDataOwner" xmlns:components="com.hillelcoren.components.*">
+	<mx:Script>
+		<![CDATA[
+			import com.adobe.cairngorm.control.CairngormEvent;
+			import com.kaltura.KalturaClient;
+			import com.kaltura.analytics.GoogleAnalyticsConsts;
+			import com.kaltura.analytics.GoogleAnalyticsTracker;
+			import com.kaltura.analytics.KAnalyticsTracker;
+			import com.kaltura.analytics.KAnalyticsTrackerConsts;
+			import com.kaltura.autocomplete.controllers.KACTagsController;
+			import com.kaltura.edw.business.IDataOwner;
+			import com.kaltura.edw.business.permissions.PermissionManager;
+			import com.kaltura.edw.components.playlist.PlaylistEntries;
+			import com.kaltura.edw.control.KedController;
+			import com.kaltura.edw.control.events.LoadEvent;
+			import com.kaltura.edw.model.FilterModel;
+			import com.kaltura.edw.model.PlaylistModel;
+			import com.kaltura.kmc.events.KmcHelpEvent;
+			import com.kaltura.kmc.modules.content.events.EntriesEvent;
+			import com.kaltura.kmc.modules.content.events.KMCEntryEvent;
+			import com.kaltura.kmc.modules.content.events.NewFilterEvent;
+			import com.kaltura.kmc.modules.content.events.RuleBasedTypeEvent;
+			import com.kaltura.kmc.modules.content.events.WindowEvent;
+			import com.kaltura.types.KalturaPlaylistType;
+			import com.kaltura.types.KalturaStatsKmcEventType;
+			import com.kaltura.types.KalturaTaggedObjectType;
+			import com.kaltura.vo.KalturaMediaEntryFilterForPlaylist;
+			import com.kaltura.vo.KalturaPlaylist;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.events.ValidationResultEvent;
+			import mx.managers.PopUpManager;
+			import mx.validators.ValidationResult;
+
+			public var client:KalturaClient;
+
+			[Bindable]
+			/**
+			 * data for filter
+			 * */
+			public var filterData:FilterModel;
+
+			[Bindable]
+			/**
+			 * playlist related data from the model
+			 * */
+			public var rulePlaylistData:PlaylistModel;
+
+			[Bindable]
+			/**
+			 * list of distribution profiles
+			 * */
+			public var distributionProfilesArr : Array;
+
+			/**
+			 * address of the server the application is running on
+			 * */
+			public var rootUrl:String;
+
+			public var addRuleWin:AddRuleWin;
+
+			/**
+			 * indicates the filter changed
+			 * (so need to prompt for save, etc)
+			 * */
+			private var _filterTouched:Boolean;
+
+			/**
+			 * the playlist currently being edited
+			 * */
+			public var editPlaylist:KalturaPlaylist;
+
+			/**
+			 * when creating a playlist from "manage" page, the filter used to create it.
+			 * */
+			public var onTheFlyFilter:KalturaMediaEntryFilterForPlaylist;
+
+			/**
+			 * allow opening entry drilldown on entry name click
+			 * */
+			public var showLinks:Boolean = true;
+
+			/**
+			 * indicates this playlist is made of multiple rules
+			 * */
+			private var _isAdvanced:Boolean;
+
+			[Bindable]
+			/**
+			 * indicates this is a new playlist (not edit)
+			 * */
+			private var _isNewPlaylist:Boolean;
+
+			[Bindable]
+			/**
+			 * KalturaMediaEntryFilterForPlaylist objects
+			 * */
+			private var _filters:ArrayCollection = new ArrayCollection();
+
+			private var _ruleIndex:Number;
+
+
+
+			private function creationCompleteHandler():void {
+				new KACTagsController(tagsComplete, client, KalturaTaggedObjectType.ENTRY);
+				// load the data required by filter 
+				var fe:LoadEvent = new LoadEvent(LoadEvent.LOAD_FILTER_DATA, this, filterData);
+				KedController.getInstance().dispatch(fe);
+			}
+
+
+
+			public function onRequestedDataLoaded():void {
+				// after filter data was loaded, init stuff
+				initWindow();
+			}
+
+
+			/**
+			 * initialize the window showing new playlist state
+			 * */
+			private function initNewState():void {
+				title = resourceManager.getString('cms', 'newRuleBasedPlaylist');
+				_isNewPlaylist = true;
+				if (onTheFlyFilter) {
+					//this is a new playlist with a given filter (on the fly rule based playlist)
+					simpleRule.ruleToEdit = onTheFlyFilter;
+//					simpleRule.validateNow();
+				}
+				else {
+					simpleRule.ruleToEdit = new KalturaMediaEntryFilterForPlaylist();
+				}
+//				simpleRule.runRule();
+				PermissionManager.getInstance().applyAllAttributes(this, "ruleBasedPlaylistDrilldown_add");
+			}
+
+
+			/**
+			 * initialize the window showing edit state 
+			 * */
+			private function initEditState():void {
+				title = editPlaylist.name;
+				playlistName.text = editPlaylist.name;
+				playlistDescription.text = editPlaylist.description;
+				editPlaylist.parts = simpleRule.playlistEntries;
+				// set entry tags on screen
+				if (editPlaylist.tags) {
+					var ac:ArrayCollection = new ArrayCollection(editPlaylist.tags.split(", ")); 
+					tagsComplete.selectedItems = ac;
+				}
+				
+				//switch between multi / single rule
+				if (editPlaylist.filters.length > 1) {
+					//multi rule - fill rules data and switch view 
+					_filters = new ArrayCollection(editPlaylist.filters);
+					advanceOrSimpleContainer.selectedIndex = 1;
+					_isAdvanced = true;
+					previewRuleBasedPlaylist();
+				}
+				else {
+					if (editPlaylist.filters[0] is KalturaMediaEntryFilterForPlaylist) {
+						simpleRule.ruleToEdit = editPlaylist.filters[0] as KalturaMediaEntryFilterForPlaylist;
+						simpleRule.entries.limit = (editPlaylist.filters[0] as KalturaMediaEntryFilterForPlaylist).limit;
+						simpleRule.entries.setSelectedOrderBy((editPlaylist.filters[0] as KalturaMediaEntryFilterForPlaylist).orderBy);
+					}
+//					simpleRule.runRule();
+					_filterTouched = true;
+				}
+				PermissionManager.getInstance().applyAllAttributes(this, "ruleBasedPlaylistDrilldown_edit");
+			}
+
+			/**
+			 * switch between edit / new mode / on the fly playlist and init window
+			 */
+			private function initWindow():void {
+				//switch edit or new rule base playlist
+				if (editPlaylist && !onTheFlyFilter) {
+					// edit existing playlist
+					initEditState();
+				}
+				else {
+					// new rule based playlist
+					initNewState();
+				}
+			}
+
+
+			private function onHelp():void {
+				dispatchEvent(new KmcHelpEvent(KmcHelpEvent.HELP, 'section_rule_playlist'));
+			}
+
+
+			/**
+			 * Verify that the playlist has name & at least one entry
+			 */
+			private function validatePlaylist():Boolean {
+				var isOk:Boolean = true;
+				var playlistValidateResultEvent:ValidationResultEvent = playListValidator.validate();
+				if ((playlistValidateResultEvent.results != null) &&
+					(playlistValidateResultEvent.results.length > 0)) {
+					isOk = !(playlistValidateResultEvent.results[0] as ValidationResult).isError;
+				}
+				return isOk;
+			}
+
+
+			/**
+			 * Ask for a confirmation and switch to advance mode
+			 */
+			private function onAdvancedModeRequested(evt:Event = null):void {
+				if (_filterTouched)
+					Alert.show(resourceManager.getString('cms', 'switchToAdvanceWorning'),
+						resourceManager.getString('cms',
+						'switchToAdvanceWorningTitle'),
+						Alert.YES | Alert.NO, null, applyAdvanceMode);
+				else
+					applyAdvanceMode();
+
+			}
+
+
+			/**
+			 * advance mode - multiple filters
+			 */
+			private function applyAdvanceMode(event:CloseEvent = null):void {
+				if ((event == null || event.detail == Alert.YES)) {
+					_isAdvanced = true;
+					advanceOrSimpleContainer.selectedIndex = 1;
+				}
+			}
+
+
+			/**
+			 * If the filter had changed, turn on the _filterTouched flag
+			 * for the advance switch alert
+			 */
+			private function onFilterWasChanged():void {
+				_filterTouched = true;
+			}
+
+
+			/**
+			 * delete selected rule
+			 */
+			private function deleteRule():void {
+				if (filtersList.selectedItem) {
+					_filters.removeItemAt(filtersList.selectedIndex);
+					previewRuleBasedPlaylist();
+				}
+				else {
+					Alert.show(resourceManager.getString('cms', 'selectRuleToDelete'));
+				}
+
+			}
+
+
+			/**
+			 * add another rule (at the top of the list) or edit current rule
+			 */
+			private function popRule(filterVo:KalturaMediaEntryFilterForPlaylist = null):void {
+				addRuleWin = new AddRuleWin();
+				addRuleWin.title = filterVo == null ? 
+					resourceManager.getString('cms', 'addRule') :
+					resourceManager.getString('cms', 'editRule');
+
+				addRuleWin.filterData = filterData;	
+				addRuleWin.distributionProfilesArr = distributionProfilesArr;
+				addRuleWin.filterForSingleRule = filterVo;
+				addRuleWin.addEventListener(NewFilterEvent.NEW_PLAYLIST_FILTER, onNewFilter);
+				addRuleWin.addEventListener(AddRuleWin.REMOVE_ME, onRemoveAddRule);
+				PopUpManager.addPopUp(addRuleWin, this, true);
+				PopUpManager.centerPopUp(addRuleWin);
+			}
+
+
+			private function onRemoveAddRule(event:Event):void {
+				PopUpManager.removePopUp(addRuleWin);
+				addRuleWin = null;
+			}
+
+
+
+
+
+			/**
+			 * New Filter was added - add it to the top of the list and re-render the playlist
+			 */
+			private function onNewFilter(evt:NewFilterEvent):void {
+				//switch editing or new 
+				if (_ruleIndex > -1)
+					_filters.removeItemAt(_ruleIndex);
+				_filters.addItemAt(evt.ruleVo, 0);
+				previewRuleBasedPlaylist();
+				_ruleIndex = -1;
+			}
+
+
+			/**
+			 * Edit current selected rule
+			 */
+			private function editRule():void {
+				_ruleIndex = filtersList.selectedIndex;
+
+				if (_ruleIndex != -1) {
+					var rule:KalturaMediaEntryFilterForPlaylist = filtersList.selectedItem as
+						KalturaMediaEntryFilterForPlaylist;
+					popRule(rule);
+				}
+				else {
+					// no rule selected
+					Alert.show(resourceManager.getString('cms', "selectEditRule"));
+				}
+			}
+
+
+			/**
+			 * Validate and save this playlist.
+			 * If it is multi-rule save all rules, if it is single save one rule
+			 */
+			private function save():void {
+				if (!validatePlaylist()) {
+					Alert.show(resourceManager.getString('cms', 'nameIsMandatory'));
+					return;
+				}
+				var filtersArray:Array;
+				if (_isAdvanced) {
+					// this is advance mode - validate filter existance
+					if (_filters.source.length == 0) {
+						Alert.show(resourceManager.getString('cms', 'validateRule'));
+						return;
+					}
+					else {
+						filtersArray = getRulesArray();
+					}
+				}
+				else {
+					//single rule video
+					filtersArray = [simpleRule.ruleFilter];
+				}
+				if (!editPlaylist) {
+					//new playlist - add service
+					saveNewPlaylist(filtersArray);
+				}
+				else {
+					// edit mode - update service
+					saveUpdatedPlaylist(filtersArray);
+				}
+				
+				clear();
+				// window close is triggered after the command is executed
+			}
+
+
+			/**
+			 * create a new playlist object with screen params and save it.
+			 * @param filtersArray	a list of KalturaMediaEntryFilterForPlaylist defining the playlist
+			 * */
+			private function saveNewPlaylist(filtersArray:Array):void {
+				var newPlaylist:KalturaPlaylist = new KalturaPlaylist();
+				newPlaylist.name = playlistName.text;
+				// always pass the max limit, this way the sum of filters limits will apply. 
+				newPlaylist.totalResults = PlaylistEntries.MAX_ENTRIES_IN_PL; 
+				newPlaylist.playlistType = KalturaPlaylistType.DYNAMIC;
+				newPlaylist.description = playlistDescription.text;
+				newPlaylist.tags = getPlaylistTags();
+				newPlaylist.filters = filtersArray;
+				var addEntryEvent:KMCEntryEvent = new KMCEntryEvent(KMCEntryEvent.ADD_PLAYLIST, newPlaylist);
+				addEntryEvent.dispatch();
+			}
+
+			private function saveUpdatedPlaylist(filtersArray:Array):void {
+				editPlaylist.name = playlistName.text;
+				// always pass the max limit, this way the sum of filters limits will apply.
+				if (editPlaylist.totalResults == int.MIN_VALUE || editPlaylist.totalResults == 0) {
+					// don't override existing values)
+					editPlaylist.totalResults = PlaylistEntries.MAX_ENTRIES_IN_PL;
+				}
+				editPlaylist.playlistType = KalturaPlaylistType.DYNAMIC;
+				editPlaylist.description = playlistDescription.text;
+				editPlaylist.tags = getPlaylistTags();
+				editPlaylist.filters = filtersArray;
+				var entriesEvent:EntriesEvent = new EntriesEvent(EntriesEvent.UPDATE_PLAYLISTS, new ArrayCollection([editPlaylist]));
+				entriesEvent.dispatch();
+				KAnalyticsTracker.getInstance().sendEvent(KAnalyticsTrackerConsts.CONTENT,KalturaStatsKmcEventType.CONTENT_EDIT_PLAYLIST,
+					"RulePlayList>EditPlayList>" + editPlaylist.id,
+					editPlaylist.id);
+				GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.CONTENT_EDIT_PLAYLIST, GoogleAnalyticsConsts.CONTENT);
+			}
+
+			private function getPlaylistTags():String {
+				var str:String = '';
+				var ac:ArrayCollection = tagsComplete.selectedItems;
+				for each (var tag:String in ac) {
+					str += tag + ",";
+				}
+				if (ac.length) {
+					str = str.substr(0, str.length - 1);
+				}
+				return str;
+			}
+
+
+			/**
+			 * Retrieve an array of all filters from all rules
+			 * @return list of KalturaMediaEntryFilterForPlaylist objects
+			 */
+			private function getRulesArray():Array {
+				var filters:Array = new Array();
+				for (var i:uint = 0; i < _filters.source.length; i++) {
+					filters.push((_filters.source[i] as KalturaMediaEntryFilterForPlaylist));
+				}
+				return filters;
+			}
+
+
+			/**
+			 * Re-render current playlist
+			 */
+			private function previewRuleBasedPlaylist():void {
+				//set the rule type
+				var cgEvent:CairngormEvent = new RuleBasedTypeEvent(RuleBasedTypeEvent.MULTY_RULES);
+				cgEvent.dispatch();
+
+				var playlist:KalturaPlaylist = new KalturaPlaylist();
+				playlist.totalResults = PlaylistEntries.MAX_ENTRIES_IN_PL;
+				playlist.filters = getRulesArray();
+
+				cgEvent = new KMCEntryEvent(KMCEntryEvent.GET_RULE_BASED_PLAYLIST, playlist);
+				cgEvent.dispatch();
+			}
+
+
+			/**
+			 * move selected item in filters one step down
+			 */
+			private function moveItemDown():void {
+				if (filtersList.selectedItem) {
+					var oldIndex:uint = filtersList.selectedIndex;
+					if ((oldIndex == (filtersList.dataProvider as ArrayCollection).length - 1))
+						return;
+					var o:* = _filters.removeItemAt(oldIndex);
+					_filters.addItemAt(o, oldIndex + 1);
+					filtersList.selectedItem = o;
+					previewRuleBasedPlaylist();
+				}
+			}
+
+
+			/**
+			 * move selected item in filters one step up
+			 */
+			private function moveItemUp():void {
+				if (filtersList.selectedItem) {
+					var oldIndex:uint = filtersList.selectedIndex;
+					if (oldIndex == 0)
+						return;
+					var o:* = _filters.removeItemAt(oldIndex);
+					_filters.addItemAt(o, oldIndex - 1);
+					filtersList.selectedItem = o;
+					previewRuleBasedPlaylist();
+				}
+			}
+
+
+			/**
+			 * reset the _model duration & total items in playlist preview
+			 * */
+			private function clear():void {
+				var cgEvent:CairngormEvent = new KMCEntryEvent(KMCEntryEvent.RESET_RULE_BASED_DATA, null);
+				cgEvent.dispatch();
+				
+				simpleRule.clear();
+			}
+			
+			private function onClose():void {
+				clear();
+				var cgEvent:CairngormEvent = new WindowEvent(WindowEvent.CLOSE);
+				cgEvent.dispatch();
+			}
+
+
+			public function get editable():Boolean {
+				return saveBtn.enabled;
+			}
+
+			public function set editable(value:Boolean):void {
+				playlistName.enabled = value;
+				playlistDescription.enabled = value;
+				tagsComplete.enabled = value;
+				simpleRule.editable = value;
+				advancedBtn.enabled = value;
+				advancedBtn.buttonMode = value;
+				// advanced panel
+				if (addRuleBtn) {
+					addRuleBtn.enabled = value;
+					addRuleBtn.buttonMode = value;
+					removeRuleBtn.enabled = value;
+					removeRuleBtn.buttonMode = value;
+					editRuleBtn.enabled = value;
+					editRuleBtn.buttonMode = value;
+					upBtn.enabled = value;
+					upBtn.buttonMode = value;
+					downBtn.enabled = value;
+					downBtn.buttonMode = value;
+				}
+				saveBtn.enabled = value;
+				saveBtn.buttonMode = value;
+			}
+
+			protected function setPermissions(event:FlexEvent):void
+			{
+				// trigger the editable setter again
+				editable = editable;
+			}
+
+		]]>
+	</mx:Script>
+	<mx:StringValidator id='playListValidator' source="{playlistName}" property="text" trigger="{playlistName}"
+						triggerEvent="change" required="true"
+						requiredFieldError="{resourceManager.getString('cms', 'nameIsMandatory')}"/>
+	
+	<!-- properties -->
+	<mx:Grid width="100%" borderThickness="10">
+		<mx:GridRow width="100%" height="100%">
+			<mx:GridItem>
+				<mx:Label text="{'*' +resourceManager.getString('cms','name') + ':'}" styleName="formLabel"/>
+			</mx:GridItem>
+			<mx:GridItem width="100%" height="100%">
+				<mx:TextInput id="playlistName" width="100%"/>
+			</mx:GridItem>
+		</mx:GridRow>
+		<mx:GridRow width="100%" height="100%">
+			<mx:GridItem>
+				<mx:Label text="{resourceManager.getString('cms','description') + ':'}" styleName="formLabel"/>
+			</mx:GridItem>
+			<mx:GridItem width="100%" height="100%">
+				<mx:TextInput id="playlistDescription" width="100%"/>
+			</mx:GridItem>
+		</mx:GridRow>
+		<mx:GridRow width="100%" height="100%">
+			<mx:GridItem>
+				<mx:Label text="{resourceManager.getString('cms','tags') + ':'}" styleName="formLabel"/>
+			</mx:GridItem>
+			<mx:GridItem width="100%" height="100%">
+				<!--<mx:TextInput id="playlistTags" width="100%"/>-->
+
+				<components:AutoComplete id="tagsComplete" width="100%" 
+										 selectedItemStyleName="facebook" showRemoveIcon="true" allowMultipleSelection="true"
+										 allowNewValues="true" labelField="tag"/>
+			</mx:GridItem>
+		</mx:GridRow>
+	</mx:Grid>
+	
+	<mx:ViewStack id="advanceOrSimpleContainer" width="100%" height="400" paddingBottom="0" paddingLeft="0"
+				  paddingRight="0" paddingTop="0">
+		
+		<!-- simple mode -->
+		<mx:VBox width="100%" height="100%">
+			<window:OneRule id="simpleRule" height="370" filterWasChanged="{onFilterWasChanged()}"
+							filterData="{filterData}" distributionProfilesArray="{distributionProfilesArr}"/>
+			<mx:LinkButton id="advancedBtn" label="{resourceManager.getString('cms','switchToAdvanceMode')}"
+						   toolTip="{resourceManager.getString('cms','switchToAdvanceModeTooltip')}"
+						   click="{onAdvancedModeRequested()}"/>
+		</mx:VBox>
+		
+		<!-- advanced mode -->
+		<mx:VBox id="advancedModeContainer" width="100%" height="100%" >
+			<mx:DataGrid id="filtersList" dataProvider="{_filters}" width="100%" height="100%" rowHeight="60"
+						 headerRelease="{event.preventDefault()}" >
+				<mx:columns>
+					<mx:DataGridColumn headerText="{resourceManager.getString('cms','type')}" 
+									   width="60" paddingLeft="4"
+									   itemRenderer="com.kaltura.kmc.modules.content.view.itemrenderers.playlists.RuleTypeRenderer">
+					</mx:DataGridColumn>
+					<mx:DataGridColumn headerText="{resourceManager.getString('cms','orderBy')}"
+									   width="60" paddingLeft="4"
+									   itemRenderer="com.kaltura.kmc.modules.content.view.itemrenderers.playlists.FilterTypeRenderer">
+					</mx:DataGridColumn>
+					<mx:DataGridColumn headerText="{resourceManager.getString('cms','limit')}"
+									   width="60" paddingLeft="4"
+									   itemRenderer="com.kaltura.kmc.modules.content.view.itemrenderers.playlists.EntriesLimitRenderer">
+					</mx:DataGridColumn>
+				</mx:columns>
+			</mx:DataGrid>
+			<mx:HBox verticalAlign="middle" creationComplete="setPermissions(event)">
+				<mx:Button buttonMode="true" id="addRuleBtn" click="{popRule()}"
+						   label="{resourceManager.getString('cms','addRule')}"/>
+				<mx:Button buttonMode="true" id="removeRuleBtn" label="{resourceManager.getString('cms','removeRule')}"
+						   click="{deleteRule()}"/>
+				<mx:Button buttonMode="true" id="editRuleBtn" click="{editRule()}"
+						   label="{resourceManager.getString('cms','editRule')}"/>
+				<mx:VBox verticalGap="0">
+					<mx:Button id="upBtn" buttonMode="true" styleName="movUpBtn" click="{moveItemUp()}"/>
+					<mx:Button id="downBtn" buttonMode="true" styleName="movDownBtn" click="{moveItemDown()}"/>
+				</mx:VBox>
+				<mx:Label text="{resourceManager.getString('cms','length')}"/>
+				<mx:Label text="{rulePlaylistData.ruleBasedDuration}"/>
+				<mx:Label text="{resourceManager.getString('cms','entriesCount')}"/>
+				<mx:Label text="{rulePlaylistData.ruleBasedEntriesAmount}"/>
+			</mx:HBox>
+		</mx:VBox>
+	</mx:ViewStack>
+	
+	<mx:ControlBar>
+		<mx:Button id="saveBtn" label="{resourceManager.getString('cms','save')}" click="{save()}"/>
+	</mx:ControlBar>
+</HelpTitleWindow>

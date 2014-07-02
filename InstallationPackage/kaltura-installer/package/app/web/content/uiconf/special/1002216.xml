@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layouts>
+<layout layoutId="" skinPath="/content/uiconf/kaltura/default_player/kdp_2.0.0/kdp_skin_light2.swf">
+  <VBox height="100%" styleName="mlayout" width="100%">
+    <Canvas width="100%" height="100%" id="PlayerHolder" styleName="reportResponseContainerCanvas">
+     <KplayerModule height="100%" id="myKplayer" k_path="kplayer/KplayerModule.swf" styleName="centered" width="100%"/>
+	 <waterMark height="100%" id="loadedWaterMark" k_path="watermarks/WaterMarkLoader.swf" styleName="centered" width="100%"/>
+     <screens height="100%" id="screens" k_path="screens/Screens.swf" styleName="centered" width="100%" k_end_screen_id="endScreen" k_end_screen_over_id="endScreen" k_pause_screen_id="pauseScreen" k_pause_screen_over_id="pauseScreen" k_play_screen_id="emptyScreen" k_play_screen_over_id="emptyScreen" k_start_screen_id="startScreen" k_start_screen_over_id="startScreen"/>
+     <Gigya height="100%" id="Gigya" k_share_email_body="Hi%2c%3cbr%3eI watched this video and thought you'd enjoy it too %24URL%24 to watch.%3cbr%3e%0d%0a%24sender%24%0d%0a" k_share_email_subject="Take a look at this video" k_path="addons/Gigya.swf" width="100%"/>
+    </Canvas>
+   <HBox id="controller" height="32" k_theme_change="true" styleName="controllerBoxLight" width="100%">
+    <Button width="28" height="28" id="play" styleName="play" k_buttonType="buttonIconControllerArea"/>
+    <VBox width="100%" height="100%" styleName="scrubberHolder">
+     <Scrubber width="100%" height="12" id="scrubber" styleName="scrubber"/>
+     <HBox width="100%" height="12" styleName="TimerCont">
+      <TimerCountdown k_change_by_click="false" height="20" id="timer1" k_path="timertext/TimerCountdown.swf" styleName="timer" width="32"/>
+     <Spacer width="100%"/>
+     <TimerCountdown height="20" id="timer2" k_show_total_time="true" k_path="timertext/TimerCountdown.swf" k_change_by_click="false" styleName="timer" width="32"/>
+     </HBox>
+    </VBox>
+    <VolumeModule width="29" height="23" id="Volume" k_path="VolumeBars/VolumeBarA.swf" k_buttonType="buttonIconControllerArea"/>
+    <Button width="29" height="23" id="fullScreen" label="" k_buttonType="buttonIconControllerArea" styleName="fullScreen" tooltip="Full Screen"/> 
+    <Button height="29" id="share" label="" styleName="controlShare" k_buttonType="buttonIconControllerArea" tooltip="Share this video" command="gigyaButton"/>
+    <Button k_theme_change="true" id="poweredByController" width="40" height="20" k_click="navigate('http://www.kaltura.com')" styleName="kalturaLogo"/>
+   </HBox>
+  </VBox>
+  <popups>
+  </popups>  
+  <screens>
+     <screen id="endScreen">
+       <HBox width="100%" height="100%" styleName="tileHolder">
+     		<Tile styleName="bottonsTile">
+      		<Button id="endScreenreplayBtn" width="65" height="65" styleName="replayBtn" label="Replay" labelPlacement="top" command="play" k_buttonType="buttonVideoArea"/>
+    		 
+     		</Tile>
+    </HBox>
+     </screen>
+     <screen id="pauseScreen">
+    	<HBox width="100%" height="100%" styleName="tileHolder">
+   		 <Tile styleName="bottonsTile">
+    		  <Button id="pauseScreenPlay" width="65" height="65" styleName="playPauseScreen" label="Play" labelPlacement="top" command="play"/>
+    		  
+    		 </Tile>
+   	 </HBox>
+     </screen>
+     <screen id="startScreen">
+    	<HBox width="100%" height="100%" styleName="tileHolder">
+   		 <Tile styleName="bottonsTile">
+    		  <Button id="startScreenPlayButtnOnScreen" width="65" height="65" styleName="playPauseScreen" label="" labelPlacement="top" command="play"/>
+    		 </Tile>
+   	 </HBox>
+     </screen>
+  </screens>
+  <javaScript>
+  </javaScript>
+
+	<visual>
+			<theme id="currentTheme">
+				<primaryColor>0x000000</primaryColor>
+				<secondaryColor>0xFFFFFF</secondaryColor>
+				<cssSelector componentId="controller" newClass="controllerBoxLight"/>
+				<cssSelector componentId="poweredByController" newClass="kalturaLogo"/>
+				<font>Arial</font>
+			</theme>
+	</visual>
+  <extraData>
+   <GigyaUI>
+	<config><display showDesktop="false" showEmail="true" useTransitions="true" showBookmark="true" codeBoxHeight="auto" showCloseButton="true" postToSidebarChecked="false" bulletinChecked="false" networksToHide="livespaces, piczo, orkut, pageflakes, vox, tagged, hi5, wordpress, multiply" networksWithCodeBox="*" networksToShow="myspace, facebook, bebo, blogger, freewebs, livejournal, blackplanet, myyearbook, typepad, xanga, igoogle, netvibes, migente, friendster" bookmarksToShow="googlebookmarks,delicious,digg,facebookshare,newsvine,reddit,twitter,ask,myaol,slashdot,skimbit,simpy,blogmarks,spurl,linkagogo,Magnolia,faves,segnalo,netvouz,blinklist,dropjack,feedmelinks"/><body><controls corner-roundness="0;10;0;10"><snbuttons iconsOnly="false" type="textUnder"/><servicemarker gradient-color-begin="#F4F4F4" gradient-color-end="#D5D5D5"/></controls></body></config>
+   </GigyaUI>
+  </extraData> 
+ </layout>
+</layouts>

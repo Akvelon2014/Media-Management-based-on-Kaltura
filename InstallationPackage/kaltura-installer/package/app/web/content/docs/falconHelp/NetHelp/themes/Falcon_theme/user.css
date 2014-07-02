@@ -1,0 +1,45 @@
+/* Global styles */
+body {
+    /*font-family: Georgia, Times, "Times New Roman";*/
+    /*font-size: 10pt;*/
+}
+
+/* Page header styles */
+#c1headerLogoCell {
+    /*vertical-align: middle;*/
+}
+#c1headerTextCell {
+    /*vertical-align: middle;*/
+}
+#c1headerText {
+    margin: 0;
+    font-family: Georgia, Times, "Times New Roman";
+    font-style: italic;
+}
+
+/* Links styles */
+#c1topicPanel a[href],
+#c1topicPanel a[data-ref],
+.topic-popup a[href],
+.topic-popup a[data-ref],
+.aklinks-menu a {
+    color: #1B75BB;
+    text-decoration: none;
+}
+#c1topicPanel a[href]:hover,
+#c1topicPanel a[data-ref]:hover,
+.topic-popup a[href]:hover,
+.topic-popup a[data-ref]:hover,
+.aklinks-menu a:hover {
+    text-decoration: underline;
+}
+
+/* Breadcrumbs styles */
+#c1breadcrumbs {
+    /*font-size: .8em;*/
+}
+
+/* Side tabs block styles */
+#c1sideTabs {
+    /*font-size: .9em;*/
+}

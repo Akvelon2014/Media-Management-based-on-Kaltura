@@ -1,0 +1,228 @@
+html body .custom-icon {
+    display: block;
+    text-indent: -99999px;
+    overflow: hidden;
+    background-repeat: no-repeat;
+    width: 16px;
+    height: 16px;
+}
+
+html body .custom-icon-1 { background-image: url(images/custom-icon-1.png); }
+html body .ui-widget-content .custom-icon-1 { background-image: url(images/custom-icon-1.png); }
+html body .ui-widget-header .custom-icon-1 { background-image: url(images/custom-icon-1.png); }
+html body .ui-state-default .custom-icon-1 { background-image: url(images/custom-icon-1-default.png); }
+html body .ui-state-hover .custom-icon-1,
+html body .ui-state-focus .custom-icon-1 { background-image: url(images/custom-icon-1-focus.png); }
+html body .ui-state-active .custom-icon-1 { background-image: url(images/custom-icon-1-active.png); }
+html body .ui-state-highlight .custom-icon-1 { background-image: url(images/custom-icon-1-highlight.png); }
+html body .ui-state-error .custom-icon-1,
+html body .ui-state-error-text .custom-icon-1 { background-image: url(images/custom-icon-1-error.png); }
+
+html body .custom-icon-2 { background-image: url(images/custom-icon-2.png); }
+html body .ui-widget-content .custom-icon-2 { background-image: url(images/custom-icon-2.png); }
+html body .ui-widget-header .custom-icon-2 { background-image: url(images/custom-icon-2.png); }
+html body .ui-state-default .custom-icon-2 { background-image: url(images/custom-icon-2-default.png); }
+html body .ui-state-hover .custom-icon-2,
+html body .ui-state-focus .custom-icon-2 { background-image: url(images/custom-icon-2-focus.png); }
+html body .ui-state-active .custom-icon-2 { background-image: url(images/custom-icon-2-active.png); }
+html body .ui-state-highlight .custom-icon-2 { background-image: url(images/custom-icon-2-highlight.png); }
+html body .ui-state-error .custom-icon-2,
+html body .ui-state-error-text .custom-icon-2 { background-image: url(images/custom-icon-2-error.png); }
+
+html body .custom-icon-3 { background-image: url(images/custom-icon-3.png); }
+html body .ui-widget-content .custom-icon-3 { background-image: url(images/custom-icon-3.png); }
+html body .ui-widget-header .custom-icon-3 { background-image: url(images/custom-icon-3.png); }
+html body .ui-state-default .custom-icon-3 { background-image: url(images/custom-icon-3-default.png); }
+html body .ui-state-hover .custom-icon-3,
+html body .ui-state-focus .custom-icon-3 { background-image: url(images/custom-icon-3-focus.png); }
+html body .ui-state-active .custom-icon-3 { background-image: url(images/custom-icon-3-active.png); }
+html body .ui-state-highlight .custom-icon-3 { background-image: url(images/custom-icon-3-highlight.png); }
+html body .ui-state-error .custom-icon-3,
+html body .ui-state-error-text .custom-icon-3 { background-image: url(images/custom-icon-3-error.png); }
+
+html body .custom-icon-4 { background-image: url(images/custom-icon-4.png); }
+html body .ui-widget-content .custom-icon-4 { background-image: url(images/custom-icon-4.png); }
+html body .ui-widget-header .custom-icon-4 { background-image: url(images/custom-icon-4.png); }
+html body .ui-state-default .custom-icon-4 { background-image: url(images/custom-icon-4-default.png); }
+html body .ui-state-hover .custom-icon-4,
+html body .ui-state-focus .custom-icon-4 { background-image: url(images/custom-icon-4-focus.png); }
+html body .ui-state-active .custom-icon-4 { background-image: url(images/custom-icon-4-active.png); }
+html body .ui-state-highlight .custom-icon-4 { background-image: url(images/custom-icon-4-highlight.png); }
+html body .ui-state-error .custom-icon-4,
+html body .ui-state-error-text .custom-icon-4 { background-image: url(images/custom-icon-4-error.png); }
+
+html body .custom-icon-5 { background-image: url(images/custom-icon-5.png); }
+html body .ui-widget-content .custom-icon-5 { background-image: url(images/custom-icon-5.png); }
+html body .ui-widget-header .custom-icon-5 { background-image: url(images/custom-icon-5.png); }
+html body .ui-state-default .custom-icon-5 { background-image: url(images/custom-icon-5-default.png); }
+html body .ui-state-hover .custom-icon-5,
+html body .ui-state-focus .custom-icon-5 { background-image: url(images/custom-icon-5-focus.png); }
+html body .ui-state-active .custom-icon-5 { background-image: url(images/custom-icon-5-active.png); }
+html body .ui-state-highlight .custom-icon-5 { background-image: url(images/custom-icon-5-highlight.png); }
+html body .ui-state-error .custom-icon-5,
+html body .ui-state-error-text .custom-icon-5 { background-image: url(images/custom-icon-5-error.png); }
+
+html body .custom-icon-6 { background-image: url(images/custom-icon-6.png); }
+html body .ui-widget-content .custom-icon-6 { background-image: url(images/custom-icon-6.png); }
+html body .ui-widget-header .custom-icon-6 { background-image: url(images/custom-icon-6.png); }
+html body .ui-state-default .custom-icon-6 { background-image: url(images/custom-icon-6-default.png); }
+html body .ui-state-hover .custom-icon-6,
+html body .ui-state-focus .custom-icon-6 { background-image: url(images/custom-icon-6-focus.png); }
+html body .ui-state-active .custom-icon-6 { background-image: url(images/custom-icon-6-active.png); }
+html body .ui-state-highlight .custom-icon-6 { background-image: url(images/custom-icon-6-highlight.png); }
+html body .ui-state-error .custom-icon-6,
+html body .ui-state-error-text .custom-icon-6 { background-image: url(images/custom-icon-6-error.png); }
+
+html body .custom-icon-7 { background-image: url(images/custom-icon-7.png); }
+html body .ui-widget-content .custom-icon-7 { background-image: url(images/custom-icon-7.png); }
+html body .ui-widget-header .custom-icon-7 { background-image: url(images/custom-icon-7.png); }
+html body .ui-state-default .custom-icon-7 { background-image: url(images/custom-icon-7-default.png); }
+html body .ui-state-hover .custom-icon-7,
+html body .ui-state-focus .custom-icon-7 { background-image: url(images/custom-icon-7-focus.png); }
+html body .ui-state-active .custom-icon-7 { background-image: url(images/custom-icon-7-active.png); }
+html body .ui-state-highlight .custom-icon-7 { background-image: url(images/custom-icon-7-highlight.png); }
+html body .ui-state-error .custom-icon-7,
+html body .ui-state-error-text .custom-icon-7 { background-image: url(images/custom-icon-7-error.png); }
+
+html body .custom-icon-8 { background-image: url(images/custom-icon-8.png); }
+html body .ui-widget-content .custom-icon-8 { background-image: url(images/custom-icon-8.png); }
+html body .ui-widget-header .custom-icon-8 { background-image: url(images/custom-icon-8.png); }
+html body .ui-state-default .custom-icon-8 { background-image: url(images/custom-icon-8-default.png); }
+html body .ui-state-hover .custom-icon-8,
+html body .ui-state-focus .custom-icon-8 { background-image: url(images/custom-icon-8-focus.png); }
+html body .ui-state-active .custom-icon-8 { background-image: url(images/custom-icon-8-active.png); }
+html body .ui-state-highlight .custom-icon-8 { background-image: url(images/custom-icon-8-highlight.png); }
+html body .ui-state-error .custom-icon-8,
+html body .ui-state-error-text .custom-icon-8 { background-image: url(images/custom-icon-8-error.png); }
+
+html body .custom-icon-9 { background-image: url(images/custom-icon-9.png); }
+html body .ui-widget-content .custom-icon-9 { background-image: url(images/custom-icon-9.png); }
+html body .ui-widget-header .custom-icon-9 { background-image: url(images/custom-icon-9.png); }
+html body .ui-state-default .custom-icon-9 { background-image: url(images/custom-icon-9-default.png); }
+html body .ui-state-hover .custom-icon-9,
+html body .ui-state-focus .custom-icon-9 { background-image: url(images/custom-icon-9-focus.png); }
+html body .ui-state-active .custom-icon-9 { background-image: url(images/custom-icon-9-active.png); }
+html body .ui-state-highlight .custom-icon-9 { background-image: url(images/custom-icon-9-highlight.png); }
+html body .ui-state-error .custom-icon-9,
+html body .ui-state-error-text .custom-icon-9 { background-image: url(images/custom-icon-9-error.png); }
+
+html body .custom-icon-10 { background-image: url(images/custom-icon-10.png); }
+html body .ui-widget-content .custom-icon-10 { background-image: url(images/custom-icon-10.png); }
+html body .ui-widget-header .custom-icon-10 { background-image: url(images/custom-icon-10.png); }
+html body .ui-state-default .custom-icon-10 { background-image: url(images/custom-icon-10-default.png); }
+html body .ui-state-hover .custom-icon-10,
+html body .ui-state-focus .custom-icon-10 { background-image: url(images/custom-icon-10-focus.png); }
+html body .ui-state-active .custom-icon-10 { background-image: url(images/custom-icon-10-active.png); }
+html body .ui-state-highlight .custom-icon-10 { background-image: url(images/custom-icon-10-highlight.png); }
+html body .ui-state-error .custom-icon-10,
+html body .ui-state-error-text .custom-icon-10 { background-image: url(images/custom-icon-10-error.png); }
+
+html body .custom-icon-11 { background-image: url(images/custom-icon-11.png); }
+html body .ui-widget-content .custom-icon-11 { background-image: url(images/custom-icon-11.png); }
+html body .ui-widget-header .custom-icon-11 { background-image: url(images/custom-icon-11.png); }
+html body .ui-state-default .custom-icon-11 { background-image: url(images/custom-icon-11-default.png); }
+html body .ui-state-hover .custom-icon-11,
+html body .ui-state-focus .custom-icon-11 { background-image: url(images/custom-icon-11-focus.png); }
+html body .ui-state-active .custom-icon-11 { background-image: url(images/custom-icon-11-active.png); }
+html body .ui-state-highlight .custom-icon-11 { background-image: url(images/custom-icon-11-highlight.png); }
+html body .ui-state-error .custom-icon-11,
+html body .ui-state-error-text .custom-icon-11 { background-image: url(images/custom-icon-11-error.png); }
+
+html body .custom-icon-12 { background-image: url(images/custom-icon-12.png); }
+html body .ui-widget-content .custom-icon-12 { background-image: url(images/custom-icon-12.png); }
+html body .ui-widget-header .custom-icon-12 { background-image: url(images/custom-icon-12.png); }
+html body .ui-state-default .custom-icon-12 { background-image: url(images/custom-icon-12-default.png); }
+html body .ui-state-hover .custom-icon-12,
+html body .ui-state-focus .custom-icon-12 { background-image: url(images/custom-icon-12-focus.png); }
+html body .ui-state-active .custom-icon-12 { background-image: url(images/custom-icon-12-active.png); }
+html body .ui-state-highlight .custom-icon-12 { background-image: url(images/custom-icon-12-highlight.png); }
+html body .ui-state-error .custom-icon-12,
+html body .ui-state-error-text .custom-icon-12 { background-image: url(images/custom-icon-12-error.png); }
+
+html body .custom-icon-13 { background-image: url(images/custom-icon-13.png); }
+html body .ui-widget-content .custom-icon-13 { background-image: url(images/custom-icon-13.png); }
+html body .ui-widget-header .custom-icon-13 { background-image: url(images/custom-icon-13.png); }
+html body .ui-state-default .custom-icon-13 { background-image: url(images/custom-icon-13-default.png); }
+html body .ui-state-hover .custom-icon-13,
+html body .ui-state-focus .custom-icon-13 { background-image: url(images/custom-icon-13-focus.png); }
+html body .ui-state-active .custom-icon-13 { background-image: url(images/custom-icon-13-active.png); }
+html body .ui-state-highlight .custom-icon-13 { background-image: url(images/custom-icon-13-highlight.png); }
+html body .ui-state-error .custom-icon-13,
+html body .ui-state-error-text .custom-icon-13 { background-image: url(images/custom-icon-13-error.png); }
+
+html body .custom-icon-14 { background-image: url(images/custom-icon-14.png); }
+html body .ui-widget-content .custom-icon-14 { background-image: url(images/custom-icon-14.png); }
+html body .ui-widget-header .custom-icon-14 { background-image: url(images/custom-icon-14.png); }
+html body .ui-state-default .custom-icon-14 { background-image: url(images/custom-icon-14-default.png); }
+html body .ui-state-hover .custom-icon-14,
+html body .ui-state-focus .custom-icon-14 { background-image: url(images/custom-icon-14-focus.png); }
+html body .ui-state-active .custom-icon-14 { background-image: url(images/custom-icon-14-active.png); }
+html body .ui-state-highlight .custom-icon-14 { background-image: url(images/custom-icon-14-highlight.png); }
+html body .ui-state-error .custom-icon-14,
+html body .ui-state-error-text .custom-icon-14 { background-image: url(images/custom-icon-14-error.png); }
+
+html body .custom-icon-15 { background-image: url(images/custom-icon-15.png); }
+html body .ui-widget-content .custom-icon-15 { background-image: url(images/custom-icon-15.png); }
+html body .ui-widget-header .custom-icon-15 { background-image: url(images/custom-icon-15.png); }
+html body .ui-state-default .custom-icon-15 { background-image: url(images/custom-icon-15-default.png); }
+html body .ui-state-hover .custom-icon-15,
+html body .ui-state-focus .custom-icon-15 { background-image: url(images/custom-icon-15-focus.png); }
+html body .ui-state-active .custom-icon-15 { background-image: url(images/custom-icon-15-active.png); }
+html body .ui-state-highlight .custom-icon-15 { background-image: url(images/custom-icon-15-highlight.png); }
+html body .ui-state-error .custom-icon-15,
+html body .ui-state-error-text .custom-icon-15 { background-image: url(images/custom-icon-15-error.png); }
+
+html body .custom-icon-16 { background-image: url(images/custom-icon-16.png); }
+html body .ui-widget-content .custom-icon-16 { background-image: url(images/custom-icon-16.png); }
+html body .ui-widget-header .custom-icon-16 { background-image: url(images/custom-icon-16.png); }
+html body .ui-state-default .custom-icon-16 { background-image: url(images/custom-icon-16-default.png); }
+html body .ui-state-hover .custom-icon-16,
+html body .ui-state-focus .custom-icon-16 { background-image: url(images/custom-icon-16-focus.png); }
+html body .ui-state-active .custom-icon-16 { background-image: url(images/custom-icon-16-active.png); }
+html body .ui-state-highlight .custom-icon-16 { background-image: url(images/custom-icon-16-highlight.png); }
+html body .ui-state-error .custom-icon-16,
+html body .ui-state-error-text .custom-icon-16 { background-image: url(images/custom-icon-16-error.png); }
+
+html body .custom-icon-17 { background-image: url(images/custom-icon-17.png); }
+html body .ui-widget-content .custom-icon-17 { background-image: url(images/custom-icon-17.png); }
+html body .ui-widget-header .custom-icon-17 { background-image: url(images/custom-icon-17.png); }
+html body .ui-state-default .custom-icon-17 { background-image: url(images/custom-icon-17-default.png); }
+html body .ui-state-hover .custom-icon-17,
+html body .ui-state-focus .custom-icon-17 { background-image: url(images/custom-icon-17-focus.png); }
+html body .ui-state-active .custom-icon-17 { background-image: url(images/custom-icon-17-active.png); }
+html body .ui-state-highlight .custom-icon-17 { background-image: url(images/custom-icon-17-highlight.png); }
+html body .ui-state-error .custom-icon-17,
+html body .ui-state-error-text .custom-icon-17 { background-image: url(images/custom-icon-17-error.png); }
+
+html body .custom-icon-18 { background-image: url(images/custom-icon-18.png); }
+html body .ui-widget-content .custom-icon-18 { background-image: url(images/custom-icon-18.png); }
+html body .ui-widget-header .custom-icon-18 { background-image: url(images/custom-icon-18.png); }
+html body .ui-state-default .custom-icon-18 { background-image: url(images/custom-icon-18-default.png); }
+html body .ui-state-hover .custom-icon-18,
+html body .ui-state-focus .custom-icon-18 { background-image: url(images/custom-icon-18-focus.png); }
+html body .ui-state-active .custom-icon-18 { background-image: url(images/custom-icon-18-active.png); }
+html body .ui-state-highlight .custom-icon-18 { background-image: url(images/custom-icon-18-highlight.png); }
+html body .ui-state-error .custom-icon-18,
+html body .ui-state-error-text .custom-icon-18 { background-image: url(images/custom-icon-18-error.png); }
+
+html body .custom-icon-19 { background-image: url(images/custom-icon-19.png); }
+html body .ui-widget-content .custom-icon-19 { background-image: url(images/custom-icon-19.png); }
+html body .ui-widget-header .custom-icon-19 { background-image: url(images/custom-icon-19.png); }
+html body .ui-state-default .custom-icon-19 { background-image: url(images/custom-icon-19-default.png); }
+html body .ui-state-hover .custom-icon-19,
+html body .ui-state-focus .custom-icon-19 { background-image: url(images/custom-icon-19-focus.png); }
+html body .ui-state-active .custom-icon-19 { background-image: url(images/custom-icon-19-active.png); }
+html body .ui-state-highlight .custom-icon-19 { background-image: url(images/custom-icon-19-highlight.png); }
+html body .ui-state-error .custom-icon-19,
+html body .ui-state-error-text .custom-icon-19 { background-image: url(images/custom-icon-19-error.png); }
+
+html body .custom-icon-20 { background-image: url(images/custom-icon-20.png); }
+html body .ui-widget-content .custom-icon-20 { background-image: url(images/custom-icon-20.png); }
+html body .ui-widget-header .custom-icon-20 { background-image: url(images/custom-icon-20.png); }
+html body .ui-state-default .custom-icon-20 { background-image: url(images/custom-icon-20-default.png); }
+html body .ui-state-hover .custom-icon-20,
+html body .ui-state-focus .custom-icon-20 { background-image: url(images/custom-icon-20-focus.png); }
+html body .ui-state-active .custom-icon-20 { background-image: url(images/custom-icon-20-active.png); }
+html body .ui-state-highlight .custom-icon-20 { background-image: url(images/custom-icon-20-highlight.png); }
+html body .ui-state-error .custom-icon-20,
+html body .ui-state-error-text .custom-icon-20 { background-image: url(images/custom-icon-20-error.png); }

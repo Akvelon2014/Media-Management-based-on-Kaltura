@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:controls="com.kaltura.controls.*"  
+		 xmlns:fltr="com.kaltura.edw.components.fltr.*" 
+		 xmlns:indicators="com.kaltura.edw.components.fltr.indicators.*" 
+		 xmlns:bulkactions="com.kaltura.kmc.modules.content.view.controls.bulkactions.*" 
+		 xmlns:categories="com.kaltura.kmc.modules.content.view.categories.*" 
+		 xmlns:filter="com.kaltura.kmc.modules.content.view.categories.filter.*" 
+		 implements="com.kaltura.kmc.modules.content.business.IContentPanel"
+		 creationComplete="creationCompleteHandler(event)" enabled="{!filterModel.categoriesLocked}">
+
+
+	<mx:Script>
+		<![CDATA[
+			import com.adobe.cairngorm.control.CairngormEvent;
+			import com.kaltura.edw.business.permissions.PermissionManager;
+			import com.kaltura.edw.events.GeneralNonCairngormEvent;
+			import com.kaltura.edw.model.FilterModel;
+			import com.kaltura.edw.model.types.WindowsStates;
+			import com.kaltura.kmc.modules.content.events.BulkEvent;
+			import com.kaltura.kmc.modules.content.events.CategoryEvent;
+			import com.kaltura.kmc.modules.content.events.SelectionEvent;
+			import com.kaltura.kmc.modules.content.events.WindowEvent;
+			import com.kaltura.kmc.modules.content.model.CategoriesModel;
+			import com.kaltura.kmvc.model.KMvCModel;
+			import com.kaltura.types.KalturaAppearInListType;
+			import com.kaltura.types.KalturaContributionPolicyType;
+			import com.kaltura.types.KalturaInheritanceType;
+			import com.kaltura.types.KalturaPrivacyType;
+			import com.kaltura.vo.KalturaBaseEntryFilter;
+			import com.kaltura.vo.KalturaCategory;
+			import com.kaltura.vo.KalturaCategoryFilter;
+			
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+
+			
+			private var _isCreationComplete:Boolean;
+			
+			[Bindable]
+			/**
+			 * screen data
+			 * */
+			public var categoriesModel:CategoriesModel;
+
+			[Bindable]
+			/**
+			 * filtering data
+			 * */
+			public var filterModel:FilterModel;
+
+			[Bindable]
+			/**
+			 * entries-related data
+			 * */
+			public var entryDetailsModel:KMvCModel;
+
+
+			/**
+			 * initialize the panel.
+			 * @param initFilter	filter for initial entry loading. (not relevant for this panel)
+			 * */
+			public function init(initFilter:KalturaBaseEntryFilter = null):void {
+				if (!_isCreationComplete) {
+					return;
+				}
+				if (this.enabled) {
+					paging.selectedPage = 1;
+					paging.pageSize = paging.rowInPageCb.value as int;
+	
+					if (filterModel.enableCustomData) {
+						var listCategoryMetadata:CategoryEvent = new CategoryEvent(CategoryEvent.LIST_METADATA_PROFILES);
+						listCategoryMetadata.dispatch();
+					}
+	
+					if (!filter.kalturaFilter) { 
+						filter.kalturaFilter = new KalturaCategoryFilter();
+					}
+					loadCategories();
+				}
+				else {
+					Alert.show(resourceManager.getString('cms', 'categoryPageLocked'), resourceManager.getString('cms', 'attention'));
+				}
+			}
+
+			
+			/**
+			 * list categories according to current filter
+			 * @param resetTree	if tre, category tree in filter is re-loaded
+			 * */
+			public function loadCategories(resetTree:Boolean = false):void {
+				// dispatch event that will load data according to screen filter
+				var cgEvent:CategoryEvent = new CategoryEvent(CategoryEvent.LIST_CATEGORIES);
+				filter.kalturaFilter.orderBy = categoriesTable.orderBy;
+				cgEvent.data = [filter.kalturaFilter, paging.kalturaFilterPager, resetTree];
+				cgEvent.dispatch();
+			}
+
+
+			/**
+			 * This is a new search called by an action on the filter vo
+			 */
+			private function newSearchFromFilter():void {
+				paging.selectedPage = 1;
+				loadCategories();
+			}
+
+
+			private function categoriesTable_moveCategoryHandler(event:GeneralNonCairngormEvent):void {
+				// set the single selected category  (event.data is KalturaCategory)
+				var cgEvent:CairngormEvent = new CategoryEvent(CategoryEvent.SET_SELECTED_CATEGORY);
+				cgEvent.data = event.data;
+				cgEvent.dispatch();
+				
+				cgEvent = new WindowEvent(WindowEvent.OPEN, WindowsStates.MOVE_CATEGORY_WINDOW);
+				cgEvent.dispatch();
+			}
+
+
+			private function categoriesTable_itemClickHandler(event:Event):void {
+				// set the list of selected categories
+				var et:CategoriesTable = event.target as CategoriesTable;
+				var cgEvent:SelectionEvent = new SelectionEvent(SelectionEvent.CATEGORIES_SELECTION_CHANGED, et.selectedItems);
+				cgEvent.dispatch();
+			}
+
+
+
+
+			protected function categoriesTable_showDetailsHandler(event:GeneralNonCairngormEvent):void
+			{
+				// set the single selected category  (event.data is KalturaCategory)
+				var cgEvent:CairngormEvent = new CategoryEvent(CategoryEvent.SET_SELECTED_CATEGORY);
+				cgEvent.data = event.data;
+				cgEvent.dispatch();
+
+				cgEvent = new WindowEvent(WindowEvent.OPEN, WindowsStates.CATEGORY_DETAILS_WINDOW);
+				cgEvent.dispatch();
+			}
+
+
+			protected function addCatBtn_clickHandler(event:MouseEvent):void
+			{
+				var cgEvent:CairngormEvent = new CategoryEvent(CategoryEvent.SET_SELECTED_CATEGORY);
+				cgEvent.data = createCategoryObject();
+				cgEvent.dispatch();
+
+				cgEvent = new WindowEvent(WindowEvent.OPEN, WindowsStates.CATEGORY_DETAILS_WINDOW);
+				cgEvent.dispatch();
+			}
+
+			public static function createCategoryObject():KalturaCategory{
+				var cat:KalturaCategory = new KalturaCategory();
+				cat.privacy = KalturaPrivacyType.ALL;
+				cat.appearInList = KalturaAppearInListType.PARTNER_ONLY;
+				cat.contributionPolicy = KalturaContributionPolicyType.ALL;
+				cat.inheritanceType = KalturaInheritanceType.MANUAL;
+
+				return cat;
+			}
+
+			private function creationCompleteHandler(event:FlexEvent):void {
+				PermissionManager.getInstance().applyAllAttributes(this, this.id);
+				_isCreationComplete = true;
+				// there's an assumption that init was triggered before by Content.
+				init();
+			}
+
+
+		]]>
+	</mx:Script>
+
+	<mx:HBox width="100%" verticalAlign="middle">
+		<mx:Label id="pageLabel" text="{resourceManager.getString('cms', 'categoriesPageTitle')}" styleName="filterTitleHeader" 
+				  width="{filter.width}"/>
+		<fltr:FreeTextSearch id="searchBox" styleName="searchHBox" width="{245}" height="{pageLabel.height}"
+							 attribute="freeText" defaultText="{resourceManager.getString('cms', 'searchCategories')}"/>
+		<indicators:Indicators id="indicators" width="100%" height="60"
+							   dataProvider="{filter.indicators}"
+							   boxClicked="filter.removeFilter(event.data)"/>
+		<mx:VBox styleName="noPadding">
+			<mx:LinkButton click="loadCategories(true)" label="{resourceManager.getString('cms','refresh')}"
+						   styleName="recycleIcon"/>
+			<mx:Label text="{resourceManager.getString('filter', 'indicatorsLabel', [indicators.numExceeded])}" 
+					  visible="{indicators.numExceeded > 0}" styleName="indicatorsLabel"/>
+		</mx:VBox>
+	</mx:HBox>
+	
+	<mx:HBox styleName="noPadding" horizontalGap="0" width="100%" height="100%">
+		<mx:HDividedBox id="topContainer" width="100%" height="100%">
+			<filter:CategoriesFilter id="filter" height="100%" width="245"  
+									  freeTextSearch="{searchBox}" filterModel="{filterModel}"
+									  metadataProfiles="{filterModel.categoryMetadataProfiles}"
+									  context="{entryDetailsModel.getDataPack(ContextDataPack) as ContextDataPack}"
+									  filterChanged="newSearchFromFilter()"/>
+
+			<mx:VBox id="entryTableContainer" height="100%" width="100%" styleName="entriesTablePagerAndButtonsVbox">
+				<categories:CategoriesTable id="categoriesTable" rowCount="10" width="100%" height="100%"
+											 dataProvider="{categoriesModel.categoriesList}" 
+											 orderByChanged="loadCategories()"
+											 selectionChanged="categoriesTable_itemClickHandler(event)"
+											 moveCategory="categoriesTable_moveCategoryHandler(event)"
+											 showDetails="categoriesTable_showDetailsHandler(event)"/>
+
+				<mx:HBox width="100%" styleName="noPadding" horizontalGap="0">
+					<bulkactions:BulkCategoryActionsMenu id="bulkActions" height="{paging.height}" />
+
+					<controls:Paging id="paging" width="100%" styleName="paging" totalCount="{categoriesModel.totalCategories}"
+									 rowsInPageChange="loadCategories()" nextPage="loadCategories()" prvPage="loadCategories()"
+									 getPageNum="loadCategories()" />
+
+				</mx:HBox>
+			</mx:VBox>
+		</mx:HDividedBox>
+		<mx:VBox styleName="listActionsBox" height="100%" id="actionsBox">
+			<mx:Button id="addCatBtn" label="{resourceManager.getString('cms', 'addNewCat')}" 
+					   styleName="listActionButton" buttonMode="true"
+					   click="addCatBtn_clickHandler(event)" />
+		</mx:VBox>
+	</mx:HBox>
+</mx:VBox>

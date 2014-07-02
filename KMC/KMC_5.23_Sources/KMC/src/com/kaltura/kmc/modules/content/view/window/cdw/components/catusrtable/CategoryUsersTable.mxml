@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<table:SelectionTable xmlns:table="com.kaltura.controls.table.*" 
+					  xmlns:mx="http://www.adobe.com/2006/mxml" sortableColumns="false"
+					  creationComplete="datagrid1_creationCompleteHandler(event)" >
+	
+	<mx:Script>
+		<![CDATA[
+			import com.kaltura.kmc.modules.content.events.CategoryUserEvent;
+			import com.kaltura.kmc.modules.content.view.window.cdw.users.SetPermissionLevelWin;
+			import com.kaltura.types.KalturaCategoryUserPermissionLevel;
+			import com.kaltura.types.KalturaCategoryUserStatus;
+			import com.kaltura.types.KalturaUpdateMethodType;
+			
+			import mx.events.FlexEvent;
+			import mx.formatters.DateFormatter;
+			import mx.managers.PopUpManager;
+			import mx.resources.ResourceManager;
+			
+			
+			/**
+			 * if true, actions in table are enabled
+			 * */
+			public function set allowActions(value:Boolean):void {
+				ActionsRenderer.allowActions = value;
+			}
+			
+			
+			/**
+			 * get a textual value according to user permission level
+			 * */
+			private function getPermissionLevel(item:Object, column:DataGridColumn):String {
+				switch (item.permissionLevel) {
+					case KalturaCategoryUserPermissionLevel.CONTRIBUTOR:
+						return ResourceManager.getInstance().getString('cms', 'permLvlContributor');
+						break;
+					case KalturaCategoryUserPermissionLevel.MANAGER:
+						return ResourceManager.getInstance().getString('cms', 'permLvlManager');
+						break;
+					case KalturaCategoryUserPermissionLevel.MEMBER:
+						return ResourceManager.getInstance().getString('cms', 'permLvlMember');
+						break;
+					case KalturaCategoryUserPermissionLevel.MODERATOR:
+						return ResourceManager.getInstance().getString('cms', 'permLvlModerator');
+						break;
+				}
+				return item.permissionLevel;
+			}
+			
+			
+			/**
+			 * get a textual value according to user status
+			 * */
+			private function getStatus(item:Object, column:DataGridColumn):String {
+				switch (item.status) {
+					case KalturaCategoryUserStatus.ACTIVE:
+						return ResourceManager.getInstance().getString('cms', 'catUserStatusActive');
+						break;
+					case KalturaCategoryUserStatus.PENDING:
+						return ResourceManager.getInstance().getString('cms', 'catUserStatusPending');
+						break;
+					case KalturaCategoryUserStatus.NOT_ACTIVE:
+						return ResourceManager.getInstance().getString('cms', 'catUserStatusArchived');
+						break;
+				}
+				return item.status;
+			}
+			
+			
+			/**
+			 * get a textual value according to user update method
+			 * */
+			private function getUpdateMethod(item:Object, column:DataGridColumn):String {
+				switch (item.updateMethod) {
+					case KalturaUpdateMethodType.AUTOMATIC:
+						return ResourceManager.getInstance().getString('cms', 'updateMethodAuto');
+						break;
+					case KalturaUpdateMethodType.MANUAL:
+						return ResourceManager.getInstance().getString('cms', 'updateMethodManual');
+						break;
+				}
+				return item.updateMethod;
+			}
+			
+			
+			/**
+			 * get a formatted representation of last update date
+			 * */
+			private function getUpdateDate(item:Object, column:DataGridColumn):String {
+				var df:DateFormatter = new DateFormatter();
+				df.formatString = ResourceManager.getInstance().getString('cms', 'mm_dd_yyyy_hh_nn');
+				var dt:Date = new Date(Number(item.updatedAt * 1000));
+				return df.format(dt);
+			}
+			
+			
+			
+			/**
+			 * get user name / id
+			 * */
+			private function getUserName(item:Object, column:DataGridColumn):String {
+				if (item.userName != null && item.userName != '') {
+					return item.userName;
+				}
+				return item.userId;
+			}
+			
+
+
+
+			private function datagrid1_creationCompleteHandler(event:FlexEvent):void {
+				identifier = "userId";
+//				addEventListener(CatUsrTableActions.APPROVE, doAction, false, 0, true);
+				addEventListener(CatUsrTableActions.ACTIVATE, doAction, false, 0, true);
+				addEventListener(CatUsrTableActions.DEACTIVATE, doAction, false, 0, true);
+				addEventListener(CatUsrTableActions.DELETE, doAction, false, 0, true);
+				addEventListener(CatUsrTableActions.EDIT_PERMISSION_LEVEL, doAction, false, 0, true);
+				addEventListener(CatUsrTableActions.SET_AUTO_UPDATE, doAction, false, 0, true);
+				addEventListener(CatUsrTableActions.SET_MANUAL_UPDATE, doAction, false, 0, true);
+			}
+			
+			
+			/**
+			 * handle the different actions
+			 * */
+			private function doAction(event:Event):void {
+				var cue:CategoryUserEvent;
+				switch (event.type) {
+//					case CatUsrTableActions.APPROVE:
+					case CatUsrTableActions.ACTIVATE:
+						cue = new CategoryUserEvent(CategoryUserEvent.ACTIVATE_CATEGORY_USER);
+						cue.data = [event.target.data];
+						cue.dispatch();
+						break;
+					
+					case CatUsrTableActions.DEACTIVATE:
+						cue = new CategoryUserEvent(CategoryUserEvent.DEACTIVATE_CATEGORY_USER);
+						cue.data = [event.target.data];
+						cue.dispatch();
+						break;
+					
+					case CatUsrTableActions.DELETE:
+						cue = new CategoryUserEvent(CategoryUserEvent.DELETE_CATEGORY_USERS);
+						cue.data = [event.target.data];
+						cue.dispatch();
+						break;
+					
+					case CatUsrTableActions.SET_AUTO_UPDATE:
+						cue = new CategoryUserEvent(CategoryUserEvent.SET_CATEGORY_USERS_AUTO_UPDATE);
+						cue.data = [event.target.data];
+						cue.dispatch();
+						break;
+					
+					case CatUsrTableActions.SET_MANUAL_UPDATE:
+						cue = new CategoryUserEvent(CategoryUserEvent.SET_CATEGORY_USERS_MANUAL_UPDATE);
+						cue.data = [event.target.data];
+						cue.dispatch();
+						break;
+					
+					case CatUsrTableActions.EDIT_PERMISSION_LEVEL:
+						var permLvlWin:SetPermissionLevelWin = new SetPermissionLevelWin();
+						permLvlWin.users = [event.target.data];
+						PopUpManager.addPopUp(permLvlWin, this, true);
+						PopUpManager.centerPopUp(permLvlWin);
+						break;
+				}
+			}
+
+		]]>
+	</mx:Script>
+	
+	<table:columns>
+		<mx:DataGridColumn width="32" minWidth="32" 
+						   headerRenderer="com.kaltura.controls.table.SelectionRenderer"
+						   itemRenderer="com.kaltura.controls.table.SelectionRenderer" />
+		
+		<mx:DataGridColumn paddingLeft="4" paddingRight="4" width="90"
+						   headerText="{resourceManager.getString('cms', 'uthName')}"
+						   labelFunction="getUserName" dataTipField="userId"
+						   itemRenderer="com.kaltura.edw.components.et.ir.GeneralRenderer"/>
+		
+		<mx:DataGridColumn paddingLeft="4" paddingRight="4" width="84"
+						   headerText="{resourceManager.getString('cms', 'uthPerm')}"
+						   labelFunction="getPermissionLevel"
+						   itemRenderer="com.kaltura.edw.components.et.ir.GeneralRenderer"/>
+		
+		<mx:DataGridColumn paddingLeft="4" paddingRight="4" width="54"
+						   headerText="{resourceManager.getString('cms', 'uthStatus')}"
+						   labelFunction="getStatus"
+						   itemRenderer="com.kaltura.edw.components.et.ir.GeneralRenderer"/>
+		
+		<mx:DataGridColumn paddingLeft="4" paddingRight="4" 
+						   headerText="{resourceManager.getString('cms', 'uthMethod')}"
+						   labelFunction="getUpdateMethod"
+						   itemRenderer="com.kaltura.edw.components.et.ir.GeneralRenderer"/>
+		
+		<mx:DataGridColumn paddingLeft="4" paddingRight="4" 
+						   headerText="{resourceManager.getString('cms', 'uthUpdatedOn')}"
+						   labelFunction="getUpdateDate"
+						   itemRenderer="com.kaltura.edw.components.et.ir.GeneralRenderer"/>
+		
+		<mx:DataGridColumn paddingLeft="4" paddingRight="4" dataField="id" width="180"
+						   headerText="{resourceManager.getString('cms', 'uthActions')}"
+						   itemRenderer="com.kaltura.kmc.modules.content.view.window.cdw.components.catusrtable.ActionsRenderer"/>
+		
+	</table:columns>
+</table:SelectionTable>

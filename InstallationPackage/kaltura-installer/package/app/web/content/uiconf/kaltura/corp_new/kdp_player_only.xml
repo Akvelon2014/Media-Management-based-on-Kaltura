@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layouts>
+	<layout skinPath="/content/uiconf/kaltura/corp_new/kdp_skin_simple2d.swf">
+  		<VBox height="100%" styleName="topLevelVBoxBorder" width="100%">
+			<HBox height="22" width="100%" styleName="topTitleHolder">
+				<Label height="22" id="movieName" label="{myKplayer.kalturaShow.kshowName,myKplayer.kalturaEntry.entryName,''}" styleName="movieName" width="100%"/>
+				<poweredBy height="12" id="poweredBy" k_path="poweredby/PoweredByGeneric.swf" width="90"/>
+			</HBox>
+			<Canvas height="100%" id="PlayerHolder" styleName="PlayerBackground" width="100%">
+				<KplayerModule height="100%" id="myKplayer" k_path="kplayer/KplayerModule.swf" maxHeight="450" maxWidth="600" styleName="centered" width="100%"/>
+				<waterMark height="100%" id="loadedWaterMark" k_path="watermarks/WaterMarkLoader.swf" k_watermark_path="/content/uiconf/kaltura/generic/kaltura_watermark.png" maxHeight="450" maxWidth="600" styleName="centered" width="100%"/>
+			</Canvas>
+			<Spacer height="5"/>
+			<HBox height="23" styleName="controller" width="100%">
+				<HBox height="23" styleName="col1" width="55">
+					<Button height="18" id="play" styleName="play" width="14"/>
+					<VBox height="25" styleName="timer" width="30">
+						<TimerCountdown height="15" id="timer" k_path="timertext/SimpleTimer.swf" width="100%"/>
+					</VBox>
+				</HBox>
+				<VBox height="100%" styleName="col2" width="100%">
+					<Scrubber height="10" id="scrubber" styleName="scrubber" width="100%"/>
+					<HBox height="20" styleName="extraButtons" width="100%"></HBox>
+				</VBox>
+				<VBox height="100%" styleName="col3" width="44">
+					<HBox height="18" styleName="col1" width="100%">
+						<Spacer width="4"/>
+						<VolumeModule height="20" id="volume" k_path="VolumeBars/VolumeBarA.swf" styleName="volumeModule" width="15"/>
+						<Spacer width="12"/>
+						<Button height="20" id="fullScreen" label="" styleName="fs" width="12"/>
+					</HBox>
+				</VBox>
+			</HBox>
+		</VBox>
+	</layout>
+</layouts>

@@ -1,0 +1,1125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!---
+	 entry drill-down screen.
+-->
+<navigation:ChangeableDataViewer xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:containers="com.kaltura.containers.*"
+							height="595" width="930" layout="horizontal" horizontalScrollPolicy="off" paddingTop="18"
+							showCloseButton="true" close="{onClose()}" help="{onHelp()}"
+							xmlns:navigation="com.kaltura.edw.business.*"
+							xmlns:ed="com.kaltura.edw.view.*" xmlns:adobe="http://www.adobe.com/2006/fc"
+							creationComplete="{onWindowCreationComplete()}" 
+							xmlns:window="com.kaltura.kmc.modules.content.view.window.*"
+							xmlns:control="com.kaltura.edw.control.*">
+	<mx:Metadata>
+		[ResourceBundle("drilldown")]
+	</mx:Metadata>
+	<mx:Script>
+		<![CDATA[
+			import com.kaltura.KalturaClient;
+			import com.kaltura.analytics.GoogleAnalyticsConsts;
+			import com.kaltura.analytics.GoogleAnalyticsTracker;
+			import com.kaltura.analytics.KAnalyticsTracker;
+			import com.kaltura.analytics.KAnalyticsTrackerConsts;
+			import com.kaltura.edw.business.Cloner;
+			import com.kaltura.edw.business.IDrilldownPanel;
+			import com.kaltura.edw.business.permissions.PermissionManager;
+			import com.kaltura.edw.constants.PanelConsts;
+			import com.kaltura.edw.control.events.KedEntryEvent;
+			import com.kaltura.edw.events.*;
+			import com.kaltura.edw.model.FilterModel;
+			import com.kaltura.edw.model.datapacks.*;
+			import com.kaltura.edw.view.panels.PanelLoader;
+			import com.kaltura.edw.view.panels.PanelMetadataParser;
+			import com.kaltura.edw.view.panels.PanelMetadataVO;
+			import com.kaltura.kmvc.control.KMvCEvent;
+			import com.kaltura.kmvc.model.KMvCModel;
+			import com.kaltura.types.KalturaEntryStatus;
+			import com.kaltura.types.KalturaMediaType;
+			import com.kaltura.types.KalturaStatsKmcEventType;
+			import com.kaltura.utils.KArrayUtil;
+			import com.kaltura.vo.KMCMetadataProfileVO;
+			import com.kaltura.vo.KalturaBaseEntry;
+			import com.kaltura.vo.KalturaLiveStreamAdminEntry;
+			import com.kaltura.vo.KalturaMediaEntry;
+			import com.kaltura.vo.KalturaMixEntry;
+			
+			import mx.binding.utils.BindingUtils;
+			import mx.binding.utils.ChangeWatcher;
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.core.Container;
+			import mx.core.UIComponent;
+			import mx.core.mx_internal;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.events.PropertyChangeEvent;
+			import mx.events.PropertyChangeEventKind;
+
+
+			// ===================================================================
+			// Events:
+			// ===================================================================
+
+			/**
+			 * the string to dispatch on help events so KMC can interpret them
+			 * */
+
+			public static const HELP_REQUEST:String = 'helpRequest';
+			
+			
+
+			// ===================================================================
+			// Change Watchers:
+			// ===================================================================
+
+			/**
+			 * watches when the selected entry on the model changes
+			 * */
+			private var _entryWatcher:ChangeWatcher;
+
+			/**
+			 * watch when the entry index changed
+			 * */
+			private var _entryIndexWatcher:ChangeWatcher;
+
+			/**
+			 * watch loading flag
+			 * */
+			private var _uiEnabledWatcher:ChangeWatcher;
+
+			/**
+			 * watcher for binding
+			 * */
+			private var _sameRefidWatcher:ChangeWatcher;
+
+			// ===================================================================
+			// Data:
+			// ===================================================================
+
+			[Bindable]
+			private var _entryDp:EntryDataPack;
+
+			private var _customDataDp:CustomDataDataPack;
+
+			[Bindable]
+			/**
+			 * entry details window data
+			 * */
+			private var _entryDetailsModel:KMvCModel;
+
+			[Bindable]
+			/**
+			 * filter data
+			 * */
+			private var _filterModel:FilterModel;
+			
+			/**
+			 * For use by the permission references.
+			 * */
+			public var panels:Object = new Object();
+			
+			public function set entryDetailsModel(value:KMvCModel):void {
+				_entryDetailsModel = value;
+				if (value) {
+					// let commands dispatch events from the current window
+					(value.getDataPack(ContextDataPack) as ContextDataPack).dispatcher = this;
+					
+					_entryDp = value.getDataPack(EntryDataPack) as EntryDataPack;
+					_filterModel = (value.getDataPack(FilterDataPack) as FilterDataPack).filterModel;
+					_customDataDp = value.getDataPack(CustomDataDataPack) as CustomDataDataPack;
+					
+					if (!_entryWatcher)
+						_entryWatcher = BindingUtils.bindProperty(this, "selectedEntry", _entryDp, "selectedEntry");
+					if (!_entryIndexWatcher)
+						_entryIndexWatcher = BindingUtils.bindProperty(this, "itemIndex", _entryDp, "selectedIndex");
+					
+					if (!_uiEnabledWatcher) {
+						_uiEnabledWatcher = BindingUtils.bindSetter(setUIEnbaled, _entryDetailsModel, "loadingFlag");
+					}
+					
+					// Init the Panel Loader on the first time
+					try {
+						PanelLoader.instance;
+					} 
+					catch (e:IllegalOperationError) {
+						var contextDp:ContextDataPack = value.getDataPack(ContextDataPack) as ContextDataPack;
+						var panelDataVO:PanelMetadataVO = PanelMetadataParser.parse(contextDp.panelsConfig);
+						PanelLoader.initialize(panelDataVO, contextDp.sourceUrl);
+					}
+					
+					initWindow();
+				}
+			}
+			
+			public function get entryDetailsModel():KMvCModel {
+				return _entryDetailsModel;
+			}
+
+			// ===================================================================
+			// 
+			// ===================================================================
+
+			[Bindable]
+			/**
+			 * copy of the selected entry.
+			 * we work on this instead of the actual selected entry
+			 * (model.selectedEntry) so we can easily revert if needed.
+			 * */
+			public var undoToEntry:KalturaBaseEntry;
+
+			private var _selectedEntry:KalturaBaseEntry;
+
+			/**
+			 * this js function will be triggered to show preview
+			 * */
+			public var openPlayerFunc:String;
+
+			[Bindable]
+			/**
+			 * show embed option on drilldown
+			 * */
+			public var showEmbedCode:Boolean = true;
+
+			[Bindable]
+			/**
+			 * whether we should load roughcuts
+			 * */
+			public var loadRoughcuts:Boolean = true;
+
+
+			/**
+			 * creation of new entry / edit of existing one
+			 * */
+			public var isNewEntry:Boolean = true;
+
+
+			[Bindable]
+			/**
+			 * whether there was first navigation: meaning init data was loaded, so we can enable tln
+			 * */
+			private var _enableTLN:Boolean = false;
+
+			/**
+			 * list of tabs which will be visible
+			 * */
+			private var _visibleTabs:Vector.<String>;
+
+
+			/**
+			 * creationComplete handler finished running
+			 * */
+			private var _isCreationComplete:Boolean = false;
+
+			/**
+			 * should the window be closed after saving entry data
+			 * */
+			private var _closeAfterSave:Boolean;
+
+			/**
+			 * indicates if we should move to the next entry after save is complete. <br>
+			 * -1 means go to prev entry, 1 means go to next entry, 0 means no pending entry. 
+			 * */
+			private var _nextPendingEntry:int = 0;
+
+			[Bindable]
+			public var isUiEnabled:Boolean = true;
+
+			[Bindable]
+			/**
+			 * RnP - user may not edit data
+			 * */
+			public var saveEnabled:Boolean = true;
+
+			/**
+			 * stores returned events after calls to <code>validate()</code>
+			 * or <code>save()</code>.
+			 *
+			 * @internal
+			 * it is ok to use the same array because
+			 * the processes cannot happen simultanously.
+			 * */
+			private var _results:Array;
+			
+			/**
+			 * Panels pending for creation process to be completed by the PanelLoader
+			 */
+			private var _panelsToCreate:Vector.<String>;
+			
+			/**
+			 * The currently available panels mapping from panel instance to panel ID.
+			 */
+			private var _currentPanelsMapping:Dictionary = new Dictionary();
+			
+			/**
+			 * A list of panel ids. This is the same as values of the _currentPanelsMapping dictionary, but used for easier access.
+			 */
+			private var _lastCreatedPanels:Vector.<String>;
+			
+			/**
+			 * A mapping between panel instances and ChangeWatcher that are related to them, that were created from binding to selectedEntry.
+			 */
+			private var _selectedEntryWatchers:Dictionary;
+			
+			/**
+			 * A mapping between panel instances and ChangeWatcher that are related to them, that were created from binding to _model.loadingFlag.
+			 */
+			private var _panelEnabledWatchers:Dictionary;
+			
+			/**
+			 * A list of panels instances that were created in the last initiliaztion iteration.
+			 */
+			private var _newPanels:Vector.<IDrilldownPanel> = new Vector.<IDrilldownPanel>;
+
+
+			/**
+			 * The entry to refer to in the current window.
+			 * refers to entryDetailsModel.selectedEntry
+			 * */
+			public function get selectedEntry():KalturaBaseEntry {
+				return _selectedEntry;
+			}
+
+			public function set selectedEntry(value:KalturaBaseEntry):void {
+				var shouldInit:Boolean;
+				if (_selectedEntry == null && value) {
+					shouldInit = true;
+				}
+				if (value && value != _selectedEntry) {
+					//if the given entry is a different entry than the current one
+					var isDifferentEntry:Boolean = (_selectedEntry ? value.id != _selectedEntry.id : true);
+					
+					if (_selectedEntry) {
+						_selectedEntry.removeEventListener(PropertyChangeEvent.PROPERTY_CHANGE, copyToUndoTo);
+					}
+					clearPanels();
+					
+					
+					_selectedEntry = value;
+					undoToEntry = Cloner.cloneByEntryType(_selectedEntry);
+					
+					setWindowTitle();
+						
+					_selectedEntry.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, copyToUndoTo, false, 0, true);
+					
+					if (_isCreationComplete) {
+						if (!isDifferentEntry) {
+							// To fix cuepoints synchronization issue: in case we are 
+							// still editing the same entry - re-init tabs data after timeout
+							setTimeout(initTabsData, 100);
+						}
+						else {
+							if (shouldInit) {
+								initWindow();
+							}
+							else {
+								setTabsByEntryType();
+							}
+						}
+					}
+				}
+			}
+
+
+			public function get visibleTabs():Vector.<String> {
+				return _visibleTabs;
+			}
+
+			public function set visibleTabs(value:Vector.<String>):void {
+				_visibleTabs = value;
+				if (_isCreationComplete) {
+					setVisibleTabs();
+					for each (var panel:IDrilldownPanel in _newPanels){
+						panel.init();
+					}
+				}
+			}
+			
+			/**
+			 * after save/update, copy new attributes to _undoToEntry
+			 * */
+			private function copyToUndoTo(e:PropertyChangeEvent):void {
+				if (undoToEntry && e.kind == PropertyChangeEventKind.UPDATE) {
+					undoToEntry[e.property] = e.newValue;
+					if (e.property == "name") {
+						setWindowTitle();
+					}
+				}
+			}
+			
+			/**
+			 * make panels ready for new entry
+			 * */
+			private function clearPanels():void {
+				if (viewStack) {
+					var panel:IDrilldownPanel;
+					for (var i:int = 0; i < viewStack.numChildren; i++) {
+						panel = viewStack.getChildAt(i) as IDrilldownPanel;
+						if (panel) {
+							panel.clear();
+						}
+						removeBindings(panel);
+					}
+				}
+				
+			}
+			
+			private function removeBindings(panel:IDrilldownPanel):void{
+				if (_panelEnabledWatchers){
+					var uiWatcher:ChangeWatcher = _panelEnabledWatchers[panel] as ChangeWatcher;
+					if (uiWatcher){
+						uiWatcher.unwatch();
+						_panelEnabledWatchers[panel] = null;
+					}
+				}
+				
+				if (_selectedEntryWatchers){
+					var entryWatcher:ChangeWatcher = _selectedEntryWatchers[panel] as ChangeWatcher;
+					if (entryWatcher){
+						entryWatcher.unwatch();
+						_selectedEntryWatchers[panel] = null;
+					}
+				}
+			}
+
+
+			/**
+			 * select panels and load data
+			 * */
+			private function initWindow():void {
+				if (_isCreationComplete && _entryDetailsModel && _selectedEntry) {
+					setTabsByEntryType();
+				}
+			}
+			
+			private function onHelp():void {
+				var currPanel:IDrilldownPanel = viewStack.selectedChild as IDrilldownPanel;
+				var e:GeneralNonCairngormEvent = new GeneralNonCairngormEvent(EntryDetailsWin.HELP_REQUEST, true);
+				e.data = currPanel.helpAnchor;
+				dispatchEvent(e);
+			}
+
+
+			/**
+			 * sets the window title. 
+			 * if entry doesn't have content and title yet
+			 * will set the title according to entry type
+			 * */
+			private function setWindowTitle():void {
+				if (undoToEntry.status == KalturaEntryStatus.NO_CONTENT) {
+					if (isNewEntry) {
+						var mediaType:int = parseInt(undoToEntry.mediaType);
+						switch (mediaType) {
+							case KalturaMediaType.IMAGE:
+								title = resourceManager.getString('drilldown', 'newImageEntry');
+								break;
+							case KalturaMediaType.AUDIO:
+								title = resourceManager.getString('drilldown', 'newAudioEntry');
+								break;
+							case KalturaMediaType.VIDEO:
+								title = resourceManager.getString('drilldown', 'newVideoEntry');
+								break;
+						}
+						return;
+					}
+				}
+
+				title = resourceManager.getString('drilldown', 'editEntry') + ' - ';
+				if (undoToEntry.replacedEntryId) {
+					title += _entryDp.replacedEntryName + ' (' + resourceManager.getString('drilldown', 'assetReplacement') + ')';
+
+				}
+				else {
+					title += undoToEntry.name;
+
+				}
+			}
+		
+			private function onWindowCreationComplete():void {
+				// roles and permissions 
+				PermissionManager.getInstance().applyAllAttributes(this, "entryDrilldown");
+				addEventListener(KedDataEvent.NAVIGATE, switchTab, false, 0, true);
+				_isCreationComplete = true;
+				mx_internal::closeButton.enabled = isUiEnabled;
+				initWindow();
+			}
+ 
+			
+			/**
+			 * switch to another tab (panel)
+			 * e.data is the id of the required tab
+			 * */
+			private function switchTab(e:KedDataEvent):void {
+				var tabid:String = e.data as String;
+				viewStack.selectedChild = panels[tabid] as Container;
+			}
+
+			
+			/**
+			 * bind uiEnabled flag to model's loadingFlag
+			 * */
+			private function setUIEnbaled(value:Boolean):void {
+				isUiEnabled = !value;
+				if (mx_internal::closeButton) {
+					mx_internal::closeButton.enabled = isUiEnabled; 
+				}
+			}
+
+			
+			/**
+			 * removes given tabs from the given tabs list
+			 * */
+			private function removeTabs(tabsToRemove:Array, tabsList:Array):void {
+				for each (var tab:UIComponent in tabsToRemove) {
+					KArrayUtil.removeItemFromArray(tab, tabsList);
+				}
+			}
+
+
+			/**
+			 * if entryChanged will reset all tabs according to entry type
+			 * else, will just reload tabs data
+			 * */
+			private function setTabsByEntryType():void {
+				
+				// get a list to work on
+//				var tabs:Array = _originalTabs.concat();
+				var allTabs:Vector.<String> = new Vector.<String>;
+				for (var id:String in PanelLoader.instance.panelData.urlMapping){
+					allTabs.push(id);
+				}
+				var tab:UIComponent;
+				if (_visibleTabs) {
+//					allTabs = filterVector(allTabs, _visibleTabs);
+					allTabs =  _visibleTabs;
+				}
+				// remove tabs which aren't relevant to the different entry types
+				if (undoToEntry is KalturaLiveStreamAdminEntry) {
+					allTabs = filterVector(allTabs, Vector.<String>([PanelConsts.ASSETS_PANEL, PanelConsts.CONTENT_PANEL, PanelConsts.ADS_PANEL, PanelConsts.CAPTIONS_PANEL, PanelConsts.DISTRIBUTION_PANEL]));
+				}
+				else if (selectedEntry is KalturaMixEntry) {
+					//this is a mix
+					
+					allTabs = filterVector(allTabs, Vector.<String>([PanelConsts.ASSETS_PANEL, PanelConsts.LIVE_STREAM_PANEL, PanelConsts.ADS_PANEL, PanelConsts.DISTRIBUTION_PANEL, PanelConsts.CLIPS_PANEL]));
+				}
+				else {
+					
+					// this entry is a regular video/image/audio
+					allTabs = filterVector(allTabs, Vector.<String>([PanelConsts.LIVE_STREAM_PANEL]));
+					
+					//remove redundant tabs in image and audio cases
+					if (selectedEntry.mediaType == KalturaMediaType.IMAGE) {
+						allTabs = filterVector(allTabs, Vector.<String>([PanelConsts.THUMBNAILS_PANEL, PanelConsts.ASSETS_PANEL, PanelConsts.DISTRIBUTION_PANEL, PanelConsts.CAPTIONS_PANEL, PanelConsts.ADS_PANEL, PanelConsts.CLIPS_PANEL]));
+					}
+					else if (selectedEntry.mediaType == KalturaMediaType.AUDIO) {
+						allTabs = filterVector(allTabs, Vector.<String>([PanelConsts.DISTRIBUTION_PANEL]));
+					}
+				}
+				
+//				// if uiconf requires removing content tab
+//				var cdp:ContentDataPack = KMvCModel.getInstance().getDataPack(ContentDataPack) as ContentDataPack;
+//				if (!cdp.showMixesTab) {
+//					allTabs = filterVector(allTabs, Vector.<String>([PanelConsts.CONTENT_PANEL]));
+//				}	// (QC 4569 - content tab is controlled by RnP)
+
+				var tabsToHide:Array = PermissionManager.getInstance().getRelevantSubTabsToHide("entryDrilldown");
+				allTabs = filterVector(allTabs, Vector.<String>(tabsToHide));
+
+				if (allTabs.indexOf(PanelConsts.CUSTOM_DATA_PANEL) != -1){
+					if (_filterModel.enableCustomData) {
+						if (_filterModel.metadataProfiles && _filterModel.metadataProfiles.length > 0) {
+							_customDataDp.metadataInfoArray = new ArrayCollection();
+							
+							// Determining if custom data tab is necessary.
+							var isCustomDataIn:Boolean = false;
+							for (var i:int = 0; i < _filterModel.metadataProfiles.length; i++) {
+								var curProfile:KMCMetadataProfileVO = _filterModel.metadataProfiles.getItemAt(i) as KMCMetadataProfileVO;
+								
+								if (curProfile.profile && curProfile.metadataFieldVOArray && curProfile.metadataFieldVOArray.length > 0) {
+									isCustomDataIn = true;
+									break;
+								}
+							}
+						}
+					}
+					//if none of the profiles contain fields (the only child is the navigation hbox)
+					if (! isCustomDataIn) {
+						allTabs = filterVector(allTabs, Vector.<String>([PanelConsts.CUSTOM_DATA_PANEL])); 
+					}	
+				}
+				
+				isUiEnabled = false;
+				createPanels(allTabs);
+			}
+			
+			
+			/**
+			 * add the given tabs to the viewstack while removing any other tabs
+			 * @param tabs	array with tab references
+			 * */
+			private function showTabs(tabs:Vector.<IDrilldownPanel>):void {
+				_selectedEntryWatchers = new Dictionary(true);
+				_panelEnabledWatchers = new Dictionary(true);
+				for (var ind:int = 0; ind < tabs.length; ind++){
+					var panelVO:PanelMetadataVO = PanelLoader.instance.panelData;
+					(tabs[ind] as UIComponent).percentWidth = 100;
+					(tabs[ind] as UIComponent).percentHeight = 100;
+					viewStack.addChild(tabs[ind] as DisplayObject);
+					tabs[ind].dataPackModel = _entryDetailsModel;
+					_selectedEntryWatchers[tabs[ind]] = BindingUtils.bindProperty(tabs[ind], "selectedEntry", this, "undoToEntry");
+					_panelEnabledWatchers[tabs[ind]] = BindingUtils.bindProperty(tabs[ind], "enabled", this, "isUiEnabled");
+				}
+				
+				viewStack.selectedIndex = dtn.selectedIndex = 0;
+				viewStack.addEventListener(FlexEvent.UPDATE_COMPLETE, onViewStackUpdated);
+				viewStack.invalidateDisplayList();
+			}
+
+
+			/**
+			 * will save the entry if needed, or delete it if user selected not to save
+			 * */
+			private function newEntryQuestionHandler(event:CloseEvent):void {
+				if (event.detail == Alert.YES) {
+					submitChanges(true);
+//					//a new entry was added so we should refresh
+//					dispatchEvent(new KedDataEvent(KedDataEvent.ENTRY_UPDATED));
+				}
+				else {
+					// delete the entry we created
+					var deleteEntryEvent:KedEntryEvent = new KedEntryEvent(KedEntryEvent.DELETE_ENTRY, undoToEntry, undoToEntry.id);
+					edwController.dispatch(deleteEntryEvent);
+				}
+				removeMe();
+			}
+
+
+			/**
+			 * "x" button clicked - see if need save or just close.
+			 * */
+			private function onClose():void {
+				if (isNewEntry) {
+					Alert.show(resourceManager.getString('drilldown', 'saveNoMediaEntryQ'), 
+						resourceManager.getString('drilldown', 'save'), Alert.YES | Alert.NO, null, newEntryQuestionHandler);
+				}
+				else if (isDataChanged()) {
+					// discard changes?
+					Alert.show(resourceManager.getString('drilldown', 'undoEntryDetails'), 
+						resourceManager.getString('drilldown', 'undoEntryDetailsTitle'), Alert.YES | Alert.NO, null, removeMe);
+				}
+				else {
+					// remove window
+					removeMe();
+				}
+			}
+
+
+			/**
+			 * checks if any data has changed. returns true if entry was changed, otherwise false
+			 * */
+			private function isDataChanged():Boolean {
+				var result:Boolean = false;
+				var panel:IDrilldownPanel;
+				for (var i:int = 0; i < viewStack.numChildren; i++) {
+					if (viewStack.getChildAt(i) is IDrilldownPanel) {
+						panel = viewStack.getChildAt(i) as IDrilldownPanel;
+						result ||= panel.isChanged();
+						// if one panel is changed we have a change, no need to keep checking.
+						if (result) {
+							trace(panel.id, "has unsaved data");
+							break;
+						}
+					}
+				}
+//				if (!result) {
+//					// none of the panels declared a change, see if the entry itself has changed
+//					result = !ObjectUtil.compareObjects(selectedEntry, _undoToEntry);
+//				}
+				return result;
+			}
+
+			
+			/**
+			 * destroy the window and tell the envelope app to remove it
+			 * */
+			private function removeMe(event:CloseEvent = null):void {
+				if ((event == null || event.detail == Alert.YES)) {
+					undoToEntry = null;
+					destroyPanels();
+					removeWatchers();
+
+//					var dsp:IEventDispatcher = (KMvCModel.getInstance().getDataPack(ContextDataPack) as ContextDataPack).dispatcher;
+					/* dsp. */dispatchEvent(new KedDataEvent(KedDataEvent.CLOSE_WINDOW));
+				}
+			}
+
+
+			/**
+			 * remove all binding watchers
+			 * */
+			private function removeWatchers():void {
+				if (_entryWatcher) {
+					_entryWatcher.unwatch();
+				}
+				if (_entryIndexWatcher) {
+					_entryIndexWatcher.unwatch();
+				}
+				if (_sameRefidWatcher) {
+					_sameRefidWatcher.unwatch();
+				}
+				if (_uiEnabledWatcher) {
+					_uiEnabledWatcher.unwatch();
+				}
+			}
+
+
+			/**
+			 * destroy and clean all viewstack children
+			 * */
+			private function destroyPanels():void {
+				for (var i:int = 0; i < viewStack.numChildren; i++) {
+					if (viewStack.getChildAt(i) is IDrilldownPanel) {
+						var panel:IDrilldownPanel = viewStack.getChildAt(i) as IDrilldownPanel;
+						panel.removeEventListener(InternalKedEvent.PANEL_DATA_SAVED, onPanelSaveComplete);
+						panel.removeEventListener(ValidationResultEvent.VALIDATION_COMPLETE, onPanelValidationComplete);
+						removeBindings(panel);
+						panel.clear();
+						panel.destroy();
+					}
+				}
+			}
+
+
+			/**
+			 * displays the validation error and navigates to the relevant tab
+			 * */
+			private function handleValidationError(tabToGo:DisplayObject, errorString:String = '', errorTitle:String = ''):void {
+				if (errorString != '')
+					Alert.show(errorString, errorTitle);
+				isUiEnabled = true;
+				_nextPendingEntry = 0;
+				viewStack.selectedIndex = viewStack.getChildIndex(tabToGo);
+			}
+
+
+			/**
+			 * wait for all panels validation to complete while keeping VREs
+			 * */
+			private function onPanelValidationComplete(e:ValidationResultEvent):void {
+				_results.push(e);
+				if (_results.length == viewStack.numChildren) {
+					// all panels returned results
+					var success:Boolean = true;
+					for each (var vre:ValidationResultEvent in _results) {
+						if (!vre.success) {
+							handleValidationError(vre.target as UIComponent, vre.errorMessage, vre.errorTitle);
+							success = false;
+							// no need to go over other results
+							break;
+						}
+					}
+					if (success) {
+						// if referenceId was changed
+						if (undoToEntry.referenceId && undoToEntry.referenceId != KalturaClient.NULL_STRING && _selectedEntry.referenceId != undoToEntry.referenceId) {
+							// list all entries with the same refid , if any - show message
+							if (!_sameRefidWatcher) {
+								_entryDp.entriesWSameRefidAsSelected = new Array();
+								_sameRefidWatcher = BindingUtils.bindSetter(confirmSameRefid, _entryDp, "entriesWSameRefidAsSelected");
+							}
+							var cg:KMvCEvent = new KedEntryEvent(KedEntryEvent.LIST_ENTRIES_BY_REFID, undoToEntry);
+							edwController.dispatch(cg);
+						}
+						else {
+							// just save it
+							save();
+						}
+					}
+					else {
+						trace("if we got here with no error message, it's a problem");
+					}
+				}
+			}
+
+
+			/**
+			 * trigger all panels validation
+			 * */
+			private function validate():void {
+				_results = new Array();
+				var panel:IDrilldownPanel;
+				for (var i:int = 0; i < viewStack.numChildren; i++) {
+					if (viewStack.getChildAt(i) is IDrilldownPanel) {
+						panel = viewStack.getChildAt(i) as IDrilldownPanel;
+						if (!panel.hasEventListener(ValidationResultEvent.VALIDATION_COMPLETE)) {
+							panel.addEventListener(ValidationResultEvent.VALIDATION_COMPLETE, onPanelValidationComplete);
+						}
+						panel.validate();
+					}
+				}
+			}
+
+			
+			
+			/**
+			 * confirm saving entry with existing referenceId
+			 * */
+			private function confirmSameRefid(value:Object):void {
+				if (value && value.length > 0) {
+					// we have entries with the same refid
+					var ar:Array = [];
+					for each (var o:KalturaBaseEntry in value) {
+						ar.push(o.id);
+					}
+					Alert.show(resourceManager.getString('drilldown', 'existingRefid', [undoToEntry.referenceId, ar]),
+						resourceManager.getString('drilldown', 'warning'), Alert.YES | Alert.NO, this, save);
+				}
+				else if (!value) {
+					save();
+				}
+				
+				if (!value || value.length > 0) {
+					_entryDp.entriesWSameRefidAsSelected = new Array();
+				}
+			}
+
+
+			private function onPanelSaveComplete(e:InternalKedEvent):void {
+				_results.push(e);
+				if (_results.length == viewStack.numChildren) {
+					// all panels finished their save/update process
+					saveEntryDetails();
+				}
+			}
+
+
+			/**
+			 * trigger all panels save/update process
+			 * @internal
+			 * the close event is there in case the function is triggered from alert
+			 * */
+			private function save(e:CloseEvent = null):void {
+				if (e && e.detail == Alert.NO) {
+					_nextPendingEntry = 0;
+					return;
+				}
+				_results = new Array();
+				var panel:IDrilldownPanel;
+				for (var i:int = 0; i < viewStack.numChildren; i++) {
+					if (viewStack.getChildAt(i) is IDrilldownPanel) {
+						panel = viewStack.getChildAt(i) as IDrilldownPanel;
+						if (!panel.hasEventListener(InternalKedEvent.PANEL_DATA_SAVED)) {
+							panel.addEventListener(InternalKedEvent.PANEL_DATA_SAVED, onPanelSaveComplete);
+						}
+						panel.save();
+					}
+				}
+			}
+
+
+			/**
+			 * update selected entry on server
+			 * */
+			private function saveEntryDetails():void {
+				var cgEvent:KedEntryEvent = new KedEntryEvent(KedEntryEvent.UPDATE_SINGLE_ENTRY, undoToEntry, undoToEntry.id);
+				cgEvent.data = {entry: undoToEntry, closeAfterSave: _closeAfterSave, nextEntryPending: _nextPendingEntry};
+				cgEvent.source = this;
+				cgEvent.onComplete = handleSaveComplete;
+				edwController.dispatch(cgEvent);
+				
+				KAnalyticsTracker.getInstance().sendEvent(KAnalyticsTrackerConsts.CONTENT, KalturaStatsKmcEventType.CONTENT_EDIT_ENTRY, "EditedtDrillDown", undoToEntry.id);
+				GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.CONTENT_EDIT_ENTRY, GoogleAnalyticsConsts.CONTENT);
+			}
+
+			private function handleSaveComplete():void {
+				if (_closeAfterSave) {
+					removeMe();
+				}
+				else if (_nextPendingEntry) {
+					setNextEntry();
+				}
+				else {
+					initTabsData();
+				}
+			}
+
+			private function onChangeView():void {
+				_enableTLN = true;
+				trackNavigation(viewStack.selectedChild.id);
+			}
+			
+			
+			/**
+			 * send tracking events about the current page
+			 * @panelId		page (panel) id
+			 * */
+			private function trackNavigation(panelId:String):void {
+				var event:String = '';
+				switch (panelId) {
+					case PanelConsts.ACCESS_CONTROL_PANEL:
+						event = GoogleAnalyticsConsts.CONTENT_DRILLDOWN_ACCESS_CONTROL;
+						break;
+					case PanelConsts.ADS_PANEL:
+						event = GoogleAnalyticsConsts.CONTENT_DRILLDOWN_ADVERTISEMENTS;
+						break;
+					case PanelConsts.ASSETS_PANEL:
+						event = GoogleAnalyticsConsts.CONTENT_DRILLDOWN_FLAVORS;
+						break;
+					case PanelConsts.CAPTIONS_PANEL:
+						event = GoogleAnalyticsConsts.CONTENT_DRILLDOWN_CAPTIONS;
+						break;
+					case PanelConsts.CLIPS_PANEL:
+						event = GoogleAnalyticsConsts.CONTENT_DRILLDOWN_CLIPS;
+						break;
+					case PanelConsts.CONTENT_PANEL:
+						event = GoogleAnalyticsConsts.CONTENT_DRILLDOWN_CONTENT;
+						break;
+					case PanelConsts.CUSTOM_DATA_PANEL:
+						event = GoogleAnalyticsConsts.CONTENT_DRILLDOWN_CUSTOM_DATA;
+						break;
+					case PanelConsts.DISTRIBUTION_PANEL:
+						event = GoogleAnalyticsConsts.CONTENT_DRILLDOWN_DISTRIBUTION;
+						break;
+					case PanelConsts.LIVE_STREAM_PANEL:
+						event = GoogleAnalyticsConsts.CONTENT_DRILLDOWN_LIVE;
+						break;
+					case PanelConsts.METADATA_PANEL:
+						event = GoogleAnalyticsConsts.CONTENT_DRILLDOWN_METADATA;
+						break;
+					case PanelConsts.RELATED_PANEL:
+						event = GoogleAnalyticsConsts.CONTENT_DRILLDOWN_RELATED_FILES;
+						break;
+					case PanelConsts.SCHEDULING_PANEL:
+						event = GoogleAnalyticsConsts.CONTENT_DRILLDOWN_SCHEDULING;
+						break;
+					case PanelConsts.THUMBNAILS_PANEL:
+						event = GoogleAnalyticsConsts.CONTENT_DRILLDOWN_THUMBNAILS;
+						break;
+				}
+				GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.PAGE_VIEW + event, GoogleAnalyticsConsts.CONTENT);
+			}
+
+			private function setEnabledByLoadingFlag(val:Boolean):void {
+				this.enabled = !val;
+			}
+
+			/**
+			 * list of tabs to remove from the drilldown window, separated by ",".
+			 * */
+			public function set hideTabs(tabs:String):void {
+				var tabsList:Array = tabs.split(",");
+				var l:int = tabsList.length;
+				var tab:DisplayObject;
+				for (var i:int = 0; i < l; i++) {
+					tab = viewStack.getChildByName(tabsList[i]);
+					if (tab) {
+						viewStack.removeChild(tab);
+					}
+				}
+			}
+
+			/**
+			 * @private
+			 * need the getter because applyPermission reads
+			 * the hideTabs value before it sets it.
+			 * */
+			public function get hideTabs():String {
+				return '';
+			}
+
+			/**
+			 * removes all tabs that their ID doesn't appear in the given array collection
+			 * */
+			private function setVisibleTabs():void {
+				for (var i:int = viewStack.numChildren - 1; i >= 0; i--) {
+					var child:UIComponent = viewStack.getChildAt(i) as UIComponent;
+					if (_visibleTabs.indexOf(child.id) == -1)
+						viewStack.removeChild(child);
+				}
+			}
+
+			/**
+			 * initializes the visible tabs
+			 * */
+			private function initTabsData():void {
+				for (var i:int = viewStack.numChildren - 1; i >= 0; i--) {
+					(viewStack.getChildAt(i) as IDrilldownPanel).initData();
+				}
+			}
+
+			/**
+			 * see if current entry changed before navigating to the next entry
+			 * @param ascending	if true go to next entry, if false go to prev.
+			 * */
+			private function gotoNextEntry(ascending:Boolean):void {
+				_nextPendingEntry = ascending ? 1 : -1;
+				if (isDataChanged()) {
+					// discard changes?
+					Alert.show(resourceManager.getString('drilldown', 'undoEntryDetails'), resourceManager.getString('drilldown', 'undoEntryDetailsTitle'), Alert.YES | Alert.NO, null, setNextEntry);
+				}
+				else {
+					setNextEntry();
+				}
+			}
+
+			/**
+			 * load the next entry
+			 * */
+			private function setNextEntry(event:CloseEvent = null):void {
+				if (_nextPendingEntry == 0) {
+					throw new Error("calling setNextEntry() with _nextPendingEntry == 0");
+					return;
+				}
+				if ((event == null || event.detail == Alert.YES)) {
+					itemIndex = getNavigatableItemIndex(_nextPendingEntry == 1, itemIndex);
+					var selectEntry:KedEntryEvent = new KedEntryEvent(KedEntryEvent.SET_SELECTED_ENTRY, _itemsAC.getItemAt(itemIndex) as KalturaBaseEntry, '', itemIndex, true);
+					edwController.dispatch(selectEntry);
+				}
+				_nextPendingEntry = 0;
+			}
+
+			/**
+			 * initializes save process
+			 * */
+			private function submitChanges(closeAfterSave:Boolean):void {
+				//to handle cases of slow system - disable UI even before sending server calls
+				isUiEnabled = false;
+				_closeAfterSave = closeAfterSave;
+				validate();
+			}
+			
+			private function filterVector(vector:Vector.<String>, filteredOut:Vector.<String>):Vector.<String>{
+				var resultVector:Vector.<String> = vector.filter(
+					function (item:String, index:int, vect:Vector.<String>):Boolean{
+						return filteredOut.indexOf(item) == -1;	
+					});
+				
+				return resultVector;
+			}
+			
+			
+			/**
+			 * create panels
+			 * @param panelIds	ids of panels that should be created
+			 * */
+			private function createPanels(panelIds:Vector.<String>):void{
+				_currentPanelsMapping = new Dictionary();
+				
+				// First, filtering out panels that already exist
+				var alreadyCreated:Vector.<String> = new Vector.<String>;
+				for each (var createdId:String in _lastCreatedPanels){
+					var panel:IDrilldownPanel = panels[createdId];
+					if (panelIds.indexOf(createdId) != -1){
+						panelIds.splice(panelIds.indexOf(createdId), 1);
+						_currentPanelsMapping[panel] = createdId;
+						alreadyCreated.push(createdId);
+					} else {
+						if ((panel as DisplayObject).parent == viewStack) {
+							// some panels remove themselves if no data to present (ie entry clips)
+							viewStack.removeChild(panel as DisplayObject);
+						}
+						removeBindings(panel); 
+						panel.clear();
+						panel.destroy();
+					}
+				}
+				
+				_lastCreatedPanels = panelIds.slice().concat(alreadyCreated);
+				_panelsToCreate = panelIds.slice();
+				if (panelIds.length > 0){
+					for each (var pId:String in panelIds){
+						PanelLoader.instance.createPanel(pId, onPanelCreated, pId);
+					}
+				} else {
+					onPanelCreationComplete();
+				}
+			}
+			
+			private function onPanelCreated(panel:IDrilldownPanel, panelId:String):void	{
+				_currentPanelsMapping[panel] = panelId;
+				_newPanels.push(panel);
+				
+				_panelsToCreate.splice(_panelsToCreate.indexOf(panelId), 1);
+				if (_panelsToCreate.length == 0){
+					onPanelCreationComplete();
+				}
+			}
+			
+			private function onPanelCreationComplete():void	{
+				
+				var sortedPanels:Vector.<IDrilldownPanel> = new Vector.<IDrilldownPanel>;
+				
+				// Populating vector before sort
+				for (var panelObj:Object in _currentPanelsMapping){
+					sortedPanels.push(panelObj as IDrilldownPanel);
+					panels[_currentPanelsMapping[panelObj] as String] = panelObj;
+				}
+				
+				// Sorting panels by typical order
+				sortedPanels = sortedPanels.sort(
+					function (panelA:IDrilldownPanel, panelB:IDrilldownPanel):int{
+						var idA:String = _currentPanelsMapping[panelA] as String;
+						var idB:String = _currentPanelsMapping[panelB] as String;
+						var indexA:uint = PanelLoader.instance.panelData.orderMapping[idA] as uint;
+						var indexB:uint = PanelLoader.instance.panelData.orderMapping[idB] as uint;
+						return indexA - indexB;
+					});
+				
+				showTabs(sortedPanels);
+			}
+			
+			private function onViewStackUpdated(event:FlexEvent):void
+			{
+				viewStack.removeEventListener(FlexEvent.UPDATE_COMPLETE, onViewStackUpdated);
+				for each (var panel:IDrilldownPanel in _newPanels){
+					panel.init();
+				}
+				
+				_newPanels = new Vector.<IDrilldownPanel>;
+				initTabsData();
+				isUiEnabled = true;
+			}
+			
+			
+			override protected function getNavigatableItemIndex(goForward:Boolean, itemInd:int):int{
+				var nextEntryIndex:int = super.getNavigatableItemIndex(goForward, itemInd);
+				if (nextEntryIndex == -1){
+					return nextEntryIndex;
+				}
+				
+				var nextEntry:KalturaMediaEntry = _itemsAC.getItemAt(nextEntryIndex) as KalturaMediaEntry;
+				if (nextEntry && nextEntry.mediaType == KalturaMediaType.LIVE_STREAM_FLASH && nextEntry.status != KalturaEntryStatus.READY) {
+					return getNavigatableItemIndex(goForward, nextEntryIndex);
+				}
+				else {
+					return nextEntryIndex;
+				}
+			}
+		]]>
+	</mx:Script>
+
+	<control:EDWController id="edwController"/>
+
+	<mx:TabBar id="dtn" width="140" dataProvider="{viewStack}" direction="vertical" styleName="dtn" useHandCursor="true"
+			   buttonMode="true" tabHeight="25" enabled="{!_entryDetailsModel.loadingFlag || _enableTLN}"/>
+
+	<mx:ViewStack id="viewStack" width="100%" height="100%" change="{onChangeView()}" creationPolicy="all"
+				  selectedIndex="{dtn.selectedIndex}" styleName="sectionViewStack" />
+
+	<mx:ControlBar horizontalGap="5">
+		<mx:HBox width="33%"/>
+		<mx:HBox width="33%" horizontalAlign="center">
+			<mx:Button id="saveBtn" label="{resourceManager.getString('drilldown', 'save')}"
+					   click="submitChanges(false)" buttonMode="true" enabled="{!_entryDetailsModel.loadingFlag &amp;&amp; saveEnabled}"/>
+			<mx:Button id="saveAndCloseBtn" label="{resourceManager.getString('drilldown', 'saveAndClose')}"
+					   click="submitChanges(true)" buttonMode="true" enabled="{!_entryDetailsModel.loadingFlag &amp;&amp; saveEnabled}"/>
+
+		</mx:HBox>
+		<mx:HBox horizontalAlign="right" width="33%" >
+			<mx:LinkButton label="{resourceManager.getString('drilldown', 'prevEntry')}" click="gotoNextEntry(false)"
+						   buttonMode="true" enabled="{!_entryDetailsModel.loadingFlag &amp;&amp; _prevEnabled}" visible="{showNextPrevBtns}"
+						   styleName="drillDownNavPrevBtn"/>
+			<mx:LinkButton label="{resourceManager.getString('drilldown', 'nextEntry')}" click="gotoNextEntry(true)"
+						   buttonMode="true" enabled="{!_entryDetailsModel.loadingFlag &amp;&amp; _nextEnabled}" visible="{showNextPrevBtns}"
+						   styleName="drillDownNavNextBtn" labelPlacement="left"/>
+		</mx:HBox>
+	</mx:ControlBar>
+</navigation:ChangeableDataViewer>

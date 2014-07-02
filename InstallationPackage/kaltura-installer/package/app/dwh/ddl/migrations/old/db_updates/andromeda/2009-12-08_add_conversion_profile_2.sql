@@ -1,0 +1,22 @@
+CREATE TABLE `kalturadw`.`dwh_dim_conversion_profiles_2` (
+  `conversion_profile_id` int(11) NOT NULL auto_increment,
+  `partner_id` int(11) NOT NULL,
+  `name` varchar(128) NOT NULL default '',
+  `created_at` datetime default NULL,
+  `created_date_id` int(11),
+  `created_hour_id` tinyint(4),
+  `updated_at` datetime default NULL,
+  `updated_date_id` int(11),
+  `updated_hour_id` tinyint(4),
+  `deleted_at` datetime default NULL,
+  `deleted_date_id` int(11),
+  `deleted_hour_id` tinyint(4),
+  `description` varchar(1024) NOT NULL default '',
+  `crop_left` int(11) NOT NULL default '-1',
+  `crop_top` int(11) NOT NULL default '-1',
+  `crop_width` int(11) NOT NULL default '-1',
+  `crop_height` int(11) NOT NULL default '-1',
+  `clip_start` int(11) NOT NULL default '-1',
+  `clip_duration` int(11) NOT NULL default '-1',
+  PRIMARY KEY  (`conversion_profile_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" 
+	implements="mx.controls.listClasses.IDropInListItemRenderer"
+	horizontalScrollPolicy="off" verticalScrollPolicy="off">
+	<mx:Script>
+		<![CDATA[
+			import com.kaltura.kmc.modules.analytics.control.DrillDownEvent;
+			import com.kaltura.kmc.modules.analytics.model.AnalyticsModelLocator;
+			
+			import flash.net.navigateToURL;
+			
+			import mx.controls.listClasses.BaseListData;
+			import mx.controls.listClasses.IDropInListItemRenderer;
+			import mx.utils.URLUtil;
+			
+			[Bindable] private var _model : AnalyticsModelLocator = AnalyticsModelLocator.getInstance();
+			
+   		    // Internal variable for the property value.
+   			[Bindable] private var _listData:BaseListData;
+    
+		    // Define the getter method and make the listData property bindable.
+		    [Bindable("dataChange")]
+		    public function get listData():BaseListData
+		    {
+		      return _listData;
+		    }
+		    
+		    // Define the setter method,
+		    public function set listData(value:BaseListData):void
+		    {
+		      _listData = value;
+		    }
+ 
+			private function onItemClick( event : MouseEvent ) : void
+			{
+				var object_name : String;
+				
+				if(data.country) object_name = data.country;
+				else if(data.entry_media_source_name) object_name = data.entry_media_source_name;
+				else if(data.entry_name) object_name = data.entry_name;
+				else if(data.domain_name) object_name = data.domain_name;
+				else if(data.name) object_name = data.name;
+				else if(data.NAME) object_name = data.NAME;
+				
+				var drillDownEvent : DrillDownEvent;
+				
+				//if we drill down a user
+				if(data.name)
+					drillDownEvent = new DrillDownEvent(DrillDownEvent.DRILL_DOWN , data.name , 0 , object_name);
+				else if (data.NAME)
+					drillDownEvent = new DrillDownEvent(DrillDownEvent.DRILL_DOWN , data.NAME , 0 , object_name);
+				else // else we drill down an entry
+					drillDownEvent = new DrillDownEvent(DrillDownEvent.DRILL_DOWN , data.object_id , 0 , object_name); //data.entry_id
+				
+				drillDownEvent.dispatch();	
+			}
+			
+			private function onRefererClick( event : MouseEvent ) : void
+			{
+				var url : String = _listData.label ;
+				if( !URLUtil.isHttpURL(_listData.label) &&  !URLUtil.isHttpsURL(_listData.label))
+				{
+					url = "http://" + _listData.label;
+				}
+				
+				navigateToURL( new URLRequest( url ) , '_blank');
+			}
+	
+		]]>
+	</mx:Script>
+	<mx:HBox paddingTop="2" paddingLeft="2">
+		<mx:Button id="refererIcon" styleName="refererStyle" buttonMode="true" 
+				   visible="{_model.showRefererIcon}" includeInLayout="{_model.showRefererIcon}"
+				   click="onRefererClick(event)" />
+	</mx:HBox>
+	<mx:Label id="regularText" textAlign="left" text="{_listData.label}" 
+			  visible="{!_model.tableSupportDrillDown}" includeInLayout="{!_model.tableSupportDrillDown}"/>
+	<mx:LinkButton id="linkBtn" click="onItemClick(event)" 
+				   visible="{_model.tableSupportDrillDown}" includeInLayout="{_model.tableSupportDrillDown}"
+				   textAlign="left" label="{_listData.label}" />
+	
+</mx:HBox>

@@ -1,0 +1,122 @@
+<?xml version="1.0"?>
+<kcw>
+	<mediaTypes>
+	
+		<media type="video">
+			
+			
+			<provider id="upload" name="upload" code="1">
+				<authMethodList>
+				  <authMethod type="1"/>
+				</authMethodList>
+				<moduleUrl>UploadView.swf</moduleUrl>
+
+				<fileFilters>
+					<filter type="video">
+						<allowedTypes>flv,asf,qt,mov,mpg,avi,wmv,mp4</allowedTypes>
+					</filter>
+				</fileFilters>
+			</provider>
+
+			<provider id="webcam" name="webcam" code="2">
+				<authMethodList>
+				  <authMethod type="1"/>
+				</authMethodList>
+				<moduleUrl>WebcamView.swf</moduleUrl>
+
+				<customData>
+				  <serverUrl>rtmp://{HOST_NAME}/oflaDemo</serverUrl>
+				</customData>
+			</provider>
+			
+			<!-- provider id="thissite" name="thissite" code="24">
+				<moduleUrl>SearchView.swf</moduleUrl>
+				<authMethodList>
+					<authMethod type="1" />
+				</authMethodList>
+				<tokens>
+			     <token>
+			      <name>extra_data</name>
+			      <value>$partner_id</value>
+			     </token>
+			    </tokens>
+			</provider -->
+			
+			<provider id="thissite" name="thissite" code="21" addsearch="true">
+				<moduleUrl>SearchView.swf</moduleUrl>
+				<authMethodList>
+				  <authMethod type="1"/>
+				</authMethodList>
+				<tokens>
+				  <token>
+					<name>extra_data</name>
+					<value>$partner_id</value>
+				  </token>
+				</tokens>
+		  </provider>
+
+			
+
+			<provider id="metacafe" name="metacafe" code="24">
+				<moduleUrl>SearchView.swf</moduleUrl>
+				<authMethodList>
+					<authMethod type="1"/>
+				</authMethodList>
+			</provider>
+
+			<provider id="photobucket" name="photobucket" code="8">
+				<moduleUrl>SearchView.swf</moduleUrl>
+				<authMethodList>
+					<authMethod type="1"/>
+				</authMethodList>
+			</provider>
+		</media>
+	
+	</mediaTypes>
+
+	<UIConfigList>
+		<UIConfig>
+		    <target>
+				ContributionWizard.swf
+		    </target>
+	  		<!-- cssUrl>/content/uiconf/kaltura/generic/kcw_2.0/light/kcw_styles.swf</cssUrl -->
+			<cssUrl id="light" name="Default Light">/content/uiconf/kcweditor/styles/light/default.swf</cssUrl>
+	  		<!-- localeUrl>/content/uiconf/kaltura/generic/kcw_2.0/dark/kcw_en_US.swf</localeUrl -->
+			<localeUrl>/content/uiconf/moodle/kcw/dark/kcw_en_US.swf?R=3</localeUrl>
+		</UIConfig>
+	</UIConfigList>
+
+	<StartupDefaults>
+			<SingleContribution>true</SingleContribution>
+			<gotoScreen>
+				<mediaType>video</mediaType>
+			</gotoScreen>
+
+			<NavigationProperties>
+				<enableTagging>true</enableTagging>
+				<enableIntroScreen>false</enableIntroScreen>
+			</NavigationProperties>
+  			<showLogoImage>true</showLogoImage>
+			<autoTOUConfirmation>true</autoTOUConfirmation>
+	</StartupDefaults>
+	
+	<webcamParams>
+		<keyFrameInterval/>
+		<width/>
+		<height/>
+		<framerate/>
+		<favorArea/>
+		<bandwidth/>
+		<quality/>
+	</webcamParams>
+	
+	 <limitations>
+	  <upload>
+	   <numFiles min="1" max="1"/>
+	  </upload>
+	  <search>
+	   <numFiles min="1" max="1"/>
+	  </search>
+	 </limitations>
+ 
+</kcw>

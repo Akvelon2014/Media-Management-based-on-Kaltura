@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+		Charts Panel section
+
+
+-->
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" styleName="chartsBox" height="100%" 
+		 xmlns:charts="com.kaltura.charts.*" 
+		 xmlns:chartspanel="com.kaltura.kmc.modules.dashboard.components.panels.chartspanel.*" xmlns:panels="com.kaltura.kmc.modules.dashboard.panels.*" creationComplete="onChartPanelCreationComplete()">
+	<mx:Script>
+		<![CDATA[
+			import com.kaltura.analytics.GoogleAnalyticsConsts;
+			import com.kaltura.analytics.GoogleAnalyticsTracker;
+			import com.kaltura.analytics.KAnalyticsTracker;
+			import com.kaltura.analytics.KAnalyticsTrackerConsts;
+			import com.kaltura.kmc.events.KmcNavigationEvent;
+			import com.kaltura.kmc.modules.dashboard.DashboardManager;
+			import com.kaltura.types.KalturaStatsKmcEventType;
+			
+			import mx.binding.utils.BindingUtils;
+			
+			[Bindable]
+			public var showGraphs : Boolean = true;
+			
+			
+			private function onChartPanelCreationComplete () : void
+			{
+				BindingUtils.bindProperty(DashboardManager.instance, "showGraphs", this, "showGraphs");
+			}
+			
+			
+			/**
+			 *  Bind the graphs to the data
+			 * 
+			 */
+			private function chartCreationComplete(event:Event):void
+			{
+				BindingUtils.bindSetter(setChartData, DashboardManager.instance, 'selectedDim');
+			}
+			
+			/**
+			 *  set the graphs data
+			 * 
+			 */
+			private function setChartData(data:Object):void
+			{
+				chart.dataProvider = DashboardManager.instance.selectedDim;
+			}
+			
+			private function loadReports():void{
+				GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.DASHBOARD_VIEW_REPORTS, GoogleAnalyticsConsts.DASHBOARD);
+				KAnalyticsTracker.getInstance().sendEvent(KAnalyticsTrackerConsts.DASHBOARD,KalturaStatsKmcEventType.DASHBOARD_VIEW_REPORTS, "DashBoard>View Reports")
+				// show analytics module
+//				DashboardManager.instance.loadKMCModule('reports');
+				dispatchEvent(new KmcNavigationEvent(KmcNavigationEvent.NAVIGATE, 'analytics'));
+			}
+		]]>
+	</mx:Script>
+	<mx:Label text="{resourceManager.getString('kdashboard', 'top_content')}" id="chartsTitleLabel" styleName="chartTitleLabel"/>
+	<panels:ChartDimOptionsComboBox id="OptionsComboBox"/>
+	<charts:KLineChart id='chart' width="100%" height="100%" minHAxisDate="{DashboardManager.instance.DATE_30_DAYS_AGO}" maxHAxisDate="{DashboardManager.instance.TODAY_DATE}" dataProvider="{DashboardManager.instance.selectedDim}" creationComplete="chartCreationComplete(event)"/>
+	<mx:Button id='viewReportsBtn' label="{resourceManager.getString('kdashboard', 'view_reports')}" click="loadReports()" useHandCursor="true" buttonMode="true" styleName="dashboardBtn"/>
+</mx:VBox>

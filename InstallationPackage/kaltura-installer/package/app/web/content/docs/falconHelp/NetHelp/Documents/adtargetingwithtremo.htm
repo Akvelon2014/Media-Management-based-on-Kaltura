@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html><head><title>Ad Targeting with Tremor</title><link rel="stylesheet" type="text/css" href="../LinksExt/Kaltura_Management_Console_(KMC)_User_Manual_Falcon_good.css" />
+<meta name="topicId" content="c984c6e2-fc6e-4883-b092-eb4ac9be47a1" />
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<script src="../js/nethelp.redirector.js" type="text/javascript"></script>
+<link rel="prev" href="adtargetingviaadplug.htm" /><link rel="next" href="advertisingformobile.htm" />
+<meta name="Generator" content="ComponentOne Doc-To-Help v.2012.2.0.723" />
+<meta name="D2HTheme" content="Falcon_theme" />
+</head>
+<body>
+<h3>Ad Ta<span class="Heading3Char"><span style="FONT-WEIGHT: normal">r</span></span>geting with Tremor </h3>
+<p class="Sub-Heading0">Passing dynamic data<span style="LINE-HEIGHT: 150%; COLOR: black; FONT-SIZE: 12pt"></span></p>
+<p class="MsoBodyText">By inserting specific key-value pairs in the uivars, a 
+Kaltura partner can define that any Kaltura metadata gets passed to Tremor via 
+the Tremor plugin. Then, through the Tremor ad server, the partner can decide 
+how to target ads via the metadata.<span style="COLOR: black; FONT-SIZE: 12pt"></span></p>
+<p class="Sub-Heading0">Examples:  </p>
+<p class="CodeCxSpFirst">&lt;var key="customAd.paramKey1" value="duration" 
+/&gt;    </p>
+<p class="CodeCxSpMiddle">&lt;var key="customAd.paramValue1" 
+value="{mediaProxy.entry.duration}" /&gt;     </p>
+<p class="CodeCxSpMiddle">&lt;var key="customAd.paramKey2" value="entryId" 
+/&gt;     </p>
+<p class="CodeCxSpMiddle">&lt;var key="customAd.paramValue2" 
+value="{mediaProxy.entry.id}" /&gt;     </p>
+<p class="CodeCxSpMiddle">&lt;var key="customAd.paramKey3" value="categories" 
+/&gt;     </p>
+<p class="CodeCxSpMiddle">&lt;var key="customAd.paramValue3" 
+value="{mediaProxy.entry.categories}" /&gt;     </p>
+<p class="CodeCxSpMiddle">&lt;var key="customAd.paramKey4" value="ContentRating" 
+/&gt;     </p>
+<p class="CodeCxSpMiddle">&lt;var key="customAd.paramValue4" 
+value="{mediaProxy.entryMetadata.ContentRating}" /&gt;     
+</p>
+<p class="CodeCxSpLast">&lt;var key="requiredMetadataFields" value="true" /&gt; 
+</p>
+<p class="MsoNormal"><span class="BodyTextChar">Note that ContentRating, which is a 
+custom data field, has a slightly different value from the rest of the 
+</span>metadata.</p>
+<p class="MsoNormal">To enable the custom data field, you must insert a custom ad 
+path into the uiconf. <i></i></p><span id="related-topics"></span></body></html>

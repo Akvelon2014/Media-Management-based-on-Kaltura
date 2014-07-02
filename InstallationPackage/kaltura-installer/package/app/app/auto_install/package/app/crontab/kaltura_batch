@@ -1,0 +1,2 @@
+*/30 * * * * root echo `date` >> @LOG_DIR@/cron.log && @APP_DIR@/scripts/watch.batchMgr.sh >> @LOG_DIR@/cron.log 2>&1 
+*/15 * * * * root echo `date` >> @LOG_DIR@/cron.log && @APP_DIR@/alpha/crond/kaltura/clear_cache.sh >> @LOG_DIR@/cron.log 2>&1

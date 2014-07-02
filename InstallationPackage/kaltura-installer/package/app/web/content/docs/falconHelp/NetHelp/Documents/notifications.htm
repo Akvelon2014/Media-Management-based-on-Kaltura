@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html><head><title>Notifications</title><link rel="stylesheet" type="text/css" href="../LinksExt/Kaltura_Management_Console_(KMC)_User_Manual_Falcon_good.css" />
+<meta name="topicId" content="b2cbba80-c49a-47fb-b661-843b6765ed5e" />
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<script src="../js/nethelp.redirector.js" type="text/javascript"></script>
+<link rel="prev" href="entitlementsettings.htm" /><link rel="next" href="accesscontrol.htm" />
+<meta name="Generator" content="ComponentOne Doc-To-Help v.2012.2.0.723" />
+<meta name="D2HTheme" content="Falcon_theme" />
+</head>
+<body>
+<h3><a name="_Adding_Entitlement_to" id="_Adding_Entitlement_to"></a><a name="_Entitlement_Settings" id="_Entitlement_Settings"></a>Notifications</h3>
+<p class="MsoNormal">When creating Kaltura applications or integrating various 
+Kaltura features into existing applications or sites, it is often required that 
+the application be notified of various actions that occurred in Kaltura. For 
+example: When a user on your site uploads a new video file, you might want your 
+site code to be notified of when Kaltura has finished processing the video file 
+and made it ready for publishing.</p>
+<p class="MsoNormal">While it is possible to easily query the Kaltura API 
+periodically, Kaltura’s API Notifications utilize a “push” methodology where a 
+code on your site will be called automatically by Kaltura whenever a certain 
+actions occur like video upload or media status changes.</p>
+<p class="MsoNormal">Kaltura provide two types of Notifications: </p>
+<p style="TEXT-INDENT: -18.6pt; MARGIN-LEFT: 37.7pt; tab-stops: 37.7pt" class="MsoListBulletCxSpFirst"><span style="FONT-FAMILY: Verdana">•</span><span style="FONT-FAMILY: Symbol; VISIBILITY: hidden">      
+</span><a href="http://www.kaltura.org/kaltura-terminology#kaltura-client-notifications">Kaltura 
+Client Notifications</a> – Notifications that are sent from the Kaltura 
+widget (e.g. Kaltura Contribution Wizard) when a user performs an action like 
+uploading a new video file. The notification will be called from the Kaltura 
+widget directly to the publisher’s notification handler code hosted on the 
+publisher’s server.</p>
+<p style="TEXT-INDENT: -18.6pt; MARGIN-LEFT: 37.7pt; tab-stops: 37.7pt" class="MsoListBulletCxSpLast"><span style="FONT-FAMILY: Verdana">•</span><span style="FONT-FAMILY: Symbol; VISIBILITY: hidden">      
+</span><a href="http://www.kaltura.org/kaltura-terminology#kaltura-server-notifications">Kaltura 
+Server Notifications</a> – Notifications that are sent from the Kaltura 
+server to the publisher’s server using http post requests. The publisher is 
+expected to host a notification handler script on his server, to which the 
+Kaltura server will call providing information about the actions that 
+occurred.</p>
+<p style="tab-stops: 36.0pt" class="Procedure"><img title="*" border="0" alt="*" src="../ImagesExt/image50_0.png" /><span style="FONT-WEIGHT: normal">  
+</span>To setup client and/or server notifications</p>
+<p style="MARGIN-LEFT: 36pt; tab-stops: 36.0pt" class="MsoListNumberCxSpFirst"><b>1.   </b>Enter the Notification 
+URL.</p>
+<p style="MARGIN-LEFT: 36pt; tab-stops: 36.0pt" class="MsoListNumberCxSpLast"><b>2.   </b>Select the type of 
+notifications from the displayed list.</p>
+<p class="MsoListContinue"><img border="0" src="../ImagesExt/image50_229.png" alt="" /></p>
+<p class="MsoNormal"><a name="AccessControl" id="AccessControl"></a><a name="_Access_Control" id="_Access_Control"></a>For 
+more information about the various notifications and how to implement a 
+notification handler script on your server, refer to: <a href="http://www.kaltura.com/api_v3/testmeDoc/index.php?page=notifications">http://www.kaltura.com/api_v3/testmeDoc/index.php?page=notifications</a></p><span id="related-topics"></span></body></html>

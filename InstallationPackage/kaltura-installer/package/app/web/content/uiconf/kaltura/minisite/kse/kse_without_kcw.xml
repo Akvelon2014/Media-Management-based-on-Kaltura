@@ -1,0 +1,27 @@
+<SimpleEditor>
+
+	<ContributionWizard>
+		<UIConfigId>71201</UIConfigId>
+	</ContributionWizard>
+
+	<Welcome>/content/uiconf/kaltura/minisite/kse/samplekitwelcome.swf</Welcome>
+
+	<DefaultTransition>None</DefaultTransition>
+	<enableCW>false</enableCW>
+	
+	<KPaint>
+		<target>/flash/kpaint/v1.0.1/Painter.swf</target>
+		<shapes>/flash/kpaint/v1.0.1/shapes</shapes>
+		<fonts>/flash/kpaint/v1.0.1/fonts</fonts>
+		<config>/flash/kpaint/v1.0.1/kpaint_config.xml</config>
+	</KPaint>
+	
+	<UIConfigList>
+    	<UIConfig>
+			<target>simpleeditor.swf</target>
+		    <cssUrl>/content/uiconf/kaltura/minisite/kse/styles_SimpleEditor_samplekit.swf</cssUrl>
+		    <localeUrl>/content/uiconf/kaltura/minisite/kse/en_US_SimpleEditor.swf</localeUrl>
+		</UIConfig>
+	</UIConfigList>
+
+</SimpleEditor>

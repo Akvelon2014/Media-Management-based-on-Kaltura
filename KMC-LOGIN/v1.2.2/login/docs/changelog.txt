@@ -1,0 +1,4 @@
+1.1.9 to 1.1.11
+===============
+use new client
+get calls protocol from swf url (if loaded using http use http for calls, if loaded using https use https)

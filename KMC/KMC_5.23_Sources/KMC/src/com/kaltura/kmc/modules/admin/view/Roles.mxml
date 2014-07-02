@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:view="com.kaltura.kmc.modules.admin.view.*"
+		 xmlns:controls="com.kaltura.controls.*" width="100%" height="100%"
+		 creationComplete="creationCompleteHandler(event)"
+		 implements="com.kaltura.kmc.modules.admin.view.IAdminSubtab">
+	<mx:Metadata >
+		[Event(name="enableHeader",type="com.kaltura.kmc.modules.admin.control.events.GeneralEvent")]
+	</mx:Metadata>
+	<mx:Script>
+		<![CDATA[
+			import com.adobe.cairngorm.control.CairngormEvent;
+			import com.kaltura.analytics.GoogleAnalyticsConsts;
+			import com.kaltura.analytics.GoogleAnalyticsTracker;
+			import com.kaltura.edw.business.permissions.PermissionManager;
+			import com.kaltura.kmc.events.KmcNavigationEvent;
+			import com.kaltura.kmc.modules.admin.control.events.DrilldownEvent;
+			import com.kaltura.kmc.modules.admin.control.events.GeneralEvent;
+			import com.kaltura.kmc.modules.admin.control.events.ListItemsEvent;
+			import com.kaltura.kmc.modules.admin.control.events.RoleEvent;
+			import com.kaltura.kmc.modules.admin.model.DrilldownMode;
+			import com.kaltura.kmc.modules.admin.model.RolesModel;
+			import com.kaltura.vo.KalturaFilterPager;
+			import com.kaltura.vo.KalturaUserRole;
+			
+			import mx.binding.utils.BindingUtils;
+			import mx.collections.ArrayCollection;
+			import mx.core.Application;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			import mx.resources.ResourceManager;
+			
+			/**
+			 * permissions that all KMC roles must have and are not edited via role edit form
+			 * */
+			public static const DEFAULT_KMC_PERMISSIONS:String = 'KMC_ACCESS,KMC_READ_ONLY';
+			
+			[Bindable]
+			public var model:RolesModel;
+			[Bindable]
+			public var isLoading:Boolean;
+			
+			/**
+			 * a popup window with role details
+			 * */
+			protected var _roleDrilldown:RoleDrilldown;
+			
+			
+			/**
+			 * bind setters and apply permissions
+			 * */
+			protected function creationCompleteHandler(event:FlexEvent):void {
+				BindingUtils.bindSetter(onDrilldownStateChange, model, "drilldownMode");
+				BindingUtils.bindSetter(onNewRoleChanged, model, "newRole");
+				//				BindingUtils.bindSetter(onRolesListChange, model, "roles");
+				PermissionManager.getInstance().applyAllAttributes(this,id);
+			}
+			
+			//			/**
+			//			 * if a user drilldown window is opened, update its roles list.
+			//			 * */
+			//			protected function onRolesListChange(value:ArrayCollection):void {
+			//				tableHBox.height = (table.rowHeight * 10) + table.headerHeight + 10;
+			//				superTanker.height = tableHBox.height + paging.height;
+			//			}
+			
+			private function onNavigate(event:KmcNavigationEvent):void
+			{
+				// close drilldown 
+				closeRoleDrilldown(null);
+				// navigate
+				dispatchEvent(new KmcNavigationEvent(event.type, event.module, event.subtab, event.data, event.bubbles, event.cancelable));
+			}
+			
+			/**
+			 * refresh subtab data
+			 * */
+			public function refreshData():void {
+				listRoles(0);
+				// reset selected user
+				var ce:RoleEvent;
+				ce = new RoleEvent(RoleEvent.SELECT_ROLE, null);
+				ce.dispatch();
+			}
+			
+			/**
+			 * dispatch Cairngorm event to raise a list roles command 
+			 * */
+			protected function listRoles(pageNumber:int):void {
+				// list
+				var kfp:KalturaFilterPager = new KalturaFilterPager();
+				if (paging && paging.kalturaFilterPager.pageSize != int.MIN_VALUE) {
+					kfp.pageSize = paging.kalturaFilterPager.pageSize;
+				}
+				else {
+					kfp.pageSize = 10;
+				}
+				if (pageNumber) {
+					kfp.pageIndex = pageNumber;
+				}
+				else if (paging) {
+					kfp.pageIndex = paging.kalturaFilterPager.pageIndex;
+				}
+				else {
+					kfp.pageIndex = 0;
+				}
+				
+				var ce:ListItemsEvent;
+				ce = new ListItemsEvent(ListItemsEvent.LIST_ROLES, model.rolesFilter, kfp);
+				ce.dispatch();
+			}
+			
+			
+			/**
+			 * load users according to paging component value
+			 * */
+			protected function gotoPage():void {
+				listRoles(paging.selectedPage);
+			}
+			
+			
+			/**
+			 * get the edited user and update server
+			 * */
+			protected function saveRoleData(e:Event):void {
+				var ue:RoleEvent;
+				// need to know if new user or update user.
+				if (model.drilldownMode == DrilldownMode.ADD) {
+					// add user
+					ue = new RoleEvent(RoleEvent.ADD_ROLE, _roleDrilldown.role);
+				}
+				else if (model.drilldownMode == DrilldownMode.EDIT) {
+					// edit user
+					ue = new RoleEvent(RoleEvent.UPDATE_ROLE, _roleDrilldown.role);
+				}
+				ue.dispatch();
+			}
+			
+			/**
+			 * re-load data, close popup, etc.
+			 * */
+			protected function onDrilldownStateChange(value:String):void {
+				switch (value) {
+					case DrilldownMode.ADD:
+					case DrilldownMode.EDIT:
+						// do nothing
+						break;
+					case DrilldownMode.NONE:
+						// if we got here, data save completed successfuly
+						closeRoleDrilldown(null);
+						refreshData();
+						break;
+				}
+			}
+			
+			
+			/**
+			 * hides and destroys the role drilldown window
+			 * */
+			protected function closeRoleDrilldown(e:Event):void {
+				if (_roleDrilldown) {
+					PopUpManager.removePopUp(_roleDrilldown);
+					_roleDrilldown.removeEventListener(UserDrilldown.SAVE, saveRoleData);
+					_roleDrilldown.removeEventListener(UserDrilldown.CLOSE, closeRoleDrilldown);
+					_roleDrilldown.removeEventListener(KmcNavigationEvent.NAVIGATE, onNavigate);
+					_roleDrilldown = null;
+					var de:DrilldownEvent = new DrilldownEvent(DrilldownEvent.ROLES_SET_STATE, DrilldownMode.NONE);
+					de.dispatch();
+					dispatchEvent(new GeneralEvent("enableHeader", true));
+				}
+			}
+			
+			
+			/**
+			 * open drilldown window with data of currently selected user
+			 * @return the newly created popup window
+			 * */
+			protected function drillToSelectedRole():RoleDrilldown {
+				var rd:RoleDrilldown = new RoleDrilldown();
+				BindingUtils.bindProperty(rd, "isLoading", this, "isLoading");
+				rd.init(model.selectedRole, model.drilldownMode, model.partnerPermissionsUiconf, model.partnerPermissions, model.roles);
+				rd.addEventListener(RoleDrilldown.SAVE, saveRoleData);
+				rd.addEventListener(RoleDrilldown.CLOSE, closeRoleDrilldown);
+				rd.addEventListener(KmcNavigationEvent.NAVIGATE, onNavigate);
+				//				rd.addEventListener(KmcHelpEvent.HELP, onHelpClickedInDrilldown);
+				PopUpManager.addPopUp(rd, Application.application as DisplayObject, true);
+				PopUpManager.centerPopUp(rd);
+				dispatchEvent(new GeneralEvent("enableHeader", false));
+				return rd;
+			}
+			
+			//			protected function onHelpClickedInDrilldown (e : KmcHelpEvent) : void
+			//			{
+			//				dispatchEvent(new KmcHelpEvent(KmcHelpEvent.HELP, e.anchor));
+			//			}
+			
+			/**
+			 * show the "add user" dialog
+			 * */
+			protected function openAddRoleDialog(event:MouseEvent):void {
+				// set the selected user to a new KalturaUser.
+				var kur:KalturaUserRole = new KalturaUserRole();
+				kur.tags = 'kmc';
+				kur.permissionNames = Roles.DEFAULT_KMC_PERMISSIONS;
+				var ce:CairngormEvent = new RoleEvent(RoleEvent.SELECT_ROLE, kur);
+				ce.dispatch();
+				
+				ce = new DrilldownEvent(DrilldownEvent.ROLES_SET_STATE, DrilldownMode.ADD);
+				ce.dispatch();
+				
+				// open drilldown for this role
+				_roleDrilldown = drillToSelectedRole();
+				
+				// analytics
+				GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.PAGE_VIEW + GoogleAnalyticsConsts.ADMIN_ROLE_ADD);
+			}
+			
+			
+			/**
+			 * show the "edit user" dialog
+			 * */
+			protected function openEditRoleDialog(event:Event):void {
+				var ce:DrilldownEvent = new DrilldownEvent(DrilldownEvent.ROLES_SET_STATE, DrilldownMode.EDIT);
+				ce.dispatch();
+				_roleDrilldown = drillToSelectedRole();
+				
+				// analytics
+				GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.PAGE_VIEW + GoogleAnalyticsConsts.ADMIN_ROLE_EDIT);
+			}
+			
+			
+			/**
+			 * duplicate selected role
+			 * */
+			protected function duplicateRole(event:Event):void {
+				var ce:RoleEvent = new RoleEvent(RoleEvent.DUPLICATE_ROLE, model.selectedRole);
+				ce.dispatch();
+				
+				// analytics
+				GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.PAGE_VIEW + GoogleAnalyticsConsts.ADMIN_ROLE_DUPLICATE);
+			}
+			
+			/**
+			 * delete selected role
+			 * */
+			protected function deleteRole(event:Event):void {
+				var ce:RoleEvent = new RoleEvent(RoleEvent.DELETE_ROLE, model.selectedRole);
+				ce.dispatch();
+				
+				// analytics
+				GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.PAGE_VIEW + GoogleAnalyticsConsts.ADMIN_ROLE_DELETE);
+			}
+			
+			
+			/**
+			 * select a role
+			 * */
+			protected function setSelectedRole(event:Event):void {
+				var ce:RoleEvent = new RoleEvent(RoleEvent.SELECT_ROLE, table.selectedRole);
+				ce.dispatch();
+			}
+			
+			/**
+			 * open drilldown for the selected role.
+			 * 
+			 * */
+			protected function onNewRoleChanged(value:KalturaUserRole):void {
+				if (value) {
+					openEditRoleDialog(null);
+				}
+			}
+			
+			
+		]]>
+	</mx:Script>
+	
+	
+	<mx:Label text="{ResourceManager.getInstance().getString('admin', 'roles_tab')}" styleName="filterTitleHeader"/>
+	
+	<mx:Label text="{ResourceManager.getInstance().getString('admin', 'roles_page_description')}" styleName="pageDescription"/>
+	
+	<mx:HBox width="100%" height="100%" id="superTanker" verticalScrollPolicy="off" horizontalScrollPolicy="off">
+		<mx:VBox id="tableContainer" width="100%" styleName="noVGap" height="100%">
+			<mx:HBox id="tableHBox" width="100%" height="100%">
+				<view:RolesTable id="table" height="100%" width="100%" dataProvider="{model.roles}" 
+								 drillDown="openEditRoleDialog(event)" deleteRole="deleteRole(event)" 
+								 duplicateRole="duplicateRole(event)" selectRole="setSelectedRole(event)" sortableColumns="{false}"/>
+			</mx:HBox>
+			<controls:Paging id="paging" width="{table.width}" styleName="paging" nextPage="gotoPage()"
+							 prvPage="gotoPage()" getPageNum="gotoPage()" rowsInPageChange="gotoPage()"
+							 showRowsInPage="true" totalCount="{model.totalRoles}" />
+		</mx:VBox>
+		
+		<mx:VBox id="actionButtonsContainer" styleName="blueBox" height="100%" horizontalAlign="left">
+			<mx:Button id="addBtn" label="{resourceManager.getString('admin','add_role')}" styleName="addPlst" width="100%"
+					   height="30" buttonMode="true" click="openAddRoleDialog(event)"/>
+		</mx:VBox>
+	</mx:HBox>
+</mx:VBox>

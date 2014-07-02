@@ -1,0 +1,40 @@
+﻿.c1-toc, .c1-toc ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+.c1-toc ul {
+    margin-left: 15px;
+}
+[dir="rtl"] .c1-toc ul {
+    margin-left: auto;
+    margin-right: 15px;
+}
+.c1-toc li {
+    margin: 1px 0;
+}
+.c1-toc .inner {
+    /* fix for IE7: toc-item text is wrapped to next line without this rule */
+    /* fix for IE8: toc-item icon is not clickable without this rule */
+    display: block;
+    padding: 1px 0 1px 17px;
+}
+[dir="rtl"] .c1-toc .inner {
+    padding: 1px 17px 1px 0;
+}
+.c1-toc-icon {
+    float: left;
+    margin-left: -16px;
+}
+[dir="rtl"] .c1-toc-icon {
+    float: right;
+    margin-left: auto;
+    margin-right: -16px;
+}
+.c1-toc ul, .c1-toc li {
+    clear: both;
+}
+.c1-toc a[href="javascript:void(0)"],
+.c1-toc .c1-toc-item-selected > a {
+    cursor: default;
+}

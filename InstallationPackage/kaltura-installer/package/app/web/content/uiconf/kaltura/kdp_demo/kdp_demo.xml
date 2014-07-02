@@ -1,0 +1,480 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layouts>
+	<layout skinPath="/content/uiconf/kaltura/wiki/wiki.swf" layoutId="dorimedia">
+		<VBox width="100%" height="100%" styleName="topLayout" >
+		
+		<HBox id="topBar" width="100%" height="46" styleName="topBar" >
+			<VBox id="topBarTitles" width="100%" height="46" styleName="topBarTitles" >
+				<Label id="movieName" styleName="vtitle" height="22" width="100%" label="{kdpModel.Title,myKplayer.kalturaShow.kshowName,myKplayer.kalturaEntry.entryName,''}"/>
+				<Label id="movieDescription" styleName="vdescript" height="15" width="100%" label="{kdpModel.Description,myKplayer.kalturaShow.description,''}"/>
+			</VBox>
+			<VBox id="topBarButtons" width="100" height="40">
+				<LinkButton id="startNewVideo" label="Start New Video" width="100" height="15" styleName="transparentLinkButton"/>
+				<LinkButton id="sharePopUp" height="15" styleName="topLinkButtons" label="Share" k_click="popup:SharePop"  />
+			</VBox>
+		</HBox>
+
+		<Canvas id="PlayerHolder" styleName="PlayerBackground" width="100%" height="100%" >
+			<KplayerModule id="myKplayer" styleName="Kplayer"  	k_path="kplayer/KplayerModule.swf" width="100%" height="100%" maxWidth="600" maxHeight="450"/>
+		</Canvas>
+
+		<HBox styleName="controllerBox" height="30" width="100%">
+		      	<Spacer width="2"/>
+		      	<Button id="play" styleName="play" width="20" height="18" />
+		      	<Spacer width="2"/>
+				<VBox width="100%" height="100%">
+					<Scrubber id="scrubber" styleName="scrubber" width="100%" height="100%"/>
+					<Spacer height="5"/>
+				</VBox>
+		      	<TimerCountdown  id="timer"  k_path="timertext/SimpleTimer.swf" width="35"/>
+		      	<Spacer width="2"/>
+		      	<VolumeModule width="20" height="20" k_path="VolumeBars/VolumeBarA.swf" id="Volume"/>
+		      	<Spacer width="2"/>
+		      	<Button id="Gigya" width="10" height="10" styleName="share" label="G" k_click="popup:Gigya"  />
+		      	<Button id="credits" width="60" height="18" styleName="" label="credits" />
+		      	<Spacer width="2"/>
+		</HBox>
+		
+		<HBox styleName="colabotare" width="100%" height="29">
+			<HBox width="100%" styleName="Hcentered">
+				<LinkButton id="addToReel" width="150" styleName="addToReel" label="Add to this video" height="22" k_click="jsInject:gotoContribWizard" />
+			</HBox>
+			<Spacer width="4"/>
+			<Canvas id="seperator" styleName="seperator" width="1" height="19" />
+			<Spacer width="4"/>
+			<HBox width="100%" styleName="Hcentered">
+				<LinkButton id="startNewVideo"  width="100%" styleName="addToReel" label="Start new video" height="22" k_click="jsInject:addVideo,pauseMedia" />
+			</HBox>
+		</HBox>
+
+	    <HBox styleName="poweredBox" width="100%" height="18">
+	    	<poweredBy id="poweredBy" k_path="poweredby/PoweredBy.swf" k_url="http://www.kaltura.com/index.php/Corp/wiki_extention" styleName="poweredBy" width="120" height="14"/>
+	    </HBox>
+
+    </VBox>
+    
+	    <popups>
+    	<SharePop id="SharePop" k_path="popups/SharePopup.swf" width="350" height="350"/>
+    	<Gigya id="Gigya" k_path="popups/Gigya.swf" width="400" height="300"/>
+    	<creditsWindow id="creditsWindow" k_path="credits/CreditsWindow.swf" width="400" height="300"/>
+	 </popups>
+	 <javaScript>
+	 
+			<jsBlock id="gotoContribWizard" functionName="gotoContribWizard" params="kshowId,{myKplayer.kalturaShow.kshowName}" >
+				<![CDATA[
+					function gotoContribWizard (kshowId,objectId)
+					{
+						alert ( "gotoContribWizard (" + kshowId + "," + objectId + ")" );
+					};
+				]]>
+			</jsBlock>
+		</javaScript>
+	</layout>
+	
+	<!-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ -->
+	<!-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ -->
+	
+	
+	<layout skinPath="/content/uiconf/kaltura/weplay/weplay.swf" layoutId="weplay">
+		
+		<VBox width="100%" height="100%" styleName="weplay.swf" >
+	      <HBox width="100%" height="30" styleName="TopTitle" >
+				<Label id="movieName" styleName="movieName" height="23" width="100%" label="{kdpModel.Title,myKplayer.kalturaShow.kshowName,myKplayer.kalturaEntry.entryName,''}"/>
+				<Button id="walla" width="60" height="20"  label="walla" k_click="navigate:http://www.walla.com?papi={myKplayer.kalturaShow.kshowName}&amp;kalabush=1&amp;pp={kdpModel.pd_extraData}" />
+	      </HBox>
+		      	
+		      	
+			<VBox width="100%" height="100%" styleName="topLevelVbox" >
+			    <Canvas id="PlayerHolder" styleName="PlayerBackground" width="100%" height="100%" >
+					<KplayerModule id="myKplayer" styleName="centered"  	k_path="kplayer/KplayerModule.swf" width="100%" height="100%" maxWidth="600" maxHeight="450"/>
+			      	<playerPlayBtn id="playerPlayBtn" styleName="centered"  width="100%" height="100%"  k_path="playerPlayPauseBtn/PlayerPlayPauseButton.swf" />
+			      	<waterMark id="kalturaWaterMark" styleName="centered"  width="100%" height="100%" maxWidth="600" maxHeight="450"  k_path="watermarks/KalturaWaterMark.swf" />
+				</Canvas>
+				<HBox styleName="controllerBox" height="29" width="100%">
+			      	<Spacer width="2"/>
+			      	<Button id="play" styleName="play" width="20" height="20" />
+			      	<Spacer width="3"/>
+					<VBox width="100%" height="20">
+						<Scrubber id="scrubber" styleName="scrubber" width="100%" height="16"/>
+						<Spacer height="6"/>
+					</VBox>
+			      	<TimerCountdown  id="timer" width="35" k_path="timertext/SimpleTimer.swf" />
+			      	<Spacer width="6"/>
+			      	<VolumeModule id="volume" width="20" height="20" k_path="VolumeBars/VolumeBarA.swf" />
+			      	<Spacer width="3"/>
+					<Button id="fullScreen" width="20" height="20" styleName="fs" label="" />
+			      	<Spacer width="5"/>
+				</HBox>
+	    	</VBox>
+    	</VBox>
+	 	<popups>
+	 	</popups>
+	 	<javaScript>
+		</javaScript>
+	</layout>
+	
+	<!-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ -->
+	<!-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ -->
+	
+	<layout skinPath="/content/uiconf/kaltura/remixamerica/remixamerica.swf" layoutId="remix">
+		<VBox width="100%" height="100%" styleName="topLevelVbox" >
+		    <Canvas id="PlayerHolder" styleName="PlayerBackground" width="100%" height="100%" >
+				<KplayerModule id="myKplayer" styleName="centered"  	k_path="kplayer/KplayerModule.swf" width="100%" height="100%" maxWidth="600" maxHeight="450"/>
+		      	<playerPlayBtn id="playerPlayBtn" styleName="centered"  width="100%" height="100%"  k_path="playerPlayPauseBtn/PlayerPlayPauseButton.swf" />
+		      	<waterMark id="kalturaWaterMark" styleName="centered"  width="100%" height="100%" maxWidth="600" maxHeight="450"  k_path="watermarks/KalturaWaterMark.swf" />
+			</Canvas>
+			<HBox styleName="controllerBox" height="20" width="100%">
+				<VBox>
+			      	<Button	 id="play" styleName="play" width="18" height="18" />
+			      	<Spacer height="1"/>
+		    	</VBox>
+		      	<Spacer width="2"/>
+				<VBox width="100%" height="19">
+					<Scrubber id="scrubber" styleName="scrubber" width="100%" height="16"/>
+					<Spacer height="3"/>
+				</VBox>
+		      	<TimerCountdown  id="timer" height="19" width="73" k_path="timertext/TimerAndTotalTime.swf" />
+		      	<Spacer width="4"/>
+		      	<VolumeModule id="volume" width="18" height="18" k_path="VolumeBars/VolumeBarA.swf" />
+				<Button id="fullScreen" width="19" height="19" styleName="fs" label="" />
+		      	<Spacer width="2"/>
+			</HBox>
+			<HBox styleName="bottomLinks" height="40" width="100%">
+				<LinkButton id="addToFavorit" label="Add to Favorites" width="100" height="15" styleName="" />
+				<LinkButton id="addContent" label="AddContent" width="100" height="15" styleName="" />
+				<LinkButton id="talkBack" label="Talk Back" width="100" height="15" styleName="" />
+				<LinkButton id="remix" label="Remix" width="100" height="15" styleName="" />
+			</HBox>
+    	</VBox>
+	 	<popups>
+	 	</popups>
+	 	<javaScript>
+		</javaScript>
+	</layout>
+	
+	
+	<!-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ -->
+	<!-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ -->
+	
+	
+	<layout skinPath="/content/uiconf/kaltura/wiki/wiki.swf" layoutId="standard">
+		<VBox width="100%" height="100%" styleName="mlayout" >
+	      <HBox width="100%" height="46" styleName="TopTitle" >
+	      	<VBox width="100%" height="100%" styleName="titels" >
+				<Label id="vtitle" styleName="vtitle" height="23" width="100%" label="{'KKK'}"/>
+				<Label id="vdescript" height="15" width="100%" label="{kdpModel.Description,myKplayer.kalturaShow.description,''}"/>
+	      	</VBox>
+			<VBox id="topButtonsBox" styleName="topButtonsBox" width="100" height="46">
+				<LinkButton id="startNewVideo" label="Start New Video" width="88" height="15" styleName="topLinkButtons" k_click="jsInject:addVideo,pauseMedia"/>
+				<Spacer width="2"/>
+				<HBox width="100%" height="15" styleName="topButtonsBox">
+					<LinkButton id="credits" height="15" label="Credits" styleName="topLinkButtons" k_click="popup:creditsWindow,pauseMedia" />
+		        		<LinkButton id="sharePopUp" height="15" styleName="topLinkButtons" label="Share" k_click="popup:SharePop"  />
+				</HBox>
+			</VBox>
+	      </HBox>
+
+
+		    <Canvas id="PlayerHolder" styleName="PlayerBackground" width="100%" height="100%" >
+				<KplayerModule id="myKplayer" styleName="Kplayer"  	k_path="kplayer/KplayerModule.swf" width="100%" height="100%" maxWidth="600" maxHeight="450"/>
+				<SpeechBubbles id="bubblesModule" 					k_path="overlays/BubblesModule.swf" width="100%" height="100%" maxWidth="600" maxHeight="450" />
+			</Canvas>
+
+			<HBox styleName="controllerBox" height="30" width="100%">
+		      	<Spacer width="4"/>
+		      	<Button id="play" styleName="play" width="20" height="18" />
+		      	<Spacer width="2"/>
+				<VBox width="100%" height="100%">
+					<Scrubber id="scrubber" styleName="scrubber" width="100%" height="100%"/>
+					<Spacer height="5"/>
+				</VBox>
+		      	<TimerCountdown  id="timer"  k_path="timertext/TimerCountdown.swf" width="40"/>
+		      	<Spacer width="2"/>
+		      	<VolumeModule width="20" height="20" k_path="VolumeBars/VolumeBarA.swf" id="Volume"/>
+		        <Button id="sharePopUp" width="42" height="18" styleName="share" label="Share" k_click="popup:SharePop"  />
+		        <!--Button id="Gigya" width="10" height="10" styleName="share" label="G" k_click="popup:Gigya"  /-->
+		      	<Spacer width="4"/>
+				<Button id="fullScreen" width="20" height="18" styleName="fs" label="" />
+		      	<Spacer width="4"/>
+			</HBox>
+
+			<HBox styleName="colabotare" width="100%" height="29">
+				<HBox width="100%" styleName="Hcentered">
+					<LinkButton id="addToReel" width="150" styleName="addToReel" label="Add to this video" height="22" k_click="jsInject:gotoContribWizard" />
+				</HBox>
+				<Spacer width="4"/>
+				<Canvas id="seperator" styleName="seperator" width="1" height="19" />
+				<Spacer width="4"/>
+				<HBox width="100%" styleName="Hcentered">
+					<LinkButton id="editReel"  width="100%" styleName="editReel" label="Remix this video" height="22" k_click="jsInject:gotoEditorWindow" />
+				</HBox>
+			</HBox>
+
+		    <HBox styleName="poweredBox" width="100%" height="18">
+		    		<poweredBy id="poweredBy" k_path="poweredby/PoweredBy.swf" styleName="poweredBy" width="120" height="15"/>
+					<AddBubbleButton id="bubblesAddButton" k_path="overlays/AddNewBubbleButton.swf" />
+
+		    </HBox>
+		    <HBox styleName="creditsLine" width="100%" height="45">
+			    	<creditsLine id="creditsLine" k_path="credits/CreditsLine.swf" width="100%" height="40"/>
+		    </HBox>
+
+    </VBox>
+	    <popups>
+    	<SharePop id="SharePop" k_path="popups/SharePopup.swf" width="350" height="350"/>
+    	<Gigya id="Gigya" k_path="popups/Gigya.swf" width="400" height="300"/>
+    	<creditsWindow id="creditsWindow" k_path="credits/CreditsWindow.swf" width="400" height="300"/>
+	 </popups>
+	 <javaScript>
+			<jsBlock id="gotoContribWizard" functionName="gotoContribWizard" params="kshowId,pd_extraData" >
+				<![CDATA[
+					function gotoContribWizard (kshowId,pd_extraData)
+					{
+						alert ( "gotoContribWizard (" + kshowId + "," + pd_extraData + ")" );
+						gotoCW (kshowId,pd_extraData);
+					};
+				]]>
+			</jsBlock>
+			<jsBlock id="gotoEditorWindow" functionName="gotoEditorWindow" params="kshowId,pd_extraData" >
+				<![CDATA[
+					function gotoEditorWindow (kshowId,pd_extraData)
+					{
+						alert ( "gotoContribWizard (" + kshowId + "," + pd_extraData + ")" );
+						gotoEditor (kshowId,pd_extraData);
+					};
+				]]>
+			</jsBlock>
+			<jsBlock id="gotoArticle" functionName="gotoArticle" params="kshowId,pd_extraData" >
+				<![CDATA[
+					function gotoArticle (kshowId,pd_extraData)
+					{
+						alert ( "gotoArticle (" + kshowId + "," + pd_extraData + ")" );
+						gotoKalturaArticle (kshowId,pd_extraData);
+					};
+				]]>
+			</jsBlock>
+		</javaScript>
+	</layout>
+	
+	
+	<!-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ -->
+	<!-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ -->
+
+
+	<layout skinPath="/skin/wiki.swf" layoutId="standard2">
+    <VBox width="100%" height="100%" styleName="mlayout" >
+      <HBox width="100%" height="46" styleName="TopTitle" >
+      	<VBox width="100%" height="46" styleName="titels" >
+			<Label id="vtitle" styleName="vtitle" height="22" width="100%" label="{kdpModel.kshowName,kdpModel.entryName,'111'}"/>
+			<Label id="vdescript" styleName="vdescript" height="15" width="100%" label="{flashvars.Description,'walla'}"/>
+      	</VBox>
+      	<VBox width="100" height="100%">
+	      	<LinkButton id="startNewVideo" label="Start New Video" width="100" height="15" styleName="startNewVideo"/>
+			<LinkButton id="credits" height="15" width="60" label="credits" styleName="startNewVideo"/>
+      	</VBox>
+      </HBox>
+
+      <Canvas id="PlayerHolder" styleName="PlayerBackground" width="100%" height="100%" >
+		<KplayerModule id="myKplayer" styleName="Kplayer"  k_path="kplayer/KplayerModule.swf" width="100%" height="100%" maxWidth="600" maxHeight="450"/>
+		<Canvas id="overLayer" width="100%" height="100%" maxWidth="600" maxHeight="450" styleName="bub" />
+		<AdapTvModule id="adapTv" k_path="adapTv/AdapTvModule.swf" width="100%" height="100%" maxWidth="600" maxHeight="450" styleName="bub"  />
+      </Canvas>
+
+      <HBox styleName="controllerBox" height="30" width="100%">
+	      	<Spacer width="4"/>
+	      	<Button id="play" styleName="play" width="20" height="17" />
+	      	<Spacer width="2"/>
+			<VBox width="100%" height="100%">
+				<Scrubber id="scrubber" styleName="scrubber" width="100%" height="100%"/>
+				<Spacer height="5"/>
+			</VBox>
+	      	<TimerCountdown  id="timer"  k_path="timertext/TimerCountdown.swf"/>
+	      	<Spacer width="2"/>
+	      	<VolumeModule width="20" height="20" k_path="VolumeBars/VolumeBarA.swf" id="Volume"/>
+	        <Button id="sharePopUp" width="42" height="17" styleName="share" label="Share" k_click="popup:SharePop"  />
+	        <Button id="Gigya" width="10" height="10" styleName="share" label="G" k_click="popup:Gigya"  />
+	      	<Spacer width="4"/>
+			<Button id="fullScreen" width="20" height="17" styleName="fs" label="" />
+	      	<Spacer width="4"/>
+		</HBox>
+
+      <HBox styleName="colabotare" width="100%" height="29">
+			<HBox width="100%" styleName="Hcentered">
+				<LinkButton id="addToReel" width="150" styleName="addToReel" label="Add to this video" height="22" k_click="jsInject:gotoContribWizard" />
+			</HBox>
+			<Spacer width="4"/>
+			<Canvas id="seperator" styleName="seperator" width="1" height="19" />
+			<Spacer width="4"/>
+			<HBox width="100%" styleName="Hcentered">
+				<LinkButton id="editReel"  width="100%" styleName="editReel" label="Remix this video" height="22" k_click="jsInject:gotoEditorWindow" />
+			</HBox>
+      </HBox>
+
+      <HBox styleName="poweredBox" width="100%" height="18">
+      	<poweredBy id="poweredBy" k_path="poweredby/PoweredBy.swf" styleName="poweredBy" width="120" height="18"/>
+      </HBox>
+
+    </VBox>
+    <popups>
+    	<SharePop id="SharePop" k_path="popups/SharePopup.swf" width="350" height="350"/>
+    </popups>
+	 <javaScript>
+			<jsBlock id="gotoContribWizard" functionName="gotoContribWizard" params="kshowId,pd_extraData" >
+				<![CDATA[
+					function gotoContribWizard (kshowId,pd_extraData)
+					{
+						alert ( "gotoContribWizard (" + kshowId + "," + pd_extraData + ")" );
+						gotoCW (kshowId,pd_extraData);
+					};
+				]]>
+			</jsBlock>
+			<jsBlock id="gotoEditorWindow" functionName="gotoEditorWindow" params="kshowId,pd_extraData" >
+				<![CDATA[
+					function gotoEditorWindow (kshowId,pd_extraData)
+					{
+						alert ( "gotoContribWizard (" + kshowId + "," + pd_extraData + ")" );
+						gotoEditor (kshowId,pd_extraData);
+					};
+				]]>
+			</jsBlock>
+			<jsBlock id="gotoArticle" functionName="gotoArticle" params="kshowId,pd_extraData" >
+				<![CDATA[
+					function gotoArticle (kshowId,pd_extraData)
+					{
+						alert ( "gotoArticle (" + kshowId + "," + pd_extraData + ")" );
+						gotoKalturaArticle (kshowId,pd_extraData);
+					};
+				]]>
+			</jsBlock>
+		</javaScript>
+	</layout>
+	
+	
+	<!-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ -->
+	<!-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ -->
+
+
+
+
+	<layout skinPath="/content/uiconf/kdp_demo/wiki.swf" layoutId="Almog">
+	    <VBox width="400" height="422" styleName="mlayout" >
+	      <HBox width="100%" height="46" styleName="TopTitle" >
+	      	<VBox width="100%" height="46" styleName="titels" >
+				<Label id="vtitle" styleName="vtitle" height="22" width="100%" label="{flashvars.papa,flashvars.Title4,''}"/>
+				<Label id="vdescript" styleName="vdescript" height="15" width="100%" label="{flashvars.Description}"/>
+	      	</VBox>
+	      	<VBox width="100" height="100%">
+		      	<LinkButton id="startNewVideo" label="Start New Video" width="100" height="17" styleName="startNewVideo"/>
+				<LinkButton id="credits" height="17" width="100%" label="credits" styleName="startNewVideo"/>
+	      	</VBox>
+	      </HBox>
+
+	      <Canvas id="PlayerHolder" styleName="PlayerBackground" width="100%" height="100%" >
+			<KplayerModule id="myKplayer" styleName="Kplayer"  k_path="kplayer/KplayerModule.swf" width="100%" height="100%" maxWidth="600" maxHeight="450"/>
+
+			<!--Bubbles-->
+			<BubblesModule id="bubbles" styleName="Kplayer"  k_path="com/kaltura/bubbles/BubblesModule.swf" width="100%" height="100%" maxWidth="600" maxHeight="450"/>
+	      </Canvas>
+
+	      <HBox styleName="controllerBox" height="30" width="100%">
+	      	<Spacer width="4"/>
+	      	<Button id="play" styleName="play" width="20" height="17" />
+	      	<Spacer width="2"/>
+			<VBox width="100%" height="100%">
+				<Scrubber id="scrubber" styleName="scrubber" width="100%" height="100%"/>
+				<Spacer height="5"/>
+			</VBox>
+	      	<TimerCountdown  id="timer" styleName="timer" k_path="timertext/TimerCountdown.swf" vp="myKplayer"/>
+	      	<Spacer width="2"/>
+	      	<VolumeModule width="20" height="20" k_path="VolumeBars/VolumeBarA.swf" id="Volume" styleName="pp"/>
+	        <Button id="sharePopUp" width="42" height="17" styleName="share" label="Share" k_click="popup:SharePop"  />
+	      	<Spacer width="4"/>
+			<Button id="fullScreen" width="20" height="17" styleName="fs" label="" />
+	      	<Spacer width="4"/>
+		</HBox>
+	      <HBox styleName="colabotare" width="100%" height="29">
+				<HBox width="100%" styleName="Hcentered">
+					<LinkButton id="addToReel" width="150" fontSize="10" color="0xFF00FF" styleName="addToReel" label="Add to this video" height="22" k_click="jsInject:gotoContribWizard" />
+				</HBox>
+				<Spacer width="4"/>
+				<Canvas id="seperator" styleName="seperator" width="1" height="19" />
+				<Spacer width="4"/>
+				<HBox width="100%" styleName="Hcentered">
+					<LinkButton id="editReel"  width="150" styleName="editReel" label="Remix this video" height="22" k_click="jsInject:gotoEditorWindow" />
+				</HBox>
+	      </HBox>
+
+	      <HBox styleName="poweredBox" width="100%" height="18">
+	      	<poweredBy id="poweredBy" k_path="poweredby/PoweredBy.swf" styleName="poweredBy" width="120" height="18"/>
+	      </HBox>
+
+	    </VBox>
+	    <popups>
+	    	<SharePop id="SharePop" k_path="popups/SharePopup.swf" width="350" height="350"/>
+		 </popups>
+		 <javaScript>
+		</javaScript>
+	</layout>
+	
+	<layout skinPath="/content/uiconf/kaltura/wiki/wiki.swf" layoutId="dorimedia">
+  <VBox width="100%" height="100%" styleName="topLayout">
+    <HBox id="topBar" width="100%" height="46" styleName="topBar">
+      <VBox id="topBarTitles" width="100%" height="46" styleName="topBarTitles">
+        <Label id="movieName" styleName="vtitle" height="22" width="100%" label="{kdpModel.Title,myKplayer.kalturaShow.kshowName,myKplayer.kalturaEntry.entryName,''}"/>
+        <Label id="movieDescription" styleName="vdescript" height="15" width="100%" label="{kdpModel.Description,myKplayer.kalturaShow.description,''}"/>
+      </VBox>
+      <VBox id="topBarButtons" width="100" height="40">
+        <LinkButton id="startNewVideo" label="Start New Video" width="100" height="15" styleName="transparentLinkButton"/>
+      </VBox>
+    </HBox>
+    <Canvas id="PlayerHolder" styleName="PlayerBackground" width="100%" height="100%">
+      <KplayerModule id="myKplayer" styleName="Kplayer" k_path="kplayer/KplayerModule.swf" width="100%" height="100%" maxWidth="600" maxHeight="450"/>
+    </Canvas>
+    <HBox styleName="controllerBox" height="30" width="100%">
+      <Spacer width="2"/>
+      <Button id="play" styleName="play" width="20" height="18"/>
+      <Spacer width="2"/>
+      <VBox width="100%" height="100%">
+        <Scrubber id="scrubber" styleName="scrubber" width="100%" height="100%"/>
+        <Spacer height="5"/>
+      </VBox>
+      <TimerCountdown id="timer" k_path="timertext/SimpleTimer.swf" width="35"/>
+      <Spacer width="2"/>
+      <VolumeModule width="20" height="20" k_path="VolumeBars/VolumeBarA.swf" id="Volume"/>
+      <Spacer width="2"/>
+      <Button id="credits" width="60" height="18" styleName="" label="credits"/>
+      <Spacer width="2"/>
+    </HBox>
+    <HBox styleName="colabotare" width="100%" height="29">
+      <HBox width="100%" styleName="Hcentered">
+        <LinkButton id="addToReel" width="150" styleName="addToReel" label="Add to this video" height="22" k_click="jsInject:gotoContribWizard"/>
+      </HBox>
+      <Spacer width="4"/>
+      <Canvas id="seperator" styleName="seperator" width="1" height="19"/>
+      <Spacer width="4"/>
+      <HBox width="100%" styleName="Hcentered">
+        <LinkButton id="startNewVideo" width="100%" styleName="startNewVideo" label="Start new video" height="22" k_click="jsInject:addVideo,pauseMedia"/>
+      </HBox>
+    </HBox>
+    <HBox styleName="poweredBox" width="100%" height="18">
+      <poweredBy id="poweredBy" k_path="poweredby/PoweredBy.swf" styleName="poweredBy" width="120" height="14"/>
+    </HBox>
+  </VBox>
+  <popups>
+    <SharePop id="SharePop" k_path="popups/SharePopup.swf" width="350" height="350"/>
+    <Gigya id="Gigya" k_path="popups/Gigya.swf" width="400" height="300"/>
+    <creditsWindow id="creditsWindow" k_path="credits/CreditsWindow.swf" width="400" height="300"/>
+  </popups>
+  <javaScript>
+    <jsBlock id="gotoContribWizard" functionName="gotoContribWizard" params="kshowId,pd_extraData">
+      <![CDATA[
+					function gotoContribWizard (kshowId,pd_extraData)
+					{
+						alert ( "gotoContribWizard (" + kshowId + "," + pd_extraData + ")" );
+						gotoCW (kshowId,pd_extraData);
+					};
+				]]>
+    </jsBlock>
+  </javaScript>
+</layout>
+</layouts>

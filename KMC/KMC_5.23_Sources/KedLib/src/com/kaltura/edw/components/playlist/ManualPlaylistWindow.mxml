@@ -1,0 +1,573 @@
+<?xml version="1.0" encoding="utf-8"?>
+<HelpTitleWindow xmlns="com.kaltura.containers.*" xmlns:controls="com.kaltura.controls.*"
+				 xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:playlist="com.kaltura.edw.components.playlist.*"
+				 implements="com.kaltura.edw.business.IListable,com.kaltura.edw.business.IDataOwner"
+				 creationComplete="{onCreationComplete()}" showCloseButton="true" close="{onClose(event)}"
+				 help="{onHelp()}" verticalScrollPolicy="off" horizontalAlign="center" layout="vertical" width="1000"
+				 height="595" styleName="TitleWindowType2" xmlns:et1="com.kaltura.edw.components.et.*"
+				 xmlns:fltr="com.kaltura.edw.components.fltr.*" xmlns:components="com.hillelcoren.components.*">
+	<mx:Script>
+		<![CDATA[
+			import com.adobe.utils.ArrayUtil;
+			import com.kaltura.KalturaClient;
+			import com.kaltura.analytics.GoogleAnalyticsConsts;
+			import com.kaltura.analytics.GoogleAnalyticsTracker;
+			import com.kaltura.analytics.KAnalyticsTracker;
+			import com.kaltura.analytics.KAnalyticsTrackerConsts;
+			import com.kaltura.autocomplete.controllers.KACTagsController;
+			import com.kaltura.edw.business.Cloner;
+			import com.kaltura.edw.business.IListable;
+			import com.kaltura.edw.business.permissions.PermissionManager;
+			import com.kaltura.edw.components.et.EntryTableColumns;
+			import com.kaltura.edw.components.playlist.events.ManualPlaylistWindowEvent;
+			import com.kaltura.edw.components.playlist.types.ManualPlaylistWindowMode;
+			import com.kaltura.edw.events.GeneralNonCairngormEvent;
+			import com.kaltura.edw.events.KedDataEvent;
+			import com.kaltura.edw.model.FilterModel;
+			import com.kaltura.edw.view.EntryDetailsWin;
+			import com.kaltura.edw.vo.DistributionInfo;
+			import com.kaltura.edw.vo.ListableVo;
+			import com.kaltura.types.KalturaBaseEntryOrderBy;
+			import com.kaltura.types.KalturaEntryModerationStatus;
+			import com.kaltura.types.KalturaEntryStatus;
+			import com.kaltura.types.KalturaPlaylistType;
+			import com.kaltura.types.KalturaStatsKmcEventType;
+			import com.kaltura.types.KalturaTaggedObjectType;
+			import com.kaltura.utils.ObjectUtil;
+			import com.kaltura.vo.BaseFlexVo;
+			import com.kaltura.vo.KalturaBaseEntry;
+			import com.kaltura.vo.KalturaMediaEntry;
+			import com.kaltura.vo.KalturaMediaEntryFilter;
+			import com.kaltura.vo.KalturaMixEntry;
+			import com.kaltura.vo.KalturaPlaylist;
+			
+			import mx.binding.utils.BindingUtils;
+			import mx.binding.utils.ChangeWatcher;
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.events.ValidationResultEvent;
+			import mx.managers.PopUpManager;
+			import mx.validators.ValidationResult;
+
+
+
+			private var _distProsWatcher:ChangeWatcher;
+
+
+			/**
+			 * set distribution profiles via binding
+			 * */
+			public function setDistibutionProfileInfo(value:DistributionInfo):void {
+				if (_distProsWatcher) {
+					_distProsWatcher.unwatch();
+				}
+				_distProsWatcher = BindingUtils.bindProperty(this, "distributionProfilesArray", value, "distributionProfiles");
+			}
+
+			[Bindable]
+			/**
+			 * Distribution profiles
+			 * @internal
+			 * used for filter
+			 * */
+			public var distributionProfilesArray:Array;
+
+			/**
+			 * the item being edited, either KalturaPlaylist (manual playlist),
+			 * KalturaBaseEntry (entry metadata: linked entries) or KalturaCategory (category metadata: linked entry)
+			 * */
+			public var editedItem:BaseFlexVo;
+
+			[Bindable]
+			public var filterData:FilterModel;
+
+
+			[Bindable]
+			/**
+			 * This attribute will switch between 2 usage of this window:
+			 * 1 - A manual playlist
+			 * 2 - A list for the metadata
+			 * @see com.kaltura.edw.components.playlist.types.ManualPlaylistWindowMode
+			 */
+			public var context:String = ManualPlaylistWindowMode.NEW_PLAYLIST;
+
+			[Bindable]
+			/**
+			 * make entry names clickable in list
+			 * */
+			public var showLinks:Boolean = true;
+
+			[Bindable]
+			/**
+			 * restricts number of selection, if 0 then there will be no limitation
+			 * */
+			public var maxAllowedValues:int = 0;
+
+
+			/**
+			 * list of custom-data linked items
+			 * @see com.kaltura.edw.view.customData.EntryIdLinkTable
+			 * @internal
+			 * reference to the array collection on EntryIdLinkTable 
+			 * */
+			public var editLinkedArrayCollection:ArrayCollection;
+
+
+			[Bindable]
+			private var _playlistArrayCollection:ArrayCollection = new ArrayCollection();
+
+
+			/**
+			 * when creating on-the-fly playlist, the initial entries for the list.
+			 * if this attribute has a value (passed in from the wrapper), it means
+			 * this is an on-the-fly playlist.
+			 * */
+			public function set onTheFlyEntries(value:ArrayCollection):void {
+				_playlistArrayCollection = value;
+			}
+
+			/**
+			 * a copy of the original playlist object, for editing.
+			 * */
+			private var _editPlaylist:KalturaPlaylist;
+
+			/**
+			 * the original playlist object
+			 * */
+			private var _originalPlaylist:KalturaPlaylist;
+			private var _orderBy:String = KalturaBaseEntryOrderBy.CREATED_AT_DESC;
+
+			[Bindable]
+			private var _listableVo:ListableVo;
+
+			public var client:KalturaClient;
+
+
+			public function onRequestedDataLoaded():void {
+				loadEntries();
+			}
+
+
+			/**
+			 * User closed window. if this is an edit window - check if there was a change
+			 * if there was - ask for aproval, if not - close.
+			 */
+			private function onClose(event:Event = null):void {
+				if (event) {
+					event.stopPropagation();
+				}
+				if (context == ManualPlaylistWindowMode.EDIT_LINKED_ENTRIES_MODE || context == ManualPlaylistWindowMode.NEW_LINKED_ENTRIES) {
+					// custom data modes - just remove the popup
+					filter.clearCategoriesSelection();
+					PopUpManager.removePopUp(this);
+					return;
+				}
+
+
+				if (_editPlaylist) {
+					setPlaylistInfoFromScreen(_editPlaylist);
+				}
+				//if this is an edit playlist and no change were made - just close the popup
+				if (context == ManualPlaylistWindowMode.EDIT_PLAYLIST_MODE && ObjectUtil.compareObjects(_editPlaylist, _originalPlaylist)) {
+					removeMe();
+				}
+				else {
+					// if this is a new playlist - check if theres a change in name/description and if
+					// there is an entry in the right list
+					if (playlistName.text == "" && playlistDescription.text == "" && getPlaylistTags() == "" && (_playlistArrayCollection.source && _playlistArrayCollection.source.length == 0))
+						removeMe();
+					else
+						Alert.show(resourceManager.getString('cms', 'undoEntryDetails'),
+							resourceManager.getString('cms', 'undoEntryDetailsTitle'),
+							Alert.YES | Alert.NO, null, removeMe);
+				}
+			}
+
+
+			private function onHelp():void {
+				var e:GeneralNonCairngormEvent = new GeneralNonCairngormEvent(EntryDetailsWin.HELP_REQUEST, true);
+				e.data = 'section_manual_playlist';
+				dispatchEvent(e);
+			}
+
+
+			private function removeMe(event:CloseEvent = null):void {
+				if (event) {
+					event.stopImmediatePropagation()
+				}
+				if ((event == null || event.detail == Alert.YES)) {
+					filter.clearCategoriesSelection();
+					dispatchEvent(new ManualPlaylistWindowEvent(ManualPlaylistWindowEvent.CLOSE));
+				}
+			}
+
+
+			/**
+			 * switch between edit / new mode and init window
+			 */
+			private function onCreationComplete():void {
+				if (context == ManualPlaylistWindowMode.EDIT_LINKED_ENTRIES_MODE || context == ManualPlaylistWindowMode.NEW_LINKED_ENTRIES) {
+					// edit custom data linked entries: we keep the original and edit a copy so we can revert on cancel
+					_playlistArrayCollection = new ArrayCollection(ArrayUtil.copyArray(editLinkedArrayCollection.source));
+					title = resourceManager.getString('drilldown', 'editEntry') + " - " + editedItem.name + " > " + resourceManager.getString('drilldown', 'linkedEntriedAddRemove');
+					entries.tableTitle = resourceManager.getString('drilldown', 'linkedEntriesSelectedEntries');
+				}
+
+				else {
+					// playlist
+					new KACTagsController(tagsComplete, client, KalturaTaggedObjectType.ENTRY);
+					entries.tableTitle = resourceManager.getString('cms', 'playlistResultLabel');
+
+					if (editedItem && (editedItem is KalturaPlaylist)) {
+						// edit existing playlist
+						title = editedItem.name;
+						_originalPlaylist = editedItem as KalturaPlaylist;
+						_editPlaylist = Cloner.cloneKalturaPlaylist(_originalPlaylist);
+						playlistName.text = _editPlaylist.name;
+						playlistDescription.text = _editPlaylist.description;
+						_editPlaylist.parts = _playlistArrayCollection;
+						// set entry tags on screen
+						if (_editPlaylist.tags) {
+							var ac:ArrayCollection = new ArrayCollection(_editPlaylist.tags.split(", "));
+							tagsComplete.selectedItems = ac;
+						}
+
+						var e:ManualPlaylistWindowEvent = new ManualPlaylistWindowEvent(ManualPlaylistWindowEvent.GET_PLAYLIST);
+						e.data = _editPlaylist;
+						dispatchEvent(e);
+					}
+					else {
+						// create new playlist
+						title = resourceManager.getString('cms', 'newManualPlaylist');
+					}
+				}
+
+				var kFilter:KalturaMediaEntryFilter = filter.kalturaFilter as KalturaMediaEntryFilter;
+				// a unique moderation & Conversion status for custom data
+				if (context == ManualPlaylistWindowMode.EDIT_LINKED_ENTRIES_MODE || context == ManualPlaylistWindowMode.NEW_LINKED_ENTRIES) {
+					kFilter.moderationStatusIn = null;
+				}
+				else {
+					// view only approved and pending
+					kFilter.moderationStatusIn = KalturaEntryModerationStatus.APPROVED + "," + KalturaEntryModerationStatus.FLAGGED_FOR_REVIEW + "," + KalturaEntryModerationStatus.PENDING_MODERATION + "," + KalturaEntryModerationStatus.AUTO_APPROVED;
+					// view only ready and converting
+					kFilter.statusIn = KalturaEntryStatus.PRECONVERT + "," + KalturaEntryStatus.READY;
+				}
+
+				if (filterData.enableCustomData && filterData.metadataProfiles) {
+					// retrigger binding
+					filter.metadataProfiles = null;
+					filter.metadataProfiles = filterData.metadataProfiles;
+				}
+
+				paging.selectedPage = 1;
+				paging.pageSize = paging.rowInPageCb.value as int;
+				loadFilterData();
+
+				// roles and permissions:
+				if (context != ManualPlaylistWindowMode.EDIT_LINKED_ENTRIES_MODE && context != ManualPlaylistWindowMode.NEW_LINKED_ENTRIES) {
+					if (context != ManualPlaylistWindowMode.EDIT_PLAYLIST_MODE) {
+						PermissionManager.getInstance().applyAllAttributes(this, "manualPlaylistDrilldown_add");
+					}
+					else {
+						PermissionManager.getInstance().applyAllAttributes(this, "manualPlaylistDrilldown_edit");
+					}
+				}
+			}
+
+
+			private function loadFilterData():void {
+				var e:ManualPlaylistWindowEvent = new ManualPlaylistWindowEvent(ManualPlaylistWindowEvent.LOAD_FILTER_DATA);
+				dispatchEvent(e);
+			}
+
+
+			private function onEntriesTableReady():void {
+				var ar:Array = [EntryTableColumns.NAME, /* EntryTableColumns.MEDIA_TYPE, */
+					EntryTableColumns.PLAYS, EntryTableColumns.DURATION];
+				allEntries.showColumns(ar);
+			}
+
+
+			private function gotoPage():void {
+				loadEntries();
+				GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.GO_TO_PAGE, GoogleAnalyticsConsts.CONTENT);
+				KAnalyticsTracker.getInstance().sendEvent(KAnalyticsTrackerConsts.CONTENT, KalturaStatsKmcEventType.CONTENT_CONTENT_GO_TO_PAGE,
+					"content>Show Rows");
+			}
+
+
+			public function get filterVo():Object {
+				return filter.kalturaFilter;
+			}
+
+
+			public function get pagingComponent():Paging {
+				return paging;
+			}
+
+
+			public function loadEntries():void {
+				_listableVo = new ListableVo(filter.kalturaFilter, paging, null, this);
+				_listableVo.filterVo.orderBy = _orderBy;
+
+				var e:ManualPlaylistWindowEvent = new ManualPlaylistWindowEvent(ManualPlaylistWindowEvent.SEARCH_ENTRIES);
+				e.data = _listableVo;
+				dispatchEvent(e);
+			}
+
+
+
+			/**
+			 * add selected items to the current playlist
+			 */
+			private function addToPlaylist():void {
+				if ((context == ManualPlaylistWindowMode.EDIT_LINKED_ENTRIES_MODE || context == ManualPlaylistWindowMode.NEW_LINKED_ENTRIES) && maxAllowedValues != 0 && maxAllowedValues == _playlistArrayCollection.length) {
+					Alert.show(resourceManager.getString('cms', 'metadataMaxAllowedEntriesError'),
+						resourceManager.getString('cms', 'metadataMaxAllowedErrorTitle'));
+				}
+				else {
+					for (var i:uint = 0; i < allEntries.selectedItems.length; i++) {
+						var o:Object;
+						if (allEntries.selectedItems[i] is KalturaMixEntry) {
+							o = Cloner.cloneKalturaMixEntry(allEntries.selectedItems[i] as KalturaMixEntry);
+						}
+						if (allEntries.selectedItems[i] is KalturaMediaEntry) {
+							o = Cloner.cloneKalturaMediaEntry(allEntries.selectedItems[i] as KalturaMediaEntry);
+						}
+						_playlistArrayCollection.addItemAt(o, 0);
+					}
+					dispatchRefreshEntriesList();
+				}
+			}
+
+
+
+			/**
+			 * set the values shown in the popup tot he given playlist object
+			 * @param kpl 	the playlist to update
+			 * */
+			private function setPlaylistInfoFromScreen(kpl:KalturaPlaylist):void {
+				kpl.name = playlistName.text;
+				kpl.description = playlistDescription.text;
+				kpl.tags = getPlaylistTags();
+				var entriesIds:Array = new Array();
+				for (var i:int = 0; i < _playlistArrayCollection.length; i++) {
+					entriesIds.push(_playlistArrayCollection[i]["id"]);
+				}
+				kpl.playlistContent = entriesIds.join();
+			}
+
+
+			private function getPlaylistTags():String {
+				var str:String = '';
+				var ac:ArrayCollection = tagsComplete.selectedItems;
+				for each (var tag:String in ac) {
+					str += tag + ", ";
+				}
+				if (ac.length) {
+					str = str.substr(0, str.length - 2);
+				}
+				return str;
+			}
+
+
+			/**
+			 * Save playlist. If this was an edit - use updatePlaylist Command,
+			 * if this is a new playlist - use addPlaylist
+			 */
+			private function save():void {
+				if (context == ManualPlaylistWindowMode.EDIT_LINKED_ENTRIES_MODE || context == ManualPlaylistWindowMode.NEW_LINKED_ENTRIES) {
+					editLinkedArrayCollection.source = _playlistArrayCollection.source;
+					onClose();
+					return;
+				}
+
+				if (context != ManualPlaylistWindowMode.EDIT_PLAYLIST_MODE) {
+					// new playlist
+					if (validatePlaylist()) {
+						var kalturaPlaylist:KalturaPlaylist = new KalturaPlaylist();
+						setPlaylistInfoFromScreen(kalturaPlaylist);
+						kalturaPlaylist.playlistType = KalturaPlaylistType.STATIC_LIST;
+
+						var ap:ManualPlaylistWindowEvent = new ManualPlaylistWindowEvent(ManualPlaylistWindowEvent.SAVE_NEW_PLAYLIST);
+						ap.data = kalturaPlaylist;
+						dispatchEvent(ap);
+					}
+				}
+				else if (validatePlaylist()) {
+					// edit playlist
+					setPlaylistInfoFromScreen(_editPlaylist);
+					//clear the parts (it is used just for passing the initial list)
+					_editPlaylist.parts = null;
+					_editPlaylist.setUpdatedFieldsOnly(true);
+
+					var e:ManualPlaylistWindowEvent = new ManualPlaylistWindowEvent(ManualPlaylistWindowEvent.SAVE_EXISTING_PLAYLIST);
+					e.data = _editPlaylist;
+					dispatchEvent(e);
+					KAnalyticsTracker.getInstance().sendEvent(KAnalyticsTrackerConsts.CONTENT, KalturaStatsKmcEventType.CONTENT_EDIT_PLAYLIST,
+						"ManuallPlayList>EditPlayList" + ">" + _editPlaylist.id);
+					GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.CONTENT_EDIT_PLAYLIST +
+						">" + _editPlaylist.id, GoogleAnalyticsConsts.CONTENT);
+
+				}
+			}
+
+
+			/**
+			 * Verify that the playlist has name & at least one entry
+			 */
+			private function validatePlaylist():Boolean {
+				var isOk:Boolean = true;
+				var playlistValidateResultEvent:ValidationResultEvent = playListValidator.validate();
+				if ((playlistValidateResultEvent.results != null) && (playlistValidateResultEvent.results.length > 0)) {
+					isOk = !(playlistValidateResultEvent.results[0] as ValidationResult).isError;
+				}
+				if (!isOk) {
+					Alert.show(resourceManager.getString('cms', 'nameIsMandatory'));
+					return false;
+				}
+				if (_playlistArrayCollection.length == 0) {
+					Alert.show(resourceManager.getString('cms', 'selectAtLeastOneEntry'));
+					return false;
+				}
+				return true;
+
+			}
+
+
+
+
+
+
+			/**
+			 * Notify (event) when something was changed in the current list
+			 */
+			private function dispatchRefreshEntriesList():void {
+				dispatchEvent(new ManualPlaylistWindowEvent(ManualPlaylistWindowEvent.REFRESH_ENTRIES_LIST));
+			}
+
+
+			/**
+			 * Entry table dispatched an order-by changing
+			 */
+			private function onOrderByChanged():void {
+				_orderBy = allEntries.orderBy;
+				loadEntries();
+			}
+
+
+			protected function entryTable_showDetailsHandler(event:KedDataEvent):void {
+				var e:ManualPlaylistWindowEvent = new ManualPlaylistWindowEvent(ManualPlaylistWindowEvent.SHOW_ENTRY_DETAILS);
+				e.data = event.data as KalturaBaseEntry;
+				dispatchEvent(e);
+			}
+
+
+			public function get editable():Boolean {
+				return playlistName.enabled;
+			}
+
+
+			public function set editable(value:Boolean):void {
+				playlistName.enabled = value;
+				playlistDescription.enabled = value;
+				tagsComplete.enabled = value;
+				filter.enabled = value;
+//				removeBtn.enabled = value;
+//				removeBtn.buttonMode = value;
+				addBtn.enabled = value;
+				addBtn.buttonMode = value;
+				entries.editable = value;
+				saveBtn.enabled = value;
+			}
+		]]>
+	</mx:Script>
+
+	<mx:Metadata>
+		[Event(name="refreshEntriesList", type="com.kaltura.edw.components.playlist.events.ManualPlaylistWindowEvent")] 
+		[Event(name="close", type="com.kaltura.edw.components.playlist.events.ManualPlaylistWindowEvent")] 
+		[Event(name="showEntryDetails", type="com.kaltura.edw.components.playlist.events.ManualPlaylistWindowEvent")] 
+		[Event(name="savePlaylist", type="com.kaltura.edw.components.playlist.events.ManualPlaylistWindowEvent")] 
+		[Event(name="getPlaylist", type="com.kaltura.edw.components.playlist.events.ManualPlaylistWindowEvent")] 
+		[Event(name="loadFilterData", type="com.kaltura.edw.components.playlist.events.ManualPlaylistWindowEvent")] 
+		[Event(name="searchEntries", type="com.kaltura.edw.components.playlist.events.ManualPlaylistWindowEvent")] 
+	</mx:Metadata>
+
+
+	<mx:StringValidator id='playListValidator' source="{playlistName}" property="text" trigger="{playlistName}"
+						triggerEvent="change" required="true"
+						requiredFieldError="{resourceManager.getString('cms', 'nameIsMandatory')}"/>
+
+	<mx:Grid width="100%" id="nameAndDescription"
+			 visible="{context == ManualPlaylistWindowMode.EDIT_PLAYLIST_MODE || context == ManualPlaylistWindowMode.NEW_PLAYLIST}"
+			 includeInLayout="{context == ManualPlaylistWindowMode.EDIT_PLAYLIST_MODE || context == ManualPlaylistWindowMode.NEW_PLAYLIST}">
+		<mx:GridRow width="100%" height="100%">
+			<mx:GridItem>
+				<mx:Label text="{'*' + resourceManager.getString('cms', 'name') + ':'}" styleName="formLabel"/>
+			</mx:GridItem>
+			<mx:GridItem width="100%" height="100%">
+				<mx:TextInput id="playlistName" width="100%"/>
+			</mx:GridItem>
+		</mx:GridRow>
+		<mx:GridRow width="100%" height="100%">
+			<mx:GridItem>
+				<mx:Label text="{resourceManager.getString('cms', 'description') + ':'}" styleName="formLabel"/>
+			</mx:GridItem>
+			<mx:GridItem width="100%" height="100%">
+				<mx:TextInput id="playlistDescription" width="100%"/>
+			</mx:GridItem>
+		</mx:GridRow>
+		<mx:GridRow width="100%" height="100%">
+			<mx:GridItem>
+				<mx:Label text="{resourceManager.getString('cms', 'tags') + ':'}" styleName="formLabel"/>
+			</mx:GridItem>
+			<mx:GridItem width="100%" height="100%">
+				<!--<mx:TextInput id="playlistTags" width="100%"/>-->
+				<components:AutoComplete id="tagsComplete" width="100%" selectedItemStyleName="facebook"
+										 showRemoveIcon="true" allowMultipleSelection="true" allowNewValues="true"
+										 labelField="tag"/>
+			</mx:GridItem>
+		</mx:GridRow>
+	</mx:Grid>
+
+	<mx:HBox id="playlistWorkArea" width="100%" height="100%" verticalAlign="middle">
+		<mx:VBox height="100%" verticalGap="0" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+			<mx:Label text="{resourceManager.getString('cms', 'filters')}" styleName="formLabel"/>
+			<fltr:FreeTextSearch id="searchBox" styleName="searchHBox" width="{filter.width}" attribute="freeText"
+								 defaultText="{resourceManager.getString('filter', 'searchEntries')}"/>
+			<fltr:EntriesFilter id="filter" width="260" height="100%" filterChanged="loadEntries()"
+								freeTextSearch="{searchBox}" enableIngestionStatus="false" filterModel="{filterData}"
+								metadataProfiles="{filterData.metadataProfiles}"
+								distributionProfiles="{distributionProfilesArray}"
+								categoriesRoot="{filterData.categoriesGeneral}"
+								allCategories="{filterData.categoriesMapGeneral}"/>
+		</mx:VBox>
+
+		<mx:VBox id="availableEntriesContainer" width="100%" height="100%" verticalGap="0" horizontalScrollPolicy="off"
+				 verticalScrollPolicy="off">
+			<mx:Label text="{resourceManager.getString('cms', 'entriesTable')}" styleName="formLabel"/>
+			<et1:EntryTable id="allEntries" width="100%" orderByChanged="{onOrderByChanged()}" showLinks="{showLinks}"
+							selectionAttribute="table2Selected" dataProvider="{_listableVo.arrayCollection}"
+							singleSelection="{(maxAllowedValues==1)}" showDetails="entryTable_showDetailsHandler(event)"
+							creationComplete="onEntriesTableReady()"/>
+			<controls:Paging id="paging" styleName="paging" rowsInPageChange="gotoPage()" nextPage="gotoPage()"
+							 prvPage="gotoPage()" getPageNum="gotoPage()" verticalScrollPolicy="off"
+							 horizontalScrollPolicy="off" width="100%" showRowsInPage="true"/>
+		</mx:VBox>
+
+		<mx:HBox id="addRemoveContainer" styleName="plstAddRemoveCont">
+			<!--<mx:Button id="removeBtn" buttonMode="true" styleName="removeLeftBtn" click="remove()"/>-->
+			<mx:Button id="addBtn" buttonMode="true" styleName="addRightBtnWide" click="addToPlaylist()"/>
+		</mx:HBox>
+
+		<playlist:PlaylistEntries id="entries" width="100%" height="100%" dataProvider="{_playlistArrayCollection}"
+								  showLinks="{showLinks}" allowSort="true" 
+								  allowManualActions="true" allowRuleBasedActions="false"
+								  moveItem="dispatchRefreshEntriesList()" showEntryDetails="entryTable_showDetailsHandler(event)" />
+	</mx:HBox>
+	<mx:ControlBar>
+		<mx:Button id="saveBtn" label="{resourceManager.getString('cms','save')}" click="{save()}"/>
+	</mx:ControlBar>
+</HelpTitleWindow>

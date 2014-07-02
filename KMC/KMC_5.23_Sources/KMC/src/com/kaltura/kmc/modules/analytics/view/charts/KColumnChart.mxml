@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:ColumnChart xmlns:mx="http://www.adobe.com/2006/mxml" 
+	height="200" 
+	creationComplete="init()"
+	seriesFilters="{[]}" 
+	showDataTips="true"
+	xmlns:styles="com.google.maps.styles.*">
+	 <mx:Script>
+	 	<![CDATA[
+			import mx.collections.ArrayCollection;
+	 		[Bindable] private var categoryDp : Array;
+			
+			[Bindable]
+			public var createColumnsFromDp:Boolean = false;
+			
+			[Bindable]
+			public var isMonthly:Boolean;
+			
+			[Bindable]
+			private var _columnDp:ArrayCollection;
+			
+	 		private function init() : void
+	 		{
+	 			categoryDp = [ resourceManager.getString('analytics','count_plays') ,
+ 							   resourceManager.getString('analytics','count_plays_25') ,
+ 							   resourceManager.getString('analytics','count_plays_50') ,
+ 							   resourceManager.getString('analytics','count_plays_75') ,
+ 							   resourceManager.getString('analytics','count_plays_100') ];
+	 		}
+	 		
+	 		override public function set dataProvider( value : Object ) :void
+	 		{
+	 			super.dataProvider = value;
+	 			columnSeries.dataProvider = value;
+				
+//				_columnDp;
+//				var points:ArrayCollection = new ArrayCollection();//
+//				
+//				
+//				
+//				var arr:ArrayCollection = (timeFrameTBB.selectedIndex == 1) ? new ArrayCollection(String("1,123;2,432;3,333;4,44;5,0;6,0;7,443;8,987;9,543;10,0;11,0;12,456;").split(';')) :
+//				new ArrayCollection(String("1,33;2,566;3,777;4,0;5,546;6,456;7,888;8,0;9,0;10,0;11,0;12,456;13,0;14,11;15,11;16,0;17,555;18,0;19,0;20,0;21,0;22,456;23,0;24,456;25,456;26,0;27,456;28,888;29,456;30,0;31,0;").split(';'));
+				
+	 		}
+	 	]]>
+	 </mx:Script>
+ 	 <mx:Stroke id="axis" color="0xb1b1b1" weight="2" />
+ 	
+ 	 <mx:SolidColor id="sc1" color="#9ab40c" />
+
+	 <mx:horizontalAxis>
+		 <mx:CategoryAxis id="catAxis" dataProvider="{createColumnsFromDp ? dataProvider : categoryDp}"  />
+     </mx:horizontalAxis>
+     
+     <mx:verticalAxis>
+     	<mx:LinearAxis id="verticalLinearAxis" autoAdjust="true" baseAtZero="true" />
+     </mx:verticalAxis>
+     
+	 <mx:series>
+	     <mx:ColumnSeries id="columnSeries" yField="y" xField="x" fill="{sc1}" showDataEffect="rearrangeData" />
+     </mx:series>
+    
+    <mx:SeriesInterpolate id="rearrangeData" duration="1000" minimumElementDuration="200" elementOffset="0" /> 
+    
+</mx:ColumnChart>

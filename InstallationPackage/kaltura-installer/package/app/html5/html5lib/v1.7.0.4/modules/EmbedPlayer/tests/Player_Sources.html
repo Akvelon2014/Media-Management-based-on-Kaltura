@@ -1,0 +1,113 @@
+<!DOCTYPE html> 
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Player sources</title>
+
+<script type="text/javascript" src="../../../tests/qunit/qunit-bootstrap.js"></script>
+ <script type="text/javascript" src="../../../mwEmbedStartup.php"></script>
+ <script type="text/javascript" src="../../../docs/js/doc-bootstrap.js"></script>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+
+</head>
+<body>
+<h2>Self Hosted Player Sources</h2>
+This demonstrates stand alone usage of the Kaltura HTML5 library, where sources are provided by the video tag instead of the Kaltura platform api. 
+<br>
+<br>
+Usage maps directly from the video tag syntax, usage of <i>data-*</i> attributes can help the library better manage stream selection and metadata loading. 
+<pre class="prettyprint linenums">
+<br/>&lt;video title=&quot;Sintel.2010.720p&quot;<br/>	data-entryid=&quot;0_c0r624gh&quot;<br/>	poster=&quot;http://cdnbakmi.kaltura.com/p/243342/sp/24334200/thumbnail/entry_id/0_c0r624gh/version/100004/width/640&quot;<br/>	controls=&quot;controls&quot;<br/>	data-durationhint=&quot;888&quot;<br/>	width=&quot;480&quot;<br/>	height=&quot;192&quot;	&gt;<br/> <br/>&lt;source data-bitrate=&quot;42480&quot;<br/>	data-width=&quot;1280&quot;<br/>	data-height=&quot;544&quot;<br/>	src=&quot;http://cdnbakmi.kaltura.com/p/243342/sp/24334200/playManifest/entryId/0_c0r624gh/flavorId/0_2mn33cly/format/url/protocol/http/a.webm&quot;<br/>	data-flavorid=&quot;webm&quot;<br/>	type=&quot;video/webm&quot;&gt;<br/> <br/>&lt;source data-bitrate=&quot;6400&quot;<br/>	data-width=&quot;480&quot;<br/>	data-height=&quot;192&quot;<br/>	src=&quot;http://cdnbakmi.kaltura.com/p/243342/sp/24334200/playManifest/entryId/0_c0r624gh/flavorId/1_ssz1g2sa/format/url/protocol/http/a.mp4&quot;<br/>	data-flavorid=&quot;iPhone&quot;<br/>	type=&quot;video/h264&quot;&gt;<br/> <br/>&lt;source data-flavorid=&quot;iPadNew&quot;<br/>	type=&quot;application/vnd.apple.mpegurl&quot;<br/>	src=&quot;http://cdnbakmi.kaltura.com/p/243342/sp/24334200/playManifest/entryId/0_c0r624gh/flavorIds/0_w48dtkyq,1_tj3uq03m/format/applehttp/protocol/http/a.m3u8&quot;&gt;<br/> <br/>&lt;/video&gt;
+</pre>
+ 
+<video title="Sintel.2010.720p"
+	poster="http://cdnbakmi.kaltura.com/p/243342/sp/24334200/thumbnail/entry_id/0_c0r624gh/version/100004/width/640"
+	controls="controls"
+	data-durationhint="888"
+	width="480"
+	height="192"
+	
+	>
+ 
+<source data-bitrate="42480"
+	data-width="1280"
+	data-height="544"
+	src="http://cdnbakmi.kaltura.com/p/243342/sp/24334200/playManifest/entryId/0_c0r624gh/flavorId/0_2mn33cly/format/url/protocol/http/a.webm"
+	data-flavorid="webm"
+	type="video/webm">
+ 
+<source data-bitrate="3200"
+	data-width="480"
+	data-height="192"
+	src="http://cdnbakmi.kaltura.com/p/243342/sp/24334200/playManifest/entryId/0_c0r624gh/flavorId/0_b5cmhwnw/format/url/protocol/http/a.3gp"
+	data-flavorid="3gp"
+	type="video/3gp">
+ 
+<source data-bitrate="6376"
+	data-width="816"
+	data-height="352"
+	src="http://cdnbakmi.kaltura.com/p/243342/sp/24334200/playManifest/entryId/0_c0r624gh/flavorId/0_1c89hhxb/format/url/protocol/http/a.webm"
+	data-flavorid="webm"
+	type="video/webm">
+ 
+<source data-bitrate="9688"
+	data-width="1120"
+	data-height="480"
+	src="http://cdnbakmi.kaltura.com/p/243342/sp/24334200/playManifest/entryId/0_c0r624gh/flavorId/0_g4hvuve3/format/url/protocol/http/a.ogg"
+	data-flavorid="ogg"
+	type="video/ogg">
+ 
+<source data-bitrate="9688"
+	data-width="640"
+	data-height="272"
+	src="http://cdnbakmi.kaltura.com/p/243342/sp/24334200/playManifest/entryId/0_c0r624gh/flavorId/0_w3aolq8p/format/url/protocol/http/a.mp4"
+	data-flavorid="iPhone"
+	type="video/h264">
+ 
+<source data-bitrate="15352"
+	data-width="1280"
+	data-height="544"
+	src="http://cdnbakmi.kaltura.com/p/243342/sp/24334200/playManifest/entryId/0_c0r624gh/flavorId/0_w48dtkyq/format/url/protocol/http/a.mp4"
+	data-flavorid="iPad"
+	type="video/h264">
+ 
+<source data-bitrate="11440"
+	data-width="1024"
+	data-height="432"
+	src="http://cdnbakmi.kaltura.com/p/243342/sp/24334200/playManifest/entryId/0_c0r624gh/flavorId/1_tj3uq03m/format/url/protocol/http/a.mp4"
+	data-flavorid="iPad"
+	type="video/h264">
+ 
+<source data-bitrate="6376"
+	data-width="480"
+	data-height="192"
+	src="http://cdnbakmi.kaltura.com/p/243342/sp/24334200/playManifest/entryId/0_c0r624gh/flavorId/1_wvny3hay/format/url/protocol/http/a.3gp"
+	data-flavorid="3gp"
+	type="video/3gp">
+ 
+<source data-bitrate="3344"
+	data-width="480"
+	data-height="192"
+	src="http://cdnbakmi.kaltura.com/p/243342/sp/24334200/playManifest/entryId/0_c0r624gh/flavorId/1_upx4jp4h/format/url/protocol/http/a.mp4"
+	data-flavorid="iPhone"
+	type="video/h264">
+ 
+<source data-bitrate="6400"
+	data-width="480"
+	data-height="192"
+	src="http://cdnbakmi.kaltura.com/p/243342/sp/24334200/playManifest/entryId/0_c0r624gh/flavorId/1_ssz1g2sa/format/url/protocol/http/a.mp4"
+	data-flavorid="iPhone"
+	type="video/h264">
+ 
+<source data-flavorid="iPadNew"
+	type="application/vnd.apple.mpegurl"
+	src="http://cdnbakmi.kaltura.com/p/243342/sp/24334200/playManifest/entryId/0_c0r624gh/flavorIds/0_w48dtkyq,1_tj3uq03m/format/applehttp/protocol/http/a.m3u8">
+ 
+<source data-flavorid="iPhoneNew"
+	type="application/vnd.apple.mpegurl"
+	src="http://cdnbakmi.kaltura.com/p/243342/sp/24334200/playManifest/entryId/0_c0r624gh/flavorIds/0_w3aolq8p,1_upx4jp4h,1_ssz1g2sa/format/applehttp/protocol/http/a.m3u8">
+ 
+</video>
+
+</body>
+</html>

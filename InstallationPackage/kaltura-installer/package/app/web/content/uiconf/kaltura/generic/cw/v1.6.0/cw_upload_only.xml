@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<kcw>
+	<mediaTypes>
+
+		<media type="video">
+			<provider id="upload" name="upload" code="1">
+				<authMethodList>
+				  <authMethod type="1" />
+				</authMethodList>
+				<moduleUrl>UploadView.swf</moduleUrl>
+
+				<fileFilters>
+					<filter type="video">
+						<allowedTypes>flv,asf,qt,mov,mpg,avi,wmv,m4v,mp4,mpeg,3gp</allowedTypes>
+					</filter>
+				</fileFilters>
+			</provider>
+		
+		</media>
+
+	</mediaTypes>
+
+	<UIConfigList>
+		<UIConfig>
+		    <target>
+				ContributionWizard.swf
+		    </target>
+		    <cssUrl>/content/uiconf/kaltura/drupal/styles_ContributionWizard.swf</cssUrl>
+			<localeUrl>/content/uiconf/kaltura/en_US_ContributionWizard.swf</localeUrl>
+		</UIConfig>
+	</UIConfigList>
+
+	<StartupDefaults>
+			<SingleContribution>true</SingleContribution>
+			<gotoScreen>
+				<mediaType>video</mediaType>
+			</gotoScreen>
+
+			<NavigationProperties>
+				<enableTagging>true</enableTagging>
+				<enableIntroScreen>false</enableIntroScreen>
+			</NavigationProperties>
+
+			<autoTOUConfirmation>true</autoTOUConfirmation>
+	</StartupDefaults>
+
+</kcw>

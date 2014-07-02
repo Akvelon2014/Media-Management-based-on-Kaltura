@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="utf-8"?>
+<fltr:BaseFilter xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:fltr="com.kaltura.edw.components.fltr.*"
+				 xmlns:cat="com.kaltura.edw.components.fltr.cat.*" xmlns:filter="com.kaltura.edw.components.filter.*"
+				 creationComplete="creationCompleteHandler(event)" 
+				 xmlns:panels="com.kaltura.edw.components.fltr.panels.*">
+	<mx:Script>
+		<![CDATA[
+			import com.kaltura.base.types.MetadataCustomFieldTypes;
+			import com.kaltura.dataStructures.HashMap;
+			import com.kaltura.edw.components.fltr.cat.CatTreeSelectionMode;
+			import com.kaltura.edw.components.fltr.panels.MetadataProfileFilter;
+			import com.kaltura.edw.model.datapacks.ContextDataPack;
+			import com.kaltura.types.KalturaEntryStatus;
+			import com.kaltura.types.KalturaMediaType;
+			import com.kaltura.types.KalturaSearchOperatorType;
+			import com.kaltura.vo.KMCMetadataProfileVO;
+			import com.kaltura.vo.KalturaFilter;
+			import com.kaltura.vo.KalturaMediaEntryFilter;
+			import com.kaltura.vo.KalturaMetadataSearchItem;
+			import com.kaltura.vo.KalturaPlayableEntryFilter;
+			import com.kaltura.vo.KalturaSearchItem;
+			import com.kaltura.vo.KalturaSearchOperator;
+			import com.kaltura.vo.MetadataFieldVO;
+			
+			import mx.binding.utils.BindingUtils;
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+
+			// ----------------
+			// scheduling
+			// ----------------
+			
+			/**
+			 * attributes for scheduling filter
+			 * */
+			private const _schedulingAttributes:Array = ["startDateLessThanOrEqualOrNull", "endDateGreaterThanOrEqualOrNull",
+				"startDateGreaterThanOrEqual", "endDateLessThanOrEqual",
+				"startDateGreaterThanOrEqual", "endDateLessThanOrEqual"];
+			
+			// ----------------
+			// show / hide panels
+			// ----------------
+			
+			[Bindable]
+			public var showPrefsButton:Boolean = true;
+			
+			
+			[Bindable]
+			/**
+			 * show moderation status filter
+			 * */
+			public var enableModeration:Boolean = true;
+			
+			[Bindable]
+			/**
+			 * show access control filter
+			 * */
+			public var enableAccessControl:Boolean = true;
+			
+			[Bindable]
+			/**
+			 * show scheduling filter
+			 * */
+			public var enableScheduling:Boolean = true;
+			
+			[Bindable]
+			/**
+			 * show ingestion status filter
+			 * */
+			public var enableIngestionStatus:Boolean = true;
+			
+			[Bindable]
+			/**
+			 * R&P: livestream feature
+			 * @internal
+			 * set directly by permissions manager
+			 * */
+			public var enableLiveStream:Boolean = true;
+			
+			[Bindable]
+			public var context:ContextDataPack;
+
+			// ----------------
+			// distribution
+			// ----------------
+			
+			[Bindable]
+			/**
+			 * R&P: content distribution feature
+			 * @internal
+			 * set directly by permissions manager
+			 * */
+			public var enableDistribution:Boolean = true;
+
+
+			[Bindable]
+			/**
+			 * list of distribution prfiles to show as filters
+			 * */
+			public var distributionProfiles:Array;
+
+			[Bindable]
+			/**
+			 * distribution profiles in AC
+			 * @see wrapInAC()
+			 * */
+			private var _distProfAC:ArrayCollection;
+
+			/**
+			 * wrap the given array in array collection.
+			 * @internal 
+			 * since distribution profiles data on the model is in Array
+			 * but the additionalPanel's dataProvider is an ArrayCollection, 
+			 * use this little ugly workaround.
+			 * */
+			private function wrapInAC(value:Array):void {
+				_distProfAC = new ArrayCollection(value);
+			}
+			
+			
+			// ----------------
+			// custom data
+			// ----------------
+			
+			/**
+			 * build the visual metadata filter panels
+			 * */
+			override protected function createMetadataFilters(value:ArrayCollection):void {
+				var i:int;
+				// clean previous metadata children
+				for (i = accordion.numChildren-1; i>=0; i--) {
+					if (accordion.getChildAt(i) is MetadataProfileFilter) {
+						accordion.removeChildAt(i);
+					}
+				}
+				// if no value, don't build panels
+				if (!value) return;
+				
+				
+				// build panels
+				var profileVo:KMCMetadataProfileVO;
+				var metadataTab:MetadataProfileFilter;
+				var field:MetadataFieldVO;
+				var hasSearchableFields:Boolean = false;
+				var hasSearchableListFields:Boolean = false;
+				
+				for (i = _metadataProfiles.length-1; i>=0; i--) {
+					profileVo = _metadataProfiles.getItemAt(i) as KMCMetadataProfileVO;
+					if (profileVo.metadataFieldVOArray && profileVo.metadataFieldVOArray.length) {
+						// look for searchable fields of type list:
+						hasSearchableFields = false;						
+						hasSearchableListFields = false;						
+						for each (var obj:Object in profileVo.metadataFieldVOArray) {
+							field = obj as MetadataFieldVO;
+							if (field && field.appearInSearch) {
+								if (field.type == MetadataCustomFieldTypes.LIST) {
+									hasSearchableListFields = true;
+									break;
+								}
+								else {
+									hasSearchableFields = true;
+									// don't break, look for LISTs
+								}
+							}
+						}
+						if (hasSearchableListFields) {
+							// build a visual filter
+							metadataTab = buildMetadataProfileFilter(profileVo); 
+							// add the tab after additional filters tab
+							accordion.addChildAt(metadataTab, 2);
+						}
+						
+						else if (hasSearchableFields) {
+							// add item to advanced search
+							var profileSearchItem:KalturaMetadataSearchItem = new KalturaMetadataSearchItem();
+							profileSearchItem.type = KalturaSearchOperatorType.SEARCH_AND;
+							profileSearchItem.metadataProfileId = profileVo.profile.id;
+							handelAdvancedSearchComponent(profileSearchItem, profileVo.profile.id.toString());
+						}
+					}
+				}
+			}
+			
+			
+			// ----------------
+			// categories
+			// ----------------
+			
+			[Bindable]
+			/**
+			 * initial selection mode for categories tree, if not selected by user
+			 * @see com.kaltura.edw.components.fltr.cat.CatTree#selectionMode
+			 * */
+			public var categoriesTreeSelectionMode:int = CatTreeSelectionMode.MULTIPLE_SELECT_PLUS;
+			
+			[Bindable]
+			/**
+			 * the attribute used to mark selection of categories in categories tree
+			 * @see com.kaltura.edw.components.fltr.cat.CatTree#selectionAttribute
+			 * */
+			public var categoriesTreeSelectionAttribute:String = "selectedEntries";
+			
+			[Bindable]
+			public var categoriesRoot:ArrayCollection;
+			
+			[Bindable]
+			public var allCategories:HashMap;
+			
+			// ----------------
+			// general
+			// ----------------
+			
+			public function clearCategoriesSelection():void {
+				catTree.filter = '';
+			}
+			
+			
+			/**
+			 * create a filter with all basic attributes
+			 * */
+			public static function generateBaseFilter():KalturaMediaEntryFilter {
+				var _kalturaFilter:KalturaMediaEntryFilter = new KalturaMediaEntryFilter();
+				
+				_kalturaFilter.mediaTypeIn = KalturaMediaType.VIDEO + "," + KalturaMediaType.IMAGE + "," + 
+					KalturaMediaType.AUDIO + ",6," + KalturaMediaType.LIVE_STREAM_FLASH;
+				
+				_kalturaFilter.statusIn = KalturaEntryStatus.ERROR_CONVERTING + "," + KalturaEntryStatus.ERROR_IMPORTING + "," +
+					KalturaEntryStatus.IMPORT + "," + KalturaEntryStatus.PRECONVERT + "," + KalturaEntryStatus.READY + "," + 
+					KalturaEntryStatus.NO_CONTENT + "," + KalturaEntryStatus.PENDING;
+				
+				return _kalturaFilter;
+			}
+			
+			
+			protected function creationCompleteHandler(event:FlexEvent):void {
+				if (!_kalturaFilter) {
+					_kalturaFilter = EntriesFilter.generateBaseFilter();
+				}
+				BindingUtils.bindSetter(wrapInAC, this, "distributionProfiles");
+			}
+			
+			
+			override public function set kalturaFilter(value:KalturaFilter):void {
+				// fix the attribute for categoriesTree if needed, then call super()
+				if (catTree.selectionMode == CatTreeSelectionMode.MULTIPLE_SELECT_PLUS) {
+					if (value[catTree.exactAttribute]) {
+						value[catTree.plusAttribute] = value[catTree.exactAttribute];
+						value[catTree.exactAttribute] = null;
+					}
+				}
+				else if (catTree.selectionMode == CatTreeSelectionMode.MULTIPLE_SELECT_EXACT) {
+					if (value[catTree.plusAttribute]) {
+						value[catTree.exactAttribute] = value[catTree.plusAttribute];
+						value[catTree.plusAttribute] = null;
+					}
+				}
+				super.kalturaFilter = value;
+			}
+			
+			
+			/**
+			 * reset kalturaFilter so any values that apply 
+			 * to the accordion components will be set
+			 * */
+			private function setFilterValues():void {
+				setFilterValuesToComponents();
+			}
+			
+		]]>
+	</mx:Script>
+	<mx:Accordion id="accordion" width="100%" height="100%" creationPolicy="all" >
+		<mx:headerRenderer>
+			<mx:Component>
+				<fltr:FilterAccordionHeader showAnimation="{outerDocument.filterModel.categoriesUpdating}"/>
+			</mx:Component>
+		</mx:headerRenderer>
+		<mx:Canvas id="categoriesBox" label="{resourceManager.getString('filter', 'categoriesLabel')}" width="100%"
+				   height="100%" styleName="categoriesTreeVBox">
+			<cat:CatTreeWrapper id="catTree" height="100%" width="100%" 
+								exactAttribute="categoriesIdsMatchOr" plusAttribute="categoryAncestorIdIn" 
+								selectionMode="{categoriesTreeSelectionMode}" valueChange="updateFilterValue(event)"
+								dataProvider="{categoriesRoot}" categories="{allCategories}"
+								selectionAttribute="{categoriesTreeSelectionAttribute}" kClient="{context.kc}" 
+								prefsButton="{prefs}" prefsIdentifier="entries"
+								chunkedData="{filterModel.chunkedCategoriesLoad}"/>
+			<mx:Button id="prefs" styleName="catTreePrefs" visible="{showPrefsButton}" includeInLayout="{showPrefsButton}"/>
+		</mx:Canvas>
+		<mx:VBox id="additional" label="{resourceManager.getString('filter', 'additionalFiltersLabel')}" 
+				 width="100%" height="100%" styleName="additinalFilterVBox" horizontalScrollPolicy="off" 
+				 creationComplete="setFilterValues()">
+			<panels:CreationDateFilter width="100%"
+									   attributes="{['createdAtGreaterThanOrEqual', 'createdAtLessThanOrEqual']}"
+									   valueChange="updateFilterValue(event)"/>
+			<panels:MediaTypesFilter width="100%" attribute="mediaTypeIn" valueChange="updateFilterValue(event)"
+									 showLiveStream="{enableLiveStream}"/>
+			<panels:IngestionStatusFilter width="100%" attribute="statusIn" valueChange="updateFilterValue(event)"
+										  visible="{enableIngestionStatus}" includeInLayout="{enableIngestionStatus}"/>
+			<panels:DurationFilter width="100%" attribute="durationTypeMatchOr" valueChange="updateFilterValue(event)"/>
+			<panels:ClipsFilter width="100%" attribute="isRoot" valueChange="updateFilterValue(event)"/>
+			<panels:SchedulingFilter width="100%" valueChange="updateFilterValue(event)"
+									 attributes="{_schedulingAttributes}"
+									 visible="{enableScheduling}" includeInLayout="{enableScheduling}"/>
+			<panels:ModerationFilter width="100%" attribute="moderationStatusIn" valueChange="updateFilterValue(event)"
+									 visible="{enableModeration}" includeInLayout="{enableModeration}"/>
+			<panels:ReplacementStatusFilter width="100%" attribute="replacementStatusIn"
+											valueChange="updateFilterValue(event)"/>
+			<panels:AccessControlFilter width="100%" attribute="accessControlIdIn" valueChange="updateFilterValue(event)"
+										mainButtonTitle="{resourceManager.getString('filter', 'allAccessControlBtn')}"
+										dataProvider="{filterModel.accessControlProfiles}"
+										visible="{enableAccessControl}" includeInLayout="{enableAccessControl}"/>
+			<panels:FlavorFilter width="100%" attribute="flavorParamsIdsMatchOr" valueChange="updateFilterValue(event)"
+								 mainButtonTitle="{resourceManager.getString('filter', 'allFlavorsBtn')}"
+								 dataProvider="{filterModel.flavorParams}"/>
+			<panels:DistributionFilter width="100%" visible="{enableDistribution}"
+									   includeInLayout="{enableDistribution}" 
+									   valueChange="updateFilterValue(event)"
+									   mainButtonTitle="{resourceManager.getString('filter', 'destinations')}"
+									   dataProvider="{_distProfAC}"/>
+		</mx:VBox>
+	</mx:Accordion>
+</fltr:BaseFilter>

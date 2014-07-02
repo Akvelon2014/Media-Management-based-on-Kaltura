@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<fltr:BaseFilter xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:fltr="com.kaltura.edw.components.fltr.*" 
+				 xmlns:cat="com.kaltura.edw.components.fltr.cat.*" xmlns:panels="com.kaltura.edw.components.fltr.panels.*" 
+				 xmlns:filter="com.kaltura.kmc.modules.content.view.categories.filter.*">
+	<mx:Script>
+		<![CDATA[
+			import com.kaltura.base.types.MetadataCustomFieldTypes;
+			import com.kaltura.edw.components.fltr.cat.CatTreeSelectionMode;
+			import com.kaltura.edw.components.fltr.panels.MetadataProfileFilter;
+			import com.kaltura.edw.model.datapacks.ContextDataPack;
+			import com.kaltura.types.KalturaSearchOperatorType;
+			import com.kaltura.vo.KMCMetadataProfileVO;
+			import com.kaltura.vo.KalturaFilter;
+			import com.kaltura.vo.KalturaMetadataSearchItem;
+			import com.kaltura.vo.MetadataFieldVO;
+			
+			import mx.collections.ArrayCollection;
+			
+			[Bindable]
+			public var context:ContextDataPack;
+			
+			[Bindable]
+			/**
+			 * RnP: show entitlements related filters
+			 * */
+			public var enableEntitlement:Boolean = true;
+			
+			
+			/**
+			 * reset kalturaFilter so any values that apply 
+			 * to the accordion components will be set
+			 * */
+			private function setFilterValues():void {
+				setFilterValuesToComponents();
+			}
+			
+			// ----------------
+			// custom data
+			// ----------------
+			
+			/**
+			 * build the visual metadata filter panels
+			 * 
+			 * @internal
+			 * this is the same code as in EntriesFilter, impossible to include in BaseFilter
+			 *  because of the reference to the accordion 
+			 * */
+			override protected function createMetadataFilters(value:ArrayCollection):void {
+				var i:int;
+				// clean previous metadata children
+				for (i = accordion.numChildren-1; i>=0; i--) {
+					if (accordion.getChildAt(i) is MetadataProfileFilter) {
+						accordion.removeChildAt(i);
+					}
+				}
+				// if no value, don't build panels
+				if (!value) return;
+				
+				
+				// build panels
+				var profileVo:KMCMetadataProfileVO;
+				var metadataTab:MetadataProfileFilter;
+				var field:MetadataFieldVO;
+				var hasSearchableFields:Boolean = false;
+				var hasSearchableListFields:Boolean = false;
+				
+				for (i = _metadataProfiles.length-1; i>=0; i--) {
+					profileVo = _metadataProfiles.getItemAt(i) as KMCMetadataProfileVO;
+					if (profileVo.metadataFieldVOArray && profileVo.metadataFieldVOArray.length) {
+						// look for searchable fields of type list:
+						hasSearchableFields = false;						
+						hasSearchableListFields = false;						
+						for each (var obj:Object in profileVo.metadataFieldVOArray) {
+							field = obj as MetadataFieldVO;
+							if (field && field.appearInSearch) {
+								if (field.type == MetadataCustomFieldTypes.LIST) {
+									hasSearchableListFields = true;
+									break;
+								}
+								else {
+									hasSearchableFields = true;
+									// don't break, look for LISTs
+								}
+							}
+						}
+						if (hasSearchableListFields) {
+							// build a visual filter
+							metadataTab = buildMetadataProfileFilter(profileVo); 
+							// add the tab after additional filters tab
+							accordion.addChildAt(metadataTab, 2);
+						}
+						else if (hasSearchableFields) {
+							// add item to advanced search
+							var profileSearchItem:KalturaMetadataSearchItem = new KalturaMetadataSearchItem();
+							profileSearchItem.type = KalturaSearchOperatorType.SEARCH_AND;
+							profileSearchItem.metadataProfileId = profileVo.profile.id;
+							handelAdvancedSearchComponent(profileSearchItem, profileVo.profile.id.toString());
+						}
+					}
+				}
+			}
+			
+			
+			override public function set kalturaFilter(value:KalturaFilter):void {
+				// fix the attribute for categoriesTree if needed, then call super()
+				if (catTree.selectionMode == CatTreeSelectionMode.MULTIPLE_SELECT_PLUS) {
+					if (value[catTree.exactAttribute]) {
+						value[catTree.plusAttribute] = value[catTree.exactAttribute];
+						value[catTree.exactAttribute] = null;
+					}
+				}
+				else if (catTree.selectionMode == CatTreeSelectionMode.MULTIPLE_SELECT_EXACT) {
+					if (value[catTree.plusAttribute]) {
+						value[catTree.exactAttribute] = value[catTree.plusAttribute];
+						value[catTree.plusAttribute] = null;
+					}
+				}
+				super.kalturaFilter = value;
+			}
+			
+		]]>
+	</mx:Script>
+	<mx:Accordion id="accordion" height="100%" width="100%" >
+		<mx:headerRenderer>
+			<mx:Component>
+				<fltr:FilterAccordionHeader showAnimation="{outerDocument.filterModel.categoriesUpdating}"/>
+			</mx:Component>
+		</mx:headerRenderer>
+		<mx:Canvas id="categoriesBox" label="{resourceManager.getString('filter', 'categoriesLabel')}" width="100%"
+				   height="100%" styleName="categoriesTreeVBox">
+			<cat:CatTreeWrapper id="catTree" height="100%" width="100%" 
+								exactAttribute="parentIdIn" plusAttribute="ancestorIdIn"
+								selectionMode="{CatTreeSelectionMode.MULTIPLE_SELECT_EXACT}" valueChange="updateFilterValue(event)"
+								dataProvider="{filterModel.categoriesForCats}" categories="{filterModel.categoriesMapForCats}"
+								chunkedData="{filterModel.chunkedCategoriesLoad}" kClient="{context.kc}"
+								prefsButton="{prefs}" prefsIdentifier="categories"/>
+			<mx:Button id="prefs" right="7" y="0" styleName="catTreePrefs"/>
+		</mx:Canvas>
+		<mx:VBox id="additional" label="{resourceManager.getString('filter', 'additionalFiltersLabel')}" 
+				 width="100%" height="100%" styleName="additinalFilterVBox" horizontalScrollPolicy="off" 
+				 creationComplete="setFilterValues()">
+			<panels:CreationDateFilter width="100%"
+									   attributes="{['createdAtGreaterThanOrEqual', 'createdAtLessThanOrEqual']}"
+									   valueChange="updateFilterValue(event)"/>
+			
+			<filter:CategoryAccessFilter width="100%" attribute="privacyIn"
+										 valueChange="updateFilterValue(event)"
+										 visible="{enableEntitlement}" includeInLayout="{enableEntitlement}"/>
+			
+			<filter:CategoryListingFilter width="100%" attribute="appearInListEqual"
+										  valueChange="updateFilterValue(event)"
+										  visible="{enableEntitlement}" includeInLayout="{enableEntitlement}"/>
+			
+			<filter:CategoryContributionPolicyFilter width="100%" attribute="contributionPolicyEqual"
+										  valueChange="updateFilterValue(event)"
+										  visible="{enableEntitlement}" includeInLayout="{enableEntitlement}"/>
+			
+			<filter:CategoryMemebersFilter width="100%"
+										   attributes="{['membersCountGreaterThanOrEqual', 'membersCountLessThanOrEqual']}"
+										   valueChange="updateFilterValue(event)"
+										   visible="{enableEntitlement}" includeInLayout="{enableEntitlement}"/>
+
+		</mx:VBox>
+	</mx:Accordion>
+</fltr:BaseFilter>

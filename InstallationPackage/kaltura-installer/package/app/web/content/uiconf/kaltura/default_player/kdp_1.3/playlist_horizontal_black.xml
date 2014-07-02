@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layouts>
+	<layout layoutId="ads" skinPath="/content/uiconf/qa/kdp/footboo_kdp_skin_styles.swf" >
+		<VBox height="100%" width="100%" styleName="mainView">
+			<HBox width="100%">
+				<Label id="movieName"
+					label="{playlistApi.selectedEntry.entryName}"
+					styleName="movieName" width="100%" />
+			</HBox>
+
+
+			<Canvas height="100%" width="100%">
+
+				<KplayerModule height="100%" id="myKplayer" k_path="kplayer/KplayerModule.swf" styleName="centered" width="100%"/>
+			  	 <waterMark height="100%" id="loadedWaterMark" k_path="watermarks/WaterMarkLoader.swf" k_watermark_position="bottomLeft" styleName="centered" width="100%"/>
+					<screens height="100%" id="screens" k_path="screens/Screens.swf" styleName="centered" width="100%"
+			      k_pause_screen_id="pauseScreen" k_pause_screen_over_id="pauseScreen"
+			      k_end_screen_id="emptyScreen" k_end_screen_over_id="emptyScreen"
+			      k_play_screen_id="emptyScreen"  k_play_screen_over_id="emptyScreen"
+			      k_start_screen_id="emptyScreen" k_start_screen_over_id="emptyScreen"
+
+			      />
+			</Canvas>
+
+			<HBox height="30" styleName="controllerBox" width="100%">
+				<Spacer width="4"/>
+
+				<Button height="17" id="play" styleName="playBtn" width="20"/>
+
+				<PrevButton id="plPrevButton" k_path="playlist/view/modules/PlaylistNextPrevButton.swf" />
+
+
+
+				<VBox width="100%" styleName="centered">
+					<Scrubber id="scrubber" styleName="scrubber" width="100%" />
+					<HBox width="100%">
+						<Spacer width="100%" />
+						<TimerCountdown height="18" id="timer" k_path="timertext/TimerCountdown.swf" styleName="timer"/>
+					</HBox>
+				</VBox>
+
+
+				<Spacer width="2"/>
+
+				<VolumeModule height="20" id="Volume" k_path="VolumeBars/VolumeBarA.swf" styleName="pp" width="20"/>
+				<Button height="17" id="fullScreen" label="" styleName="fullscreen" width="20"/>
+
+				<Spacer width="4"/>
+			</HBox>
+
+			<Playlist id="playlistApi" k_path="playlist/PlaylistAPI.swf" width="100%" height="360" />
+		</VBox>
+		<screens>
+		   <screen id="pauseScreen">
+			    <Canvas height="100%" styleName="centered" width="100%">
+			    	<VBox styleName="centered" width="100%" height="100%">
+				    	<Button height="52" id="play111" styleName="pausePlayButton" width="63" command="play" />
+			    	</VBox>
+					<PlaylistPauseScreen k_path="playlist/view/modules/PlaylistPauseScreen.swf" width="100%" height="100%" />
+			    </Canvas>
+		   </screen>
+	   </screens>
+
+		<javaScript>
+			<jsBlock functionName="DisplayUploader" id="gotoContribWizard" params="" />
+		</javaScript>
+
+	</layout>
+</layouts>

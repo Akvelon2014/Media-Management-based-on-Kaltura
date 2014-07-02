@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" verticalAlign="middle"
+	horizontalScrollPolicy="off" verticalScrollPolicy="off" paddingLeft="4">
+	
+	<mx:Script>
+		<![CDATA[
+			import com.kaltura.kmc.modules.content.vo.ExternalSyndicationVO;
+			import com.kaltura.types.KalturaSyndicationFeedType;
+			
+			private function createTypeLabel():void
+			{
+				var vo:ExternalSyndicationVO = data as ExternalSyndicationVO;
+				switch(vo.kSyndicationFeed.type)
+				{
+					case KalturaSyndicationFeedType.GOOGLE_VIDEO:
+					{
+						typeLabel.text = 'Google';
+						break;
+					}
+					case KalturaSyndicationFeedType.YAHOO:
+					{
+						typeLabel.text = 'Yahoo';
+						break;
+					}
+					case KalturaSyndicationFeedType.ITUNES:
+					{
+						typeLabel.text = 'ITunes';
+						break;
+					}
+					case KalturaSyndicationFeedType.TUBE_MOGUL:
+					{
+						typeLabel.text = 'Tube Mogul';
+						break;
+					}
+					case KalturaSyndicationFeedType.KALTURA_XSLT:
+					{
+						typeLabel.text = resourceManager.getString('cms','flexibleFormatFeed');
+						break;
+					}
+				}
+			}
+			
+			override public function validateNow():void
+			{
+				super.validateNow();
+				createTypeLabel();
+			}
+			
+		]]>
+	</mx:Script>
+
+	<mx:Label id='typeLabel' creationComplete="createTypeLabel()"/>
+</mx:HBox>
+
+

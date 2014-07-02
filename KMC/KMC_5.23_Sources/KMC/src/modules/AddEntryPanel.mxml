@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+
+ Modified by Akvelon Inc.
+ 2014-06-30
+ http://www.akvelon.com/contact-us
+-->
+<!---
+	 a menu that allows adding content
+-->
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" width="220" layout="vertical" styleName="addPanel"
+		   preinitialize="createShowingHandler(event)" creationComplete="creationCompleteHandler(event)"
+		   implements="com.kaltura.kmc.business.IKmcPlugin,com.kaltura.kmc.business.IPopupMenu" visible="false" xmlns:view="com.kaltura.kmc.modules.create.view.*">
+	<mx:Metadata>
+		[ResourceBundle("create")]
+		[ResourceBundle("common")]
+	</mx:Metadata>
+			
+	<mx:Script>
+		<![CDATA[
+			import com.kaltura.KalturaClient;
+			import com.kaltura.commands.conversionProfile.ConversionProfileList;
+			import com.kaltura.edw.business.permissions.PermissionManager;
+			import com.kaltura.events.KalturaEvent;
+			import com.kaltura.kmc.business.IKmcPlugin;
+			import com.kaltura.kmc.business.IPopupMenu;
+			import com.kaltura.kmc.business.JSGate;
+			import com.kaltura.kmc.business.MenuHandler;
+			import com.kaltura.kmc.events.KmcNavigationEvent;
+			import com.kaltura.kmc.modules.create.MultipleMediaFilesSelector;
+			import com.kaltura.kmc.modules.create.types.BulkTypes;
+			import com.kaltura.kmc.modules.create.view.FileUploadSettings;
+			import com.kaltura.vo.KalturaConversionProfile;
+			import com.kaltura.vo.KalturaFilterPager;
+			
+			import mx.controls.Alert;
+			import mx.core.Application;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+
+			/**
+			 * extra config the plugin needs - files filters
+			 * @internal 
+			 * passed in from uiconf plugin node by KmcPluginManager
+			 * */
+			public var config:XML;
+			
+			[Bindable]
+			/**
+			 * url of samples file
+			 * @internal 
+			 * passed in from uiconf plugin node by KmcPluginManager
+			 * */
+			public var samplesUrl:String;
+			
+			public static const BTN_WIDTH:int = 162;
+			
+			/*
+				WINDOW STATES
+			*/
+			private const MENU_STATE:String = "menu_state";
+			private const WEBCAM_STATE:String = "webcam_state";
+			private const SERVICES_STATE:String = "services_state";
+
+			private var _showingHandler:MenuHandler;
+
+			private var _flashvars:Object;
+
+			private var _state:String = MENU_STATE;
+
+			/**
+			 * application root for the menu handler
+			 * */
+			private var _approot:DisplayObjectContainer;
+
+			[Bindable]
+			/**
+			 * @copy #client
+			 * */
+			private var _kc:KalturaClient;
+			
+			/**
+			 * files selector for media upload
+			 * */
+			private var _mmfs:MultipleMediaFilesSelector;
+
+			protected function creationCompleteHandler(event:FlexEvent):void {
+				
+				PermissionManager.getInstance().applyAllAttributes(this, "addPanel");
+				menuScreen.invalidateSize();
+				validateSize(true);
+				
+				viewStack.height = menuScreen.measuredHeight;
+				this.height = viewStack.height + getStyle("paddingTop") + getStyle("paddingBottom"); 
+				visible = true;
+			}
+
+			protected function showUploadSettingsWindow(e:Event):void {
+				_mmfs.removeEventListener(MultipleMediaFilesSelector.FILES_SELECTED, showUploadSettingsWindow);
+				var fus:FileUploadSettings = new FileUploadSettings();
+				fus.client = _kc;
+				fus.filterDefinitions = config.filter;
+				fus.uploadFiles(_mmfs.getFiles());
+				PopUpManager.addPopUp(fus, (Application.application as DisplayObject), true);
+				PopUpManager.centerPopUp(fus);
+				_mmfs = null;
+			}
+
+
+			/**
+			 * Opens a desktop file selection pop-up. Allowing video, audio and image files selection
+			 * */
+			public function addUpload(event:MouseEvent = null):void {
+				hidePanel();
+				_mmfs = new MultipleMediaFilesSelector(config.filter);
+				_mmfs.addEventListener(MultipleMediaFilesSelector.FILES_SELECTED, showUploadSettingsWindow);
+				_mmfs.doFileUpload();
+			}
+
+
+
+
+			/**
+			 * opens a KCW with only webcam recording option
+			 * */
+			protected function btnWebcam_clickHandler(event:MouseEvent):void {
+				_state = WEBCAM_STATE;
+				showOptionsScreen(resourceManager.getString('create', 'webcam_state_title'));
+			}
+
+
+			
+			/**
+			 * Opens a KCW with audio/video/image online services options only
+			 * */
+			protected function btnServices_clickHandler(event:MouseEvent):void {
+				_state = SERVICES_STATE;
+				showOptionsScreen(resourceManager.getString('create', 'services_state_title'));
+			}
+			
+
+
+			/**
+			 * Opens a video entry drill down in a "new entry" mode on top
+			 * of content management page
+			 * */
+			protected function btnVideo_clickHandler(event:MouseEvent):void {
+				dispatchEvent(new KmcNavigationEvent(KmcNavigationEvent.NAVIGATE, "content", "manage", {kmcFunction: "content.createVideoEntry"}, true));
+				hidePanel();
+			}
+
+
+			/**
+			 * Opens an audio entry drill down in a "new entry" mode on top
+			 * of content management page
+			 * */
+			protected function btnAudio_clickHandler(event:MouseEvent):void {
+				dispatchEvent(new KmcNavigationEvent(KmcNavigationEvent.NAVIGATE, "content", "manage", {kmcFunction: "content.createAudioEntry"}, true));
+				hidePanel();
+			}
+
+
+			/**
+			 * Opens the new live stream window on top of content management page
+			 * */
+			protected function btnLive_clickHandler(event:MouseEvent):void {
+				dispatchEvent(new KmcNavigationEvent(KmcNavigationEvent.NAVIGATE, "content", "manage", {kmcFunction: "content.createLiveEntry"}, true));
+				hidePanel();
+			}
+			
+			
+			/**
+			 * shows the options screen
+			 * @param title	text to show at the top of the screen
+			 * */
+			protected function showOptionsScreen(title:String):void {
+				viewStack.selectedChild = optionsScreen;
+				lblState.text = title;
+				// get conversion profiles list
+				if (!cbConvProfiles.dataProvider.length) {
+					enabled = false;
+					var p:KalturaFilterPager = new KalturaFilterPager();
+					p.pageSize = 500;	// realy big number that even QA won't reach
+					var cpl:ConversionProfileList = new ConversionProfileList(null, p);
+					cpl.addEventListener(KalturaEvent.COMPLETE, onConvProfListed);
+					cpl.addEventListener(KalturaEvent.FAILED, onConvProfListed);
+					_kc.post(cpl);
+				}
+			}
+			
+			protected function onConvProfListed(e:KalturaEvent):void {
+				enabled = true;
+				if (e.type == KalturaEvent.FAILED) {
+					Alert.show(e.error.errorMsg, resourceManager.getString('common', 'error'));
+				}
+				else {
+					var ar:Array = new Array();
+					var def:KalturaConversionProfile;
+					for each (var cp:Object in e.data.objects) {
+						if (cp is KalturaConversionProfile) {
+							if ((cp as KalturaConversionProfile).isDefault) {
+								def = cp as KalturaConversionProfile;
+							}
+							else {
+								ar.push(cp);
+							}
+						}
+					}
+					if (def) {
+						ar.unshift(def);
+					}
+					cbConvProfiles.dataProvider = ar;
+				}
+			}
+
+			protected function cancel_clickHandler(event:MouseEvent):void {
+				resetPanel();
+			}
+			
+			
+			/**
+			 * open KCW with desired config
+			 * */
+			protected function openKcw(event:MouseEvent):void {
+				switch (_state) {
+					case WEBCAM_STATE: 
+						JSGate.openKcw(cbConvProfiles.selectedItem.id, "uploadWebCam");
+						break;
+					case SERVICES_STATE:
+						JSGate.openKcw(cbConvProfiles.selectedItem.id, "uploadImport");
+						break;
+				}
+				hidePanel();
+			}
+			
+			protected function resetPanel(e:Event = null):void {
+				_state = MENU_STATE;
+				viewStack.selectedChild = menuScreen;
+			}
+
+
+			protected function createShowingHandler(event:FlexEvent):void {
+				_showingHandler = new MenuHandler(this, "positionAddPanel");
+				_showingHandler.addEventListener(MenuHandler.MENU_REMOVED, resetPanel);
+				if (_approot) {
+					_showingHandler.setRoot(_approot);
+					
+				}
+			}
+			
+
+			public function setRoot(doc:DisplayObjectContainer):void {
+				_approot = doc;
+				doc.addEventListener(KmcNavigationEvent.NAVIGATION_COMPLETE, hidePanel);
+				if (_showingHandler) {
+					_showingHandler.setRoot(doc);
+				}
+			}
+
+
+			/**
+			 * show the panel
+			 * */
+			public function showPanel():void {
+				_showingHandler.showPanel();
+				JSGate.setTab("add", false);
+			}
+
+
+			/**
+			 * hide the panel
+			 */
+			public function hidePanel(e:Event = null):void {
+				_showingHandler.hidePanel(e);
+				resetPanel();
+				JSGate.resetTab("add");
+			}
+
+
+			/**
+			 * position the panel
+			 * @param right
+			 */
+			public function positionPanel(right:Number):void {
+				_showingHandler.positionPanel(right);
+			}
+			
+			
+			public function togglePanel():void {
+				_showingHandler.togglePanel();
+			}
+			
+
+			/**
+			 * KalturaClient used for API calls
+			 * */
+			public function get client():KalturaClient {
+				return _kc;
+			}
+
+
+			public function set client(value:KalturaClient):void {
+				_kc = value;
+			}
+
+
+			public function get flashvars():Object {
+				return _flashvars;
+			}
+
+
+			public function set flashvars(value:Object):void {
+				_flashvars = value;
+			}
+			
+
+			/**
+			 * @copy BulkSubmissions#addBulk()
+			 * 
+			 * @internal
+			 * forwarding call
+			 * */
+			public function addMediaBulk():void {
+				bulkBox.addBulk(BulkTypes.MEDIA);
+			}
+			
+			/**
+			 * @copy BulkSubmissions#downloadSampleFiles()
+			 * 
+			 * @internal
+			 * forwarding call
+			 * */
+			public function downloadSampleFiles():void {
+				bulkBox.downloadSampleFiles();
+			}
+			
+
+		]]>
+	</mx:Script>
+	<mx:ViewStack id="viewStack" creationPolicy="all" width="100%" styleName="noPadding"
+				  height="{menuScreen.measuredHeight}" >
+		<mx:VBox styleName="noPadding" id="menuScreen" width="100%">
+			<!-- upload / import -->
+			<mx:Label styleName="addPanelLabel" htmlText="{resourceManager.getString('create', 'upload_lbl')}"
+					  includeInLayout="{uploadBox.includeInLayout}" visible="{uploadBox.visible}"/>
+			<mx:VBox id="uploadBox" styleName="addPanelButtonBox" width="100%" horizontalAlign="center"
+					 visible="{btnUpload.visible}"
+					 includeInLayout="{btnUpload.includeInLayout}">
+				<mx:Button id="btnUpload" click="addUpload(event)" width="{BTN_WIDTH}" styleName="addPanelButton"
+						   label="{resourceManager.getString('create', 'upload_btn')}" buttonMode="true"/>
+			</mx:VBox>
+			
+			<!-- prepare -->
+			<mx:Label styleName="addPanelLabel" htmlText="{resourceManager.getString('create', 'prepare_lbl')}"
+					  includeInLayout="{prepareBox.includeInLayout}" visible="{prepareBox.visible}"/>
+			<mx:VBox id="prepareBox" styleName="addPanelButtonBox" width="100%" horizontalAlign="center"
+					 visible="{btnVideo.visible || btnAudio.visible}"
+					 includeInLayout="{btnVideo.includeInLayout || btnAudio.includeInLayout}">
+				<mx:Button id="btnVideo" click="btnVideo_clickHandler(event)" width="{BTN_WIDTH}" styleName="addPanelPrepButton"
+						   label="{resourceManager.getString('create', 'video_btn')}" buttonMode="true"/>
+				<mx:Button id="btnAudio" click="btnAudio_clickHandler(event)" width="{BTN_WIDTH}" styleName="addPanelPrepButton"
+						   label="{resourceManager.getString('create', 'audio_btn')}" buttonMode="true"/>
+			</mx:VBox>
+			
+			<!-- bulks -->
+			<mx:Label styleName="addPanelLabel" htmlText="{resourceManager.getString('create', 'bulk_lbl')}"
+					  includeInLayout="{bulkBox.includeInLayout}" visible="{bulkBox.visible}"/>
+			<view:BulkSubmissions id="bulkBox" width="100%" hidePanel="hidePanel()" client="{_kc}" 
+								  samplesUrl="{samplesUrl}" />
+			
+		</mx:VBox> 
+		
+		<mx:VBox id="optionsScreen" styleName="noPadding" height="{menuScreen.height}" width="100%">
+			<mx:Label id="lblState" styleName="addPanelLabel" 
+					  htmlText="{resourceManager.getString('create', 'webcam_state_title')}" />
+			<mx:VBox styleName="addPanelExtraBg" width="100%">
+				<mx:Label htmlText="{resourceManager.getString('create', 'select_profile')}" />
+				<mx:ComboBox id="cbConvProfiles" labelField="name" width="162" />
+				<!--<mx:Spacer height="100%" />-->
+			</mx:VBox>
+			<mx:HBox horizontalAlign="right" width="100%">
+				<mx:LinkButton click="cancel_clickHandler(event)" styleName="addPanelCancelBtn"
+							   label="{resourceManager.getString('create', 'cancel_label')}" />
+				<mx:Button click="openKcw(event)" styleName="addPanelNextBtn" buttonMode="true"
+						   label="{resourceManager.getString('create', 'next_label')}" />
+			</mx:HBox>
+		</mx:VBox>
+	</mx:ViewStack>
+</mx:Module>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<actionScriptProperties analytics="false" mainApplicationPath="KMC.mxml" projectUUID="62948921-b2d6-439b-bb66-583654cca397" version="10">
+  <compiler additionalCompilerArguments="-allow-source-path-overlap -link-report ../../KedPanels/linkage/kmc.xml" autoRSLOrdering="false" copyDependentFiles="true" flexSDK="Flex 3.5" fteInMXComponents="false" generateAccessible="false" htmlExpressInstall="true" htmlGenerate="true" htmlHistoryManagement="true" htmlPlayerVersionCheck="true" includeNetmonSwc="false" outputFolderPath="bin-debug" removeUnusedRSL="true" sourceFolderPath="src" strict="true" targetPlayerVersion="10.0.124" useApolloConfig="false" useDebugRSLSwfs="true" verifyDigests="true" warn="true">
+    <compilerSourcePath>
+      <compilerSourcePathEntry kind="1" linkType="1" path="locale/{locale}"/>
+      <compilerSourcePathEntry kind="1" linkType="1" path="locale/{locale}/dashboard"/>
+      <compilerSourcePathEntry kind="1" linkType="1" path="locale/{locale}/analytics"/>
+      <compilerSourcePathEntry kind="1" linkType="1" path="locale/{locale}/account"/>
+      <compilerSourcePathEntry kind="1" linkType="1" path="locale/{locale}/studio"/>
+      <compilerSourcePathEntry kind="1" linkType="1" path="locale/{locale}/content"/>
+      <compilerSourcePathEntry kind="1" linkType="1" path="locale/{locale}/admin"/>
+      <compilerSourcePathEntry kind="1" linkType="1" path="locale/{locale}/create"/>
+    </compilerSourcePath>
+    <libraryPath defaultLinkType="3">
+      <libraryPathEntry kind="4" path="">
+        <excludedEntries>
+          <libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/flex.swc" useDefaultLinkType="false"/>
+        </excludedEntries>
+      </libraryPathEntry>
+      <libraryPathEntry kind="3" linkType="1" path="/as3FlexClient/bin/as3FlexClient.swc" useDefaultLinkType="false"/>
+      <libraryPathEntry kind="3" linkType="1" path="/KalturaLib/bin/KalturaLib.swc" useDefaultLinkType="false"/>
+      <libraryPathEntry kind="1" linkType="1" path="${DOCUMENTS}/libs"/>
+      <libraryPathEntry kind="3" linkType="1" path="/Cairngorm/bin/Cairngorm.swc" useDefaultLinkType="false"/>
+      <libraryPathEntry kind="3" linkType="1" path="/as3corelib/bin/as3corelib.swc" useDefaultLinkType="false"/>
+      <libraryPathEntry kind="1" linkType="1" path="${FLEXUNIT_LIB_LOCATION}/version3libs/Common/"/>
+      <libraryPathEntry kind="1" linkType="1" path="${FLEXUNIT_LIB_LOCATION}/version3libs/FlexProject/"/>
+      <libraryPathEntry kind="1" linkType="1" path="${FLEXUNIT_LOCALE_LOCATION}/version3locale/"/>
+      <libraryPathEntry kind="3" linkType="1" path="assets/flash/kmc.swc" useDefaultLinkType="false"/>
+      <libraryPathEntry kind="3" linkType="1" path="/KedLib/bin/KedLib.swc" useDefaultLinkType="false"/>
+      <libraryPathEntry kind="3" linkType="1" path="/AutoComplete/bin/AutoComplete.swc" useDefaultLinkType="false"/>
+    </libraryPath>
+    <sourceAttachmentPath/>
+  </compiler>
+  <applications>
+    <application path="KMC.mxml"/>
+  </applications>
+  <modules>
+    <module application="src/KMC.mxml" destPath="modules/Content.swf" optimize="true" sourcePath="src/modules/Content.mxml"/>
+    <module application="src/KMC.mxml" destPath="modules/Analytics.swf" optimize="true" sourcePath="src/modules/Analytics.mxml"/>
+    <module application="src/KMC.mxml" destPath="modules/Account.swf" optimize="true" sourcePath="src/modules/Account.mxml"/>
+    <module application="src/KMC.mxml" destPath="modules/AddEntryPanel.swf" optimize="true" sourcePath="src/modules/AddEntryPanel.mxml"/>
+    <module application="src/KMC.mxml" destPath="modules/Administration.swf" optimize="true" sourcePath="src/modules/Administration.mxml"/>
+    <module application="src/KMC.mxml" destPath="modules/Dashboard.swf" optimize="true" sourcePath="src/modules/Dashboard.mxml"/>
+    <module application="src/KMC.mxml" destPath="modules/Studio.swf" optimize="true" sourcePath="src/modules/Studio.mxml"/>
+  </modules>
+  <buildCSSFiles>
+    <buildCSSFileEntry destPath="bin-debug" sourcePath="src/assets/fox_kmc_skin.css"/>
+    <buildCSSFileEntry destPath="bin-debug" sourcePath="fox_assets/fox_kmc_skin.css"/>
+    <buildCSSFileEntry destPath="bin-debug" sourcePath="assets/kmc_skin.css"/>
+  </buildCSSFiles>
+  <flashCatalyst validateFlashCatalystCompatibility="false"/>
+</actionScriptProperties>
+
+

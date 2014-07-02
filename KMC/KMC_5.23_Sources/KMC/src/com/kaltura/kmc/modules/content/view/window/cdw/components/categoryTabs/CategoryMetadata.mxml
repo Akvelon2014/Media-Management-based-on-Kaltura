@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+
+ Modified by Akvelon Inc.
+ 2014-06-30
+ http://www.akvelon.com/contact-us
+-->
+
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:components="com.hillelcoren.components.*"
+		 implements="com.kaltura.kmc.modules.content.view.window.cdw.ICategoryDrilldownPanel"
+		 creationComplete="onCreationComplete(event)">
+	<mx:Metadata>
+		[Event(name="validationComplete", type="com.kaltura.edw.events.ValidationResultEvent")] 
+		[Event(name="panelDataSaved", type="com.kaltura.edw.events.InternalKedEvent")] 
+	</mx:Metadata>
+	<mx:Script>
+		<![CDATA[
+			import com.kaltura.autocomplete.controllers.KACTagsController;
+			import com.kaltura.edw.business.EntryFormBuilder;
+			import com.kaltura.edw.business.MetadataDataParser;
+			import com.kaltura.edw.control.events.MetadataDataEvent;
+			import com.kaltura.edw.events.InternalKedEvent;
+			import com.kaltura.edw.events.ValidationResultEvent;
+			import com.kaltura.edw.model.FilterModel;
+			import com.kaltura.edw.view.customData.SingleCustomData;
+			import com.kaltura.edw.vo.CustomMetadataDataVO;
+			import com.kaltura.kmc.modules.content.business.CategoryFormBuilder;
+			import com.kaltura.kmc.modules.content.events.CategoryEvent;
+			import com.kaltura.kmc.modules.content.model.CategoriesModel;
+			import com.kaltura.kmc.modules.content.model.CmsModelLocator;
+			import com.kaltura.types.KalturaTaggedObjectType;
+			import com.kaltura.vo.KMCMetadataProfileVO;
+			import com.kaltura.vo.KalturaCategory;
+			
+			import mx.binding.utils.BindingUtils;
+			import mx.binding.utils.ChangeWatcher;
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.events.ValidationResultEvent;
+			import mx.validators.ValidationResult;
+
+			private const TEXT_WIDTH:Number = 264;
+			private const LABEL_WIDTH:Number = 90;
+
+			public var filterModel:FilterModel;
+			public var model:CategoriesModel;
+
+			[Bindable]
+			private var _profilesAC:ArrayCollection;
+
+			[Bindable]
+			private var _profileNames:ArrayCollection;
+
+			private static const customDataVerticalGap:int = 5;
+
+			[Bindable]
+			public var category:KalturaCategory;
+
+
+			private var _tagsWatcher:ChangeWatcher;
+
+			/**
+			 * change watcher for custom data profiles, if not previously loaded via filter 
+			 * */
+			private var _profsWatcher:ChangeWatcher;
+			
+			/**
+			 * RnP: edit custom data
+			 * */
+			public var customDataEditable:Boolean = true;
+
+			/**
+			 * create the visual representation of each profile
+			 * @param profilesAC list of custom data profiles (<code>KMCMetadataProfileVO</code>)
+			 * @param formBuildersAC	list of matching form builders (<code>FormBuilder</code>)
+			 * */
+			private function buildProfiles(profilesAC:ArrayCollection, formBuildersAC:ArrayCollection):void {
+				_profilesAC = new ArrayCollection();
+				_profileNames = new ArrayCollection();
+				// header for entry metadata section in the dropdown
+				_profileNames.addItem(resourceManager.getString('drilldown', 'metadata'));
+				// remove custom datas, don't remove entry data box
+				while (editableBox.numChildren > 1) {
+					editableBox.removeChildAt(1);
+				}
+
+				for (var i:int = 0; i < profilesAC.length; i++) {
+					var curProfile:KMCMetadataProfileVO = profilesAC.getItemAt(i) as KMCMetadataProfileVO;
+
+					if (curProfile.profile && curProfile.metadataFieldVOArray && curProfile.metadataFieldVOArray.length > 0) {
+						var curCustomData:SingleCustomData = new SingleCustomData();
+						curCustomData.visibleHeader = profilesAC.length > 1;
+						curCustomData.formBuilder = formBuildersAC.getItemAt(i) as CategoryFormBuilder;
+						curCustomData.metadataEditable = customDataEditable;
+						curCustomData.addEventListener(SingleCustomData.SCROLL_TO_TOP, scrollToTop, false, 0, true);
+
+						_profilesAC.addItem(curProfile);
+						_profileNames.addItem(curProfile.profile.name);
+						editableBox.addChild(curCustomData);
+					}
+				}
+
+				scrollToTop(null);
+			}
+
+
+			/**
+			 * jump to the top profile (entry data)
+			 * */
+			private function scrollToTop(event:Event):void {
+				dataContainer.verticalScrollPosition = 0;
+			}
+
+
+			public function validate():void {
+				var isOk:Boolean = true;
+				// Name: Mandatory field – not possible to create a category without it.
+				var vre:mx.events.ValidationResultEvent = nameValidator.validate();
+				if ((vre.results != null) && (vre.results.length > 0)) {
+					isOk = !(vre.results[0] as ValidationResult).isError;
+				}
+				
+				var ivre:com.kaltura.edw.events.ValidationResultEvent;
+				
+				if (!isOk) {
+					ivre = new com.kaltura.edw.events.ValidationResultEvent(com.kaltura.edw.events.ValidationResultEvent.VALIDATION_COMPLETE, false, resourceManager.getString('cms', 'categoryNameIsMandatory')); 
+				}
+				else {
+					ivre = new com.kaltura.edw.events.ValidationResultEvent(com.kaltura.edw.events.ValidationResultEvent.VALIDATION_COMPLETE, true); 
+				}
+				dispatchEvent(ivre);
+			}
+
+
+			public function save():void {
+				var cgEvent:CategoryEvent = new CategoryEvent(CategoryEvent.UPDATE_CATEGORY_METADATA_DATA);
+				cgEvent.data = category.id;
+				cgEvent.dispatch();
+				dispatchEvent(new InternalKedEvent(InternalKedEvent.PANEL_DATA_SAVED));
+			}
+
+
+			public function destroy():void {
+				if (_tagsWatcher != null) {
+					_tagsWatcher.unwatch();
+					_tagsWatcher = null;
+				}
+			}
+
+
+			public function clear():void {
+
+			}
+
+
+			public function initData():void {
+				var cgEvent:CategoryEvent = new CategoryEvent(CategoryEvent.LIST_METADATA_INFO);
+				cgEvent.dispatch();
+			}
+
+
+			public function init():void {
+				if (filterModel.enableCustomData) {
+					if (filterModel.categoryMetadataProfiles) {
+						buildProfiles(filterModel.categoryMetadataProfiles, filterModel.categoryFormBuilders);
+					}
+					else {
+						// if custom data profiles are not loaded, load them
+						_profsWatcher = BindingUtils.bindSetter(onSetProfiles, filterModel, ["categoryFormBuilders"]);
+						var listCategoryMetadata:CategoryEvent = new CategoryEvent(CategoryEvent.LIST_METADATA_PROFILES);
+						listCategoryMetadata.dispatch();
+					}
+				}
+				else {
+					_profileNames = new ArrayCollection();
+				}
+				new KACTagsController(tagsInput, CmsModelLocator.getInstance().context.kc, KalturaTaggedObjectType.CATEGORY);
+			}
+
+
+			public function isChanged():Boolean {
+				// see if custom data has changed. values of the actual categoryare checked in CategoryDetailsWin
+				
+				if (!filterModel.enableCustomData) {
+					return false;
+				}
+				
+				var res:Boolean = false;
+
+				var infoArray:ArrayCollection = model.metadataInfo;
+
+				if (_profilesAC.length && infoArray && infoArray.length) {
+					for (var i:int = 0; i < _profilesAC.length; i++) {
+						var metadataInfo:CustomMetadataDataVO = infoArray.getItemAt(i) as CustomMetadataDataVO;
+						var metadataProfile:KMCMetadataProfileVO = _profilesAC.getItemAt(i) as KMCMetadataProfileVO;
+						if (metadataProfile && metadataProfile.profile && metadataInfo) {
+							var newMetadataXML:XML = MetadataDataParser.toMetadataXML(metadataInfo, metadataProfile);
+							if (metadataInfo.metadata) {
+								var originalMetadataXML:XML = new XML(metadataInfo.metadata.xml);
+								if (!(MetadataDataParser.compareMetadata(newMetadataXML, originalMetadataXML))) {
+									res = true;
+								}
+							}
+							//new metadata was inserted
+							else if (newMetadataXML.children().length() > 0) {
+								res = true;
+							}
+						}
+					}
+				}
+				return res;
+			}
+			
+			/**
+			 * after custom data profiles are loaded we can build the custom data UI.
+			 * */
+			private function onSetProfiles(value:ArrayCollection):void {
+				if (!value) {
+					return;
+				}
+				buildProfiles(filterModel.categoryMetadataProfiles, filterModel.categoryFormBuilders);
+				var cgEvent:CategoryEvent = new CategoryEvent(CategoryEvent.LIST_METADATA_INFO);
+				cgEvent.dispatch();
+			}
+
+
+			private function jumpToProfile():void {
+				var scrollPos:int = 0;
+				var childIndex:int = profilesCB.selectedIndex;
+				if (childIndex != -1) {
+					//sums up all heights before the desired profile
+					for (var i:int = 0; i < childIndex; i++) {
+						scrollPos += editableBox.getChildAt(i).height + customDataVerticalGap;
+					}
+					dataContainer.verticalScrollPosition = scrollPos;
+				}
+				profilesCB.selectedIndex = -1;
+			}
+
+
+			private function onCreationComplete(event:FlexEvent):void {
+				_tagsWatcher = BindingUtils.bindSetter(onTagsSet, this, ["category", "tags"]);
+			}
+
+
+			private function onTagsSet(tags:String):void {
+				if (tags != null) {
+					tagsInput.selectedItems = new ArrayCollection(tags.split(","));
+				}
+				else {
+					tagsInput.selectedItems = null;
+				}
+			}
+		]]>
+	</mx:Script>
+	
+	<mx:StringValidator id="nameValidator" source="{nameInput}" property="text" triggerEvent="change"
+						required="true" requiredFieldError="{resourceManager.getString('cms', 'categoryNameIsMandatory')}"/>
+	
+	<mx:VBox width="100%" height="{height}" >
+		<mx:HBox width="100%" id="catIdBox" visible="{category.id != int.MIN_VALUE}">
+			<mx:Label text="{resourceManager.getString('cms','categoryId')}:" styleName="drillDownTitleLabel"/>
+			<mx:Label text="{category.id}" selectable="true" styleName="drillDownTitleLabel"/>
+		</mx:HBox>
+		
+		<!-- navigation -->
+		<mx:HBox width="100%">
+			<mx:Spacer width="{LABEL_WIDTH}" />
+			<mx:ComboBox id="profilesCB" dataProvider="{_profileNames}" change="jumpToProfile()"
+						 styleName="customDataProfilesCB" prompt="{resourceManager.getString('drilldown','jumpToPrompt')}"
+						 selectedIndex="-1" fontWeight="bold" visible="{_profileNames.length > 2}"
+						 includeInLayout="{_profileNames.length > 2}" width="{TEXT_WIDTH}"/>
+		</mx:HBox>
+		
+		<mx:HBox id="dataContainer" styleName="noPadding" height="{height - catIdBox.height - profilesCB.height - 2*getStyle('verticalGap')}" width="100%">
+			<!-- info -->
+			<mx:VBox id="editableBox" styleName="noPadding" verticalGap="{customDataVerticalGap}"
+					 height="100%" width="100%">
+				<mx:VBox id="categoryMetadata" width="100%">
+					
+					<mx:HBox width="100%">
+						<mx:Label text="{resourceManager.getString('cms', 'metadataName')}:" width="{LABEL_WIDTH}"
+								  styleName="drillDownLabel"/>
+						<mx:TextInput id="nameInput" width="{TEXT_WIDTH}" styleName="drilldownInput"
+									  text="{category.name}" change="{category.name = nameInput.text}"/>
+					</mx:HBox>
+					<mx:HBox width="100%">
+						<mx:Label text="{resourceManager.getString('cms', 'metadataDescription')}:" width="{LABEL_WIDTH}"
+								  styleName="drillDownLabel"/>
+						<mx:TextArea id="descriptionInput" width="{TEXT_WIDTH}" styleName="drilldownInput"
+									 text="{category.description}" change="{category.description = descriptionInput.text}"/>
+					</mx:HBox>
+					<mx:HBox width="100%">
+						<mx:Label text="{resourceManager.getString('cms', 'metadataTags')}:" width="{LABEL_WIDTH}"
+								  styleName="drillDownLabel"/>
+						<components:AutoComplete id="tagsInput" width="{TEXT_WIDTH}" selectedItemStyleName="selectionBox"
+												 showRemoveIcon="true" allowMultipleSelection="true" allowNewValues="true"
+												 labelField="tag" height="80" 
+												 change="{category.tags = tagsInput.selectedItems.source.join(',')}"/>
+					</mx:HBox>
+					<!---
+					<mx:HBox width="100%">
+						<mx:Label text="{resourceManager.getString('cms', 'metadataReference')}:" width="{LABEL_WIDTH}"
+								  styleName="drillDownLabel"/>
+						<mx:TextArea id="referenceIdInput" styleName="drilldownInput" width="{TEXT_WIDTH}"
+									 text="{category.referenceId}" change="{category.referenceId = referenceIdInput.text}"/>
+					</mx:HBox>
+					-->
+				</mx:VBox>
+			</mx:VBox>
+			<mx:Spacer width="310" />
+		</mx:HBox>
+	</mx:VBox>
+
+</mx:HBox>

@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml">
+	<mx:DataGrid id="dataGrid" width="100%" headerHeight="25" rowHeight="45"
+				 height="{(_entriesArray.length*45) + dataGrid.headerHeight}"
+				 dataProvider="{_entriesArray}" verticalScrollPolicy="off" visible="{_entriesArray.length > 0}"
+				 includeInLayout="{_entriesArray.length > 0}" selectable="false" sortableColumns="false">
+		<mx:Script>
+			<![CDATA[
+				import com.kaltura.commands.MultiRequest;
+				import com.kaltura.commands.baseEntry.BaseEntryGet;
+				import com.kaltura.edw.business.IDataOwner;
+				import com.kaltura.edw.components.playlist.ManualPlaylistWindow;
+				import com.kaltura.edw.components.playlist.events.ManualPlaylistWindowEvent;
+				import com.kaltura.edw.components.playlist.types.ManualPlaylistWindowMode;
+				import com.kaltura.edw.control.DataTabController;
+				import com.kaltura.edw.control.events.LoadEvent;
+				import com.kaltura.edw.control.events.SearchEvent;
+				import com.kaltura.edw.model.FilterModel;
+				import com.kaltura.edw.model.MetadataDataObject;
+				import com.kaltura.edw.model.datapacks.ContextDataPack;
+				import com.kaltura.edw.vo.ListableVo;
+				import com.kaltura.events.KalturaEvent;
+				import com.kaltura.vo.BaseFlexVo;
+				import com.kaltura.vo.KalturaBaseEntry;
+				
+				import mx.collections.ArrayCollection;
+				import mx.controls.Alert;
+				import mx.managers.PopUpManager;
+				
+				public static const OPEN_ENTRY:String = "openEntry";
+				
+				public var metadataObject:MetadataDataObject;
+				/**
+				 * application context
+				 * */
+				public var context:ContextDataPack;
+				
+				/**
+				 * data required by filter in manual playlist window
+				 * */
+				public var filterModel:FilterModel;
+				
+				/**
+				 * the item this custom data relates to
+				 * */
+				public var editedItem:BaseFlexVo;
+				
+				/**
+				 * the custom data profile name
+				 * */
+				public var profileName:String;
+				
+				private var _maxAllowedValues:int = 0;
+				
+				[Bindable]
+				private var _numOfRows:int = 0;
+				
+				[Bindable]
+				private var _entriesArray:ArrayCollection = new ArrayCollection();
+				
+				[Bindable]
+				public var distributionProfilesArr : Array;
+				
+				/**
+				 * list of requested entry IDs
+				 * */
+				private var _idArray:Array;
+				
+				/**
+				 * This function gets an array of entries Id's and sends the server a request
+				 * to get all of these entries
+				 * */
+				public function set dataArray(value:Object):void {
+					_idArray = value as Array;
+					if (_idArray) {
+						var multiRequest:MultiRequest = new MultiRequest();
+						for each (var entryId:String in _idArray) {
+							var getEntry:BaseEntryGet = new BaseEntryGet(entryId);
+							multiRequest.addAction(getEntry);
+						}
+						multiRequest.addEventListener(KalturaEvent.COMPLETE, listEntriesResult);
+						multiRequest.addEventListener(KalturaEvent.FAILED, listEntriesFault);
+						context.kc.post(multiRequest);
+					}
+				}
+				
+				
+				/**
+				 * recieves a string represantation of the maximum allowed values and
+				 * parses to _maxAllowedValues field
+				 * */
+				public function set maxAllowedValues(maxValues:String):void {
+					_maxAllowedValues = parseInt(maxValues);
+				}
+				
+				
+				/**
+				 * handles the result of the entries list request
+				 * */
+				private function listEntriesResult(event:KalturaEvent):void {
+					_entriesArray = new ArrayCollection();
+					var resArray:Array = event.data as Array;
+					var errorsEntries:String = '';
+					for (var i:int = 0; i<resArray.length; i++) {
+						if (resArray[i] is KalturaBaseEntry)
+							_entriesArray.addItem(resArray[i]);
+						else
+							errorsEntries += _idArray[i] +", ";
+					}
+					
+					if (errorsEntries!='') {
+						Alert.show(resourceManager.getString('drilldown','relatedEntriesNotFound') + errorsEntries.substr(0, errorsEntries.length -2),
+							resourceManager.getString('drilldown','relatedEntriesNotFoundTitle', new Array(profileName)));
+					}
+					saveNewData(event);
+				}
+				
+				
+				private function listEntriesFault(event:Event):void {
+					trace("Something went terribly wrong, couldn't list entries.");
+				}
+				
+				
+				/**
+				 * opens the add linked entries popup
+				 * */
+				private function editExistingList():void {
+					var manualPlaylist:ManualPlaylistWindow = new ManualPlaylistWindow();
+					manualPlaylist.editedItem = /* (KMvCModel.getInstance().getDataPack(EntryDataPack) as EntryDataPack). */editedItem;
+					manualPlaylist.filterData = filterModel;
+					manualPlaylist.showLinks = false;
+					manualPlaylist.distributionProfilesArray = distributionProfilesArr;
+					if (!_entriesArray) {
+						_entriesArray = new ArrayCollection();
+						manualPlaylist.context = ManualPlaylistWindowMode.NEW_LINKED_ENTRIES;
+					}
+					else {
+						manualPlaylist.context = ManualPlaylistWindowMode.EDIT_LINKED_ENTRIES_MODE;
+					}
+					manualPlaylist.editLinkedArrayCollection = _entriesArray;
+					manualPlaylist.maxAllowedValues = _maxAllowedValues;
+					manualPlaylist.addEventListener(ManualPlaylistWindowEvent.REFRESH_ENTRIES_LIST, saveNewData);
+					manualPlaylist.addEventListener(ManualPlaylistWindowEvent.LOAD_FILTER_DATA, loadFilterData, false, 0, true);
+					manualPlaylist.addEventListener(ManualPlaylistWindowEvent.SEARCH_ENTRIES, searchEntries, false, 0, true);
+					
+					PopUpManager.addPopUp(manualPlaylist, this.root, true);
+					PopUpManager.centerPopUp(manualPlaylist);
+				}
+				
+				private function searchEntries(event:ManualPlaylistWindowEvent):void {
+					var searchEvent:SearchEvent = new SearchEvent(SearchEvent.SEARCH_ENTRIES, event.data as ListableVo);
+					DataTabController.getInstance().dispatch(searchEvent);
+				}
+				
+				private function loadFilterData(event:ManualPlaylistWindowEvent):void {
+					var fe:LoadEvent = new LoadEvent(LoadEvent.LOAD_FILTER_DATA, (event.target as IDataOwner), filterModel);
+					DataTabController.getInstance().dispatch(fe);
+				}
+				
+				/**
+				 * This function will be called with every change in the data provider of this grid.
+				 * Then it will set the bound metadataDataObject with the new array.
+				 * */
+				private function saveNewData(event:Event):void {
+					metadataObject[this.id] = _entriesArray;
+				}
+			]]>
+		</mx:Script>
+		
+		<mx:columns>
+			<mx:DataGridColumn headerText="{resourceManager.getString('drilldown','linkedEntriesTableID')}" dataField="id">
+				<mx:itemRenderer>
+					<mx:Component>
+						<mx:HBox horizontalScrollPolicy="off" verticalScrollPolicy="off" verticalAlign="middle"
+								 horizontalAlign="center">
+							<mx:Label text="{data.id}"/>
+						</mx:HBox>
+					</mx:Component>
+				</mx:itemRenderer>
+			</mx:DataGridColumn>
+			
+			<mx:DataGridColumn headerText="{resourceManager.getString('drilldown','thumbnail')}">
+				<mx:itemRenderer>
+					<mx:Component>
+						<mx:VBox width="100%" height="100%" horizontalAlign="center" verticalAlign="middle">
+							<mx:Image source="{data.thumbnailUrl}" width="40" height="30" maintainAspectRatio="true"
+									  horizontalAlign="center" verticalAlign="middle" horizontalCenter="0"
+									  verticalCenter="0"/>
+						</mx:VBox>
+					</mx:Component>
+				</mx:itemRenderer>
+			</mx:DataGridColumn>
+			
+			<mx:DataGridColumn headerText="{resourceManager.getString('drilldown','name')}">
+				
+				<mx:itemRenderer>
+					<mx:Component>
+						<mx:HBox horizontalScrollPolicy="off" verticalScrollPolicy="off" verticalAlign="middle"
+								 horizontalAlign="center">
+							<!-- Must be in a container ( Bug in naked linkbutton in datagrid ) -->
+							<mx:Script>
+								<![CDATA[
+									import com.kaltura.types.KalturaEntryStatus;
+									import com.kaltura.types.KalturaMediaType;
+									
+									
+									private function getDrillDownEnabled(type:int):Boolean {
+										if (type == KalturaMediaType.LIVE_STREAM_FLASH) {
+											return data.status == KalturaEntryStatus.READY;
+										}
+										else
+											return true;
+									}
+								]]>
+							</mx:Script>
+							<mx:Label text="{data.name}" toolTip="{data.name}"/>
+						</mx:HBox>
+					</mx:Component>
+				</mx:itemRenderer>
+			</mx:DataGridColumn>
+		</mx:columns>
+	</mx:DataGrid>
+	<mx:HBox>
+		<mx:LinkButton label="{resourceManager.getString('drilldown','linkedEntriedAddRemove')}" click="{editExistingList()}"
+					   styleName="multiComponentAddButton" textAlign="left"/>
+	</mx:HBox>
+	
+</mx:VBox>

@@ -1,0 +1,6 @@
+DROP PROCEDURE IF EXISTS kalturadw.daily_procedure_dwh_aggr_events_widget_20110325;
+DROP PROCEDURE IF EXISTS kalturadw.daily_procedure_dwh_aggr_partner_20110325;
+DROP PROCEDURE IF EXISTS kalturadw.daily_procedure_dwh_aggr_partner_daily_usage_20110325;
+DROP PROCEDURE IF EXISTS kalturadw.daily_procedure_dwh_aggr_partner_daily_usage_loop_20110325;
+DROP TABLE IF EXISTS kalturadw.temp_aggr_old_storage_usage;
+DROP TABLE IF EXISTS kalturadw.temp_referrer_update;

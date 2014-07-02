@@ -1,0 +1,1 @@
+ALTER TABLE kalturadw.dwh_fact_fms_session_events change stream_name stream_name varchar(1024), change stream_query stream_query varchar(1024), change app_id fms_app_id TINYINT(3), change context context varchar(1024);

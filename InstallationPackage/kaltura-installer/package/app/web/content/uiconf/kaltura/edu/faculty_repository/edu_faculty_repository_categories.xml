@@ -1,0 +1,57 @@
+<xml>
+  <rootCategory>Faculty Repository</rootCategory>
+  <category name="Humanities">
+    <category>History</category>
+    <category>Linguistics</category>
+    <category>Literature</category>
+    <category>Performing arts</category>
+    <category>Philosophy</category>
+    <category>Religion</category>
+    <category>Visual arts</category>
+  </category>
+  <category name="Social sciences">
+    <category>Anthropology</category>
+    <category>Archaeology</category>
+    <category>Area studies</category>
+    <category>Cultural and ethnic studies</category>
+    <category>Economics</category>
+    <category>Gender and sexuality studies</category>
+    <category>Geography</category>
+    <category>Political science</category>
+    <category>Psychology</category>
+    <category>Sociology</category>
+  </category>
+  <category name="Natural sciences">
+    <category>Space science</category>
+    <category>Earth sciences</category>
+    <category>Life sciences</category>
+    <category>Chemistry</category>
+    <category>Physics</category>
+  </category>
+  <category name="Formal sciences">
+    <category>Computer sciences</category>
+    <category>Logic</category>
+    <category>Mathematics</category>
+    <category>Statistics</category>
+    <category>Systems science</category>
+  </category>
+  <category name="Professions and Applied sciences">
+    <category>Agriculture</category>
+    <category>Architecture and Design</category>
+    <category>Business</category>
+    <category>Divinity</category>
+    <category>Education</category>
+    <category>Engineering</category>
+    <category>Environmental studies and Forestry</category>
+    <category>Family and consumer science</category>
+    <category>Health science</category>
+    <category>Human physical performance and recreation*</category>
+    <category>Journalism, media studies and communication</category>
+    <category>Law</category>
+    <category>Library and museum studies</category>
+    <category>Military sciences</category>
+    <category>Public administration</category>
+    <category>Social work</category>
+    <category>Transportation</category>
+  </category>
+</xml>

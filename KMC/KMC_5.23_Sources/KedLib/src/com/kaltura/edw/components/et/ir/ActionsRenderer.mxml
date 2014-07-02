@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" horizontalScrollPolicy="off" verticalScrollPolicy="off"
+		 verticalAlign="middle" implements="mx.controls.listClasses.IDropInListItemRenderer">
+	<mx:Script>
+		<![CDATA[
+			import com.kaltura.edw.components.et.EntryTable;
+			import com.kaltura.edw.components.et.business.EntryTableActions;
+			import com.kaltura.types.KalturaEntryStatus;
+			import com.kaltura.vo.KalturaBaseEntry;
+			
+			import mx.controls.listClasses.BaseListData;
+			import mx.controls.listClasses.IDropInListItemRenderer;
+			import mx.events.ListEvent;
+
+
+			/**
+			 * all actions available for dropdown
+			 * */
+			public static var allActions:Array = [EntryTableActions.EMBED, EntryTableActions.DELETE, EntryTableActions.EDIT];
+
+			/**
+			 * moderation actions
+			 * */
+			public static var moderationActions:Array = [EntryTableActions.APPROVE, EntryTableActions.REJECT];
+
+			
+
+			[Bindable]
+			/**
+			 * Internal variable for the property value.
+			 * */
+			private var _listData:BaseListData;
+
+			[Bindable("dataChange")]
+			public function get listData():BaseListData {
+				return _listData;
+			}
+
+			public function set listData(value:BaseListData):void {
+				_listData = value;
+			}
+			
+			
+
+			override public function set data(value:Object):void {
+				super.data = value;
+				
+				if (value is KalturaBaseEntry) {
+					var a:Array;
+					if ((_listData.owner as EntryTable).showModerationActions) {
+						a = moderationActions.concat();
+					}
+					else {
+						// work on dummy array so binding to CB will be triggered
+						a = allActions.concat();
+						if ((value as KalturaBaseEntry).status != KalturaEntryStatus.READY) {
+							a.splice(0, 1);
+						}
+					}
+					_actions = a;
+				}
+				else {
+					_actions = null;
+				}
+			}
+
+
+			
+
+			[Bindable]
+			/**
+			 * dp for actions drop down
+			 * */
+			private var _actions:Array;
+
+
+			private function getLabel(item:Object):String {
+				if (item.toString() == EntryTableActions.EMBED) {
+					return (_listData.owner as EntryTable).previewLabel;
+				}
+				// else 
+				return resourceManager.getString('entrytable', item.toString());
+			}
+
+
+			protected function combobox1_changeHandler(event:ListEvent):void {
+				dispatchEvent(new Event(dropdown.selectedItem.toString(), true));
+				dropdown.selectedIndex = -1;
+			}
+		]]>
+	</mx:Script>
+	<mx:ComboBox id="dropdown" styleName="actionsComboBox" selectedIndex="-1" width="100%"
+				 prompt="{resourceManager.getString('entrytable', 'selectActionLabel')}" buttonMode="true"
+				 change="combobox1_changeHandler(event)" dataProvider="{_actions}" labelFunction="getLabel"/>
+</mx:HBox>

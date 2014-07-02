@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scenes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+	<!-- 
+		cue point system name could be added. 
+		e.g. <scene-ad-cue-point entryId="{entry id}" systemName="MY_AD_CUE_POINT_SYSTEM_NAME"> 
+	-->
+	<scene-ad-cue-point entryId="{entry id}">
+	
+		<sceneStartTime>00:00:05</sceneStartTime>
+		<tags>
+			<tag>sample</tag>
+			<tag>my_tag</tag>
+		</tags>
+		<sceneTitle>my ad title</sceneTitle>
+
+
+		<!-- The URL of the ad XML -->
+		<sourceUrl>http://source.to.my/ad.xml</sourceUrl>
+
+
+		<!--
+			ad types: 
+			 - OVERLAY = 2
+			 - VIDEO = 1 
+		-->
+		<adType>1</adType>
+
+
+		<!--
+			protocol types: 
+			 - CUSTOM = 0
+			 - VAST = 1
+			 - VAST_2_0 = 2
+			 - VPAID=3
+		-->
+		<protocolType>1</protocolType>
+
+
+		<!--  
+		<scene-customData metadataProfile="MY_AD_METADATA_PROFILE">
+			<metadata>
+				<adData>my ad custom data</adData>
+			</metadata>
+		</scene-customData>
+		-->
+	</scene-ad-cue-point>
+</scenes>

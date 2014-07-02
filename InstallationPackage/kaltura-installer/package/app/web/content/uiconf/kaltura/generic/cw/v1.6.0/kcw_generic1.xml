@@ -1,0 +1,110 @@
+<?xml version="1.0"?>
+<kcw>
+	<mediaTypes>
+		<media type="image">
+			<provider id="upload" name="upload" code="1">
+				<authMethodList>
+				  <authMethod type="1"/>
+				</authMethodList>
+				<moduleUrl>UploadView.swf</moduleUrl>
+				<fileFilters>
+					<filter type="image">
+					  <allowedTypes>jpg,bmp,png,gif,tiff</allowedTypes>
+					</filter>
+				</fileFilters>
+			</provider>
+
+			<provider id="flickr" name="flickr" code="3">
+				<moduleUrl>SearchView.swf</moduleUrl>
+				<authMethodList>
+					<authMethod type="1"/>
+					<authMethod type="4" searchable="false"/>
+				</authMethodList>
+			</provider>
+		</media>
+
+		<media type="video">
+			<provider id="upload" name="upload" code="1">
+				<authMethodList>
+				  <authMethod type="1"/>
+				</authMethodList>
+				<moduleUrl>UploadView.swf</moduleUrl>
+
+				<fileFilters>
+					<filter type="video">
+						<allowedTypes>flv,asf,qt,mov,mpg,avi,wmv</allowedTypes>
+					</filter>
+				</fileFilters>
+			</provider>
+
+			<provider id="webcam" name="webcam" code="2">
+				<authMethodList>
+				  <authMethod type="1"/>
+				</authMethodList>
+				<moduleUrl>WebcamView.swf</moduleUrl>
+
+				<customData>
+				  <serverUrl>rtmp://{HOST_NAME}/oflaDemo</serverUrl>
+				</customData>
+			</provider>
+
+			
+		</media>
+
+	<media type="audio">
+			<provider id="upload" name="upload" code="1">
+				<authMethodList>
+				  <authMethod type="1"/>
+				</authMethodList>
+				<moduleUrl>UploadView.swf</moduleUrl>
+				<fileFilters>
+					<filter type="audio">
+					  <allowedTypes>mp3,wav</allowedTypes>
+					</filter>
+				</fileFilters>
+			</provider>
+		</media></mediaTypes>
+
+	<UIConfigList>
+		<UIConfig>
+		    <target>
+				ContributionWizard.swf
+		    </target>
+		    <cssUrl>/content/uiconf/kaltura/generic/cw/v1.6.0/kcw_generic1_styles.swf</cssUrl>
+		    <localeUrl>/content/uiconf/kaltura/generic/cw/v1.6.0/kcw_generic1_en_US.swf</localeUrl>
+		</UIConfig>
+	</UIConfigList>
+
+	<ImportTypesConfig>
+		<searchConfig>
+			<filter>
+				<url>http://www.weplay.com/banned_words.xml</url>
+				<timeout>8000</timeout>
+			</filter>
+		</searchConfig>
+
+		<uploadConfig>
+			<singleClickUpload>false</singleClickUpload>
+		</uploadConfig>
+	</ImportTypesConfig>
+
+	<StartupDefaults>
+			<SingleContribution>false</SingleContribution>
+			<gotoScreen>
+				<mediaType>image</mediaType>
+			</gotoScreen>
+
+			<NavigationProperties>
+				<enableTagging>false</enableTagging>
+				<enableIntroScreen>false</enableIntroScreen>
+			</NavigationProperties>
+
+			<permissions>
+				<alwaysShowPermission>false</alwaysShowPermission>
+				<defaultPermissionLevel>1</defaultPermissionLevel>
+			</permissions>
+
+			<autoTOUConfirmation>true</autoTOUConfirmation>
+	</StartupDefaults>
+
+</kcw>

@@ -1,0 +1,14 @@
+<?php
+/**
+ * This file store all of mwEmbed local configuration
+ * 
+ * See includes/DefaultSettings.php for a configuration options
+ * 
+ */
+ 
+// To disable minification and caching set enable script debug to true;
+$wgEnableScriptDebug = false;
+
+// Auth testing sets
+$wgKalturaAuthHTTPS = false; 
+$wgKalturaAuthDomains = array( 'localhost', 'kgit.html5video.org', 'html5video.org' );

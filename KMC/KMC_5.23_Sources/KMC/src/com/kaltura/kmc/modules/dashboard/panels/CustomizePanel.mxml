@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+	 Customize Panel section
+
+
+-->
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" horizontalAlign="left"
+		 styleName="dashboardBox">
+	<mx:Script>
+		<![CDATA[
+			import com.kaltura.analytics.GoogleAnalyticsConsts;
+			import com.kaltura.analytics.GoogleAnalyticsTracker;
+			import com.kaltura.analytics.KAnalyticsTracker;
+			import com.kaltura.analytics.KAnalyticsTrackerConsts;
+			import com.kaltura.kmc.events.KmcNavigationEvent;
+			import com.kaltura.kmc.modules.dashboard.DashboardManager;
+			import com.kaltura.types.KalturaStatsKmcEventType;
+			
+			import modules.Dashboard;
+
+			/**
+			 * url to open when user clicks quickstart button
+			 * */
+			public var quickStartURL:String;
+
+
+			private function appStudio():void {
+				dispatchEvent(new KmcNavigationEvent(KmcNavigationEvent.NAVIGATE, 'studio'));
+				GoogleAnalyticsTracker.getInstance().sendToGA(GoogleAnalyticsConsts.DASHBOARD_CUSTOMIZE_PLAYERS, GoogleAnalyticsConsts.DASHBOARD);
+				KAnalyticsTracker.getInstance().sendEvent(KAnalyticsTrackerConsts.DASHBOARD,KalturaStatsKmcEventType.DASHBOARD_CUSTOMIZE_PLAYERS,
+														  "DashBoard>Customize Players")
+			}
+		]]>
+	</mx:Script>
+	<mx:HBox width="100%" styleName="featureTitleBox">
+		<mx:Label text="{resourceManager.getString('kdashboard', 'customize_title')}" id="titleLabel"
+				  styleName="titleLabel"/>
+	</mx:HBox>
+	<mx:HBox width="100%" height="100%" horizontalGap="0">
+		<mx:VBox height="100%" styleName="DashboardInnerBox" width="170">
+			<mx:Image source="{StyleManager.getStyleDeclaration('.DashboardImageBank').getStyle('customizeTitleImage')}" />
+		</mx:VBox>
+		<mx:VBox width="100%" height="100%" styleName="uploadInnerBox">
+			<mx:HBox width="100%">
+				<mx:Text id="customizeOptionText" width="95%"
+						 text="{resourceManager.getString('kdashboard', 'customize_option_1_description')}"
+						 styleName="featureLineLabel"/>
+				<mx:Spacer width="5%"/>
+				<mx:Button id="customizeOptionButton"
+						   label="{resourceManager.getString('kdashboard', 'customize_option_1_button')}"
+						   useHandCursor="true" buttonMode="true" styleName="dashboardBtn" click="appStudio()"
+						   width="{Dashboard.BUTTON_WIDTH_SIZE}"/>
+			</mx:HBox>
+			<mx:LinkButton id='quickStartLinkButton' styleName="dashboardLinkBtn"
+						   label="{resourceManager.getString('kdashboard', 'quick_start_link')}"
+						   click="{DashboardManager.instance.launchExactOuterLink(quickStartURL)}"/>
+		</mx:VBox>
+	</mx:HBox>
+
+
+</mx:VBox>

@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8"?>
+<table:SelectionTable xmlns:table="com.kaltura.controls.table.*" 
+	xmlns:mx="http://www.adobe.com/2006/mxml" rowHeight="36"
+			 headerRelease="headerReleaseHandler(event)" 
+			 creationComplete="creationCompleteHandler(event)" >
+	<mx:Metadata>
+		[Event(name="orderByChanged", type="flash.events.Event")] 
+		[Event(name="selectionChanged", type="flash.events.Event")] 
+		[Event(name="showDetails", type="com.kaltura.edw.events.GeneralNonCairngormEvent")] 
+		[Event(name="moveCategory", type="com.kaltura.edw.events.GeneralNonCairngormEvent")] 
+	</mx:Metadata>
+	<mx:Script>
+		<![CDATA[
+			import com.adobe.cairngorm.control.CairngormEvent;
+			import com.kaltura.controls.table.SelectionRenderer;
+			import com.kaltura.dataStructures.HashMap;
+			import com.kaltura.edw.components.et.EntryTableLabelFunctions;
+			import com.kaltura.edw.components.fltr.EntriesFilter;
+			import com.kaltura.edw.events.GeneralNonCairngormEvent;
+			import com.kaltura.kmc.events.KmcNavigationEvent;
+			import com.kaltura.kmc.modules.content.events.CategoryEvent;
+			import com.kaltura.kmc.modules.content.view.categories.renderers.ActionsRenderer;
+			import com.kaltura.kmc.modules.content.view.categories.renderers.NameRenderer;
+			import com.kaltura.types.KalturaCategoryOrderBy;
+			import com.kaltura.vo.KalturaCategory;
+			import com.kaltura.vo.KalturaMediaEntryFilter;
+			
+			import mx.controls.Alert;
+			import mx.events.DataGridEvent;
+			import mx.events.FlexEvent;
+			
+			// ---------------------------------------------
+			// Events
+			// ---------------------------------------------
+			
+			
+			/**
+			 * defines the value of the type property for the <code>orderByChanged</code> event.
+			 * */
+			public static const ORDER_BY_CHANGED:String = "orderByChanged";
+			
+			
+			/**
+			 * defines the value of the type property for the <code>showDetails</code> event.
+			 * */
+			public static const SHOW_DETAILS:String = "showDetails";
+			
+			/**
+			 * defines the value of the type property for the <code>moveCategory</code> event.
+			 * */
+			public static const MOVE_CATEGORY:String = "moveCategory";
+			
+			
+			
+			// ---------------------------------------------
+			// table sorting
+			// ---------------------------------------------
+			
+			
+			private var _orderBy:String = KalturaCategoryOrderBy.CREATED_AT_DESC;
+			
+			/**
+			 * table ordering, optional values listed in <code>KalturaCategoryOrderBy</code>
+			 * */
+			public function get orderBy():String {
+				return _orderBy;
+			}
+			
+			
+			private function headerReleaseHandler(event:DataGridEvent):void {
+				
+				event.preventDefault();
+				
+				if (event.itemRenderer && event.itemRenderer.data && event.itemRenderer.data.headerText) {
+					var headerText:String = event.itemRenderer.data.headerText;
+					if (!columnsSortMap.containsKey(headerText)) {
+						columnsSortMap.put(headerText, false);
+					}
+					
+					var sortDir:Boolean = columnsSortMap.getValue(headerText) as Boolean;
+					switch (event.itemRenderer.data.headerText) {
+						case resourceManager.getString('cms', 'createAt'):
+							_orderBy = sortDir ? KalturaCategoryOrderBy.CREATED_AT_ASC : KalturaCategoryOrderBy.CREATED_AT_DESC;
+							break;
+//						case resourceManager.getString('entrytable', 'idHeader'):
+//							_orderBy = sortDir ? KalturaCategoryOrderBy.PLAYS_ASC : KalturaCategoryOrderBy.PLAYS_DESC;
+//							break;
+						case resourceManager.getString('cms', 'name'):
+							_orderBy = sortDir ? KalturaCategoryOrderBy.NAME_ASC : KalturaCategoryOrderBy.NAME_DESC;
+							break;
+						case resourceManager.getString('cms', 'itemCountTitle'):
+							_orderBy = sortDir ? KalturaCategoryOrderBy.DIRECT_ENTRIES_COUNT_ASC : KalturaCategoryOrderBy.DIRECT_ENTRIES_COUNT_DESC;
+							break;
+						case resourceManager.getString('cms', 'subCategoriesTitle'):
+							_orderBy = sortDir ? KalturaCategoryOrderBy.DIRECT_SUB_CATEGORIES_COUNT_ASC : KalturaCategoryOrderBy.DIRECT_SUB_CATEGORIES_COUNT_DESC;
+							break;
+						default:
+							Alert.show(resourceManager.getString('cms', 'cannotOrderByIt', [event.itemRenderer.data.headerText]), resourceManager.getString('cms', 'cannotOrderByItTitle'));
+							return;
+							break;
+					}
+					
+					// remember the direction and change the sign
+					_sortIndex = event.columnIndex;
+					_sortDirection = sortDir ? SelectionTable.ASCENDING : SelectionTable.DESCENDING;
+					columnsSortMap.setValue(headerText, !sortDir);
+					setSortIndicator();
+					
+					dispatchEvent(new Event(ORDER_BY_CHANGED));
+				}
+			}
+			
+			
+
+			private function creationCompleteHandler(event:FlexEvent):void {
+				_sortIndex = 3;
+				addEventListener(NameRenderer.NAME_CLICKED, openDrilldown, false, 0, true);
+				addEventListener(CategoriesTableActions.EDIT, openDrilldown, false, 0, true);
+				addEventListener(CategoriesTableActions.DELETE, deleteCategory, false, 0, true);
+				addEventListener(CategoriesTableActions.MOVE, moveCategory, false, 0, true);
+				addEventListener(CategoriesTableActions.VIEW_ENTRIES, viewEntries, false, 0, true);
+			}
+			
+			
+			// ----------------------------------------------
+			// RnP
+			// ----------------------------------------------
+			
+			/**
+			 * show the delete action in the actions renderer
+			 * */
+			public function get showDelete():Boolean {
+				var actions:Array = ActionsRenderer.actions;
+				var found:Boolean;
+				for (var i:int = 0; i<actions.length; i++) {
+					if (actions[i] == CategoriesTableActions.DELETE) {
+						found = true;
+						break;
+					}
+				}
+				return found;
+			}
+			
+			public function set showDelete(value:Boolean):void {
+				var actions:Array = ActionsRenderer.actions;
+				var i:int;
+				if (value) {
+					var found:Boolean;
+					for (i = 0; i<actions.length; i++) {
+						if (actions[i] == CategoriesTableActions.DELETE) {
+							found = true;
+							break;
+						}
+					}
+					if (!found) {
+						actions.push(CategoriesTableActions.DELETE);
+					}
+					
+				}
+				else {
+					for (i = 0; i<actions.length; i++) {
+						if (actions[i] == CategoriesTableActions.DELETE) {
+							actions.splice(i, 1);
+							break;
+						}
+					}
+				}
+			}
+			
+			
+			/**
+			 * show the move action in the actions renderer
+			 * */
+			public function get showMove():Boolean {
+				var actions:Array = ActionsRenderer.actions;
+				var found:Boolean;
+				for (var i:int = 0; i<actions.length; i++) {
+					if (actions[i] == CategoriesTableActions.MOVE) {
+						found = true;
+						break;
+					}
+				}
+				return found;
+			}
+			
+			public function set showMove(value:Boolean):void {
+				var actions:Array = ActionsRenderer.actions;
+				var i:int;
+				if (value) {
+					var found:Boolean;
+					for (i = 0; i<actions.length; i++) {
+						if (actions[i] == CategoriesTableActions.MOVE) {
+							found = true;
+							break;
+						}
+					}
+					if (!found) {
+						actions.push(CategoriesTableActions.MOVE);
+					}
+					
+				}
+				else {
+					for (i = 0; i<actions.length; i++) {
+						if (actions[i] == CategoriesTableActions.MOVE) {
+							actions.splice(i, 1);
+							break;
+						}
+					}
+				}
+			}
+			
+			// ----------------------------------------------
+			// table actions
+			// ----------------------------------------------
+			
+			
+			private function openDrilldown(e:Event):void {
+				// (e.target.data is KalturaCategory)
+				var nce:GeneralNonCairngormEvent = new GeneralNonCairngormEvent(CategoriesTable.SHOW_DETAILS);
+				nce.data = e.target.data as KalturaCategory;
+				dispatchEvent(nce);
+			}
+			
+			private function deleteCategory(e:Event):void {
+				var kCat:KalturaCategory = e.target.data as KalturaCategory;
+				var cgEvent:CairngormEvent = new CategoryEvent(CategoryEvent.DELETE_CATEGORIES);
+				cgEvent.data = [[kCat.id], kCat.directSubCategoriesCount > 0];
+				cgEvent.dispatch();
+			}
+			
+			private function moveCategory(e:Event):void {
+				var nce:GeneralNonCairngormEvent = new GeneralNonCairngormEvent(CategoriesTable.MOVE_CATEGORY);
+				nce.data = e.target.data as KalturaCategory;
+				dispatchEvent(nce);
+			}
+			
+			private function viewEntries(e:Event):void {
+				// set attic.kmef to relevant filter, and move to entries screen
+				var kmef:KalturaMediaEntryFilter = EntriesFilter.generateBaseFilter();
+				kmef.categoriesIdsMatchOr = (e.target.data as KalturaCategory).id.toString();
+				
+				dispatchEvent(new KmcNavigationEvent(KmcNavigationEvent.NAVIGATE, "content", "manage", {kmef: kmef}));
+			}
+			
+
+		]]>
+	</mx:Script>
+	<table:columns>
+		<mx:DataGridColumn width="32" minWidth="32" paddingLeft="4" paddingRight="4"
+						   headerRenderer="com.kaltura.controls.table.SelectionRenderer"
+						   itemRenderer="com.kaltura.controls.table.SelectionRenderer" />
+		
+		<mx:DataGridColumn id="cid" dataField="id" paddingLeft="4" paddingRight="4"
+						   width="90" headerText="{resourceManager.getString('cms', 'idHeader')}" 
+						   itemRenderer="com.kaltura.edw.components.et.ir.GeneralRenderer"/>
+		
+		<mx:DataGridColumn id="cname" dataField="name" paddingLeft="4" paddingRight="4"
+						   headerText="{resourceManager.getString('cms', 'name')}" 
+						   itemRenderer="com.kaltura.kmc.modules.content.view.categories.renderers.NameRenderer"/>
+		
+		<mx:DataGridColumn id="cCreated" dataField="createdAt" paddingLeft="4" paddingRight="4"
+						   width="100" headerText="{resourceManager.getString('cms', 'createAt')}" 
+						   labelFunction="{EntryTableLabelFunctions.formatDate}"
+						   itemRenderer="com.kaltura.edw.components.et.ir.GeneralRenderer"/>
+		
+		<mx:DataGridColumn id="subcats" dataField="directSubCategoriesCount" paddingLeft="10" paddingRight="4"
+						   width="140" headerText="{resourceManager.getString('cms', 'subCategoriesTitle')}" 
+						   itemRenderer="com.kaltura.edw.components.et.ir.GeneralRenderer"/>
+		
+		<mx:DataGridColumn id="items" dataField="directEntriesCount" paddingLeft="10" paddingRight="4"
+						   width="100" headerText="{resourceManager.getString('cms', 'itemCountTitle')}" 
+						   itemRenderer="com.kaltura.edw.components.et.ir.GeneralRenderer"/>
+		
+		<mx:DataGridColumn id="actions" width="140" paddingLeft="10" paddingRight="4"
+						   headerText="{resourceManager.getString('cms', 'actions')}"
+						   itemRenderer="com.kaltura.kmc.modules.content.view.categories.renderers.ActionsRenderer"/>
+	</table:columns>
+</table:SelectionTable>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layouts>
+	<layout skinPath="/content/uiconf/kaltura/corp_new/kdp_skin_simple2d.swf">
+		<VBox height="100%" styleName="topLevelVBoxBorder" width="100%">
+			<Label height="22" id="movieName" label="{myKplayer.kalturaShow.kshowName,myKplayer.kalturaEntry.entryName,''}" styleName="movieName" width="100%"/>
+			<Canvas height="100%" id="PlayerHolder" styleName="PlayerBackground" width="100%">
+				<KplayerModule height="100%" id="myKplayer" k_path="kplayer/KplayerModule.swf" maxHeight="450" maxWidth="600" styleName="centered" width="100%"/>
+				<waterMark height="100%" id="loadedWaterMark" k_path="watermarks/WaterMarkLoader.swf" k_watermark_path="/content/uiconf/kaltura/generic/kaltura_watermark.png" maxHeight="450" maxWidth="600" styleName="centered" width="100%"/>
+			</Canvas>
+			<Spacer height="5"/>
+			<HBox height="42" styleName="controller" width="100%">
+				<HBox height="23" styleName="col1" width="55">
+					<Button height="18" id="play" styleName="play" width="14"/>
+					<VBox height="25" styleName="timer" width="30">
+						<TimerCountdown height="15" id="timer" k_path="timertext/SimpleTimer.swf" width="100%"/>
+					</VBox>
+				</HBox>
+				<VBox height="100%" styleName="col2" width="100%">
+					<Scrubber height="10" id="scrubber" styleName="scrubber" width="100%"/>
+					<HBox height="20" styleName="extraButtons" width="100%">
+						<LinkButton height="20" id="addToReel" k_click="jsInject:gotoContribWizard" label="Add to this video" styleName="addToReel" width="100"/>
+						<LinkButton height="20" id="editReel" k_click="jsInject:gotoEditorWindow" label="Remix this video" styleName="editReel" width="100"/>
+					</HBox>
+				</VBox>
+				<VBox height="100%" styleName="col3" width="52">
+					<HBox height="18" styleName="col1" width="100%">
+						<Spacer width="5"/>
+						<VolumeModule height="20" id="volume" k_path="VolumeBars/VolumeBarA.swf" styleName="volumeModule" width="15"/>
+						<Spacer width="12"/>
+						<Button height="20" id="fullScreen" label="" styleName="fs" width="15"/>
+					</HBox>
+					<Spacer height="3"/>
+					<poweredBy height="24" id="poweredBy" k_path="poweredby/PoweredByGeneric.swf" width="53"/>
+				</VBox>
+			</HBox>
+		</VBox>
+		<popups>
+			<SharePop height="350" id="SharePop" k_path="popups/SharePopup.swf" width="350"/>
+		</popups>
+		<javaScript>
+			<jsBlock functionName="gotoContribWizard" id="gotoContribWizard" params="kshowId">
+				<![CDATA[
+					function gotoContribWizard(kshowId)
+					{
+						var theWindow;
+						if (typeof(window) != "undefined" && typeof(window.top) != "undefined")
+							theWindow = window.top;
+						else
+							theWindow = window;
+							
+						if (!kshowId)
+							kshowId = "";
+
+						theWindow.location = "http://corp.kaltura.com/userzone/contribute/kshow_id/" + kshowId + "/todo/add";
+					};
+				]]>
+			</jsBlock>
+			<jsBlock functionName="gotoEditorWindow" id="gotoEditorWindow" params="kshowId">
+				<![CDATA[
+					function gotoEditorWindow(kshowId)
+					{
+						var theWindow;
+						if (typeof(window) != "undefined" && typeof(window.top) != "undefined")
+							theWindow = window.top;
+						else
+							theWindow = window;
+							
+						if (typeof(kshowId) == "undefined")
+							kshowId = "";
+
+						theWindow.location = "http://corp.kaltura.com/userzone/contribute/kshow_id/" + kshowId + "/todo/edit";
+					};
+				]]>
+			</jsBlock>
+		</javaScript>
+	</layout>
+</layouts>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html><head><title>Restricting Views with a Kaltura Session</title><link rel="stylesheet" type="text/css" href="../LinksExt/Kaltura_Management_Console_(KMC)_User_Manual_Falcon_good.css" />
+<meta name="topicId" content="fe2ea654-6b3f-4dbc-8674-cc0c2d21cd5b" />
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<script src="../js/nethelp.redirector.js" type="text/javascript"></script>
+<link rel="prev" href="restrictingviewsbyip.htm" /><link rel="next" href="payperview.htm" />
+<meta name="Generator" content="ComponentOne Doc-To-Help v.2012.2.0.723" />
+<meta name="D2HTheme" content="Falcon_theme" />
+</head>
+<body>
+<h2><a name="_Restricting_Views_with" id="_Restricting_Views_with"></a>Restricting Views with a Kaltura 
+Session</h2>
+<p class="MsoBodyText">Often, the user authentication/entitlement mechanism that 
+decides whether a user is entitled to access a specific media entry or not, will 
+reside outside of Kaltura. When the authentication mechanism resides outside 
+Kaltura, we recommend that you use an Advanced Kaltura Session (KS) based Access 
+Control mechanism, that permits access to the media only when a valid Kaltura 
+Session is provided. .The external entitlement mechanism will then generate the 
+valid Kaltura Session when users should be permitted to view the content.</p>
+<p class="MsoBodyText">The session is created using a secret. The external 
+entitlement mechanism will then generate the valid KS when users should be 
+permitted to view the content. Common examples include - </p>
+<p class="MsoBodyText">When implementing paid content where the payment gateway is 
+not Kaltura, the server processing the payment will be the mechanism deciding on 
+entitlement. After the payment is processed, the payment server creates a valid 
+Kaltura Session by calling the Kaltura API and passes that KS to the Kaltura 
+player.</p>
+<p class="MsoBodyText">When implementing a single-sign-on and permissions 
+mechanism using LDAP or other authentication mechanism outside of Kaltura, the 
+server responsible for user authentication contains the entitlement logic. The 
+authentication server will call the Kaltura API and generate a valid KS when 
+appropriate.</p>
+<p class="MsoBodyText">A Kaltura Player marked with tokenized access requires a 
+“session token” to be created and provided during every playback. A session 
+token can only be created by a developer possessing valid credentials and 
+expires after a limited amount of time. Thus, even if an attempt to grab the 
+item’s direct URL is successful, the playback session will soon expire and 
+without possession of the valid credentials, regeneration of a new token will 
+not be possible.</p>
+<p class="MsoBodyText">This option is useful to prevent scraping of content from 
+your website or re-sharing of content on other sites that are not yours and 
+provides an additional amount of security to content display.</p>
+<div class="related-topics-header">
+<p class="RelatedHead">More:</p>
+<div class="related-topics">
+<p class="MsoNormal"><a style="TEXT-DECORATION: none" class="topic-link" href="payperview.htm">Pay-Per-View</a></p></div></div></body></html>

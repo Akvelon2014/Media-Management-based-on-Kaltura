@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:DataGrid xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" 
+			 sortableColumns="false" draggableColumns="false" rowHeight="30" rowCount="8" headerHeight="25"
+			 selectable="false">
+
+	<mx:Script>
+		<![CDATA[
+			import com.kaltura.edw.view.ir.FlavorAssetActionRenderer;
+			
+			import mx.collections.ArrayCollection;
+			
+			// consts for the events dispatched by the actions renderer
+			public static const UPLOAD_FLAVOR:String = "uploadFlavor";
+			public static const MATCH_FLAVOR:String = "matchFlavor";
+			public static const LINK_FLAVOR:String = "linkFlavor";
+			public static const IMPORT_FLAVOR:String = "importFlavor";
+			public static const DOWNLOAD_FLAVOR:String = "downloadFlavor";
+			public static const CONVERT_FLAVOR:String = "convertFlavor";
+			public static const DELETE_FLAVOR:String = "deleteFlavor";
+			public static const PREVIEW_FLAVOR:String = "previewFlavor";
+			
+			public function set allowUpload(value:Boolean):void{
+				FlavorAssetActionRenderer.allowUpload = value;
+			}
+			
+			public function set allowMatch(value:Boolean):void{
+				FlavorAssetActionRenderer.allowMatch = value;
+			}
+			
+			public function set allowLink(value:Boolean):void{
+				FlavorAssetActionRenderer.allowLink = value;
+			}
+			
+			public function set allowImport(value:Boolean):void{
+				FlavorAssetActionRenderer.allowImport = value;
+			}
+		]]>
+	</mx:Script>
+
+	<mx:columns>
+		<mx:DataGridColumn headerText="{resourceManager.getString('drilldown','assetIdCol')}" 
+						   width="75" paddingLeft="4" paddingRight="4" 
+						   itemRenderer="com.kaltura.edw.view.ir.FlavorAssetIDRenderer"/>
+		<mx:DataGridColumn headerText="{resourceManager.getString('drilldown','flavorNameCol')}" 
+						   width="100" paddingLeft="4" paddingRight="4"  
+						   itemRenderer="com.kaltura.edw.view.ir.FlavorAssetNameRenderer"/>
+		<mx:DataGridColumn headerText="{resourceManager.getString('drilldown','formatCol')}" 
+						   width="50" paddingLeft="4" paddingRight="4" 
+						   itemRenderer="com.kaltura.edw.view.ir.FlavorAssetFormatRenderer"/>
+		<mx:DataGridColumn headerText="{resourceManager.getString('drilldown','codecCol')}" 
+						   width="50" paddingLeft="4" paddingRight="4" 
+						   itemRenderer="com.kaltura.edw.view.ir.FlavorAssetCodecRenderer"/>
+		<mx:DataGridColumn headerText="{resourceManager.getString('drilldown','bitrateCol')}" 
+						   width="80" paddingLeft="4" paddingRight="4" 
+						   itemRenderer="com.kaltura.edw.view.ir.FlavorAssetBitrateRenderer"/>
+		<mx:DataGridColumn headerText="{resourceManager.getString('drilldown','dimCol')}" 
+						   width="80" paddingLeft="4" paddingRight="4" 
+						   itemRenderer="com.kaltura.edw.view.ir.FlavorAssetDimensionsRenderer"/>
+		<mx:DataGridColumn headerText="{resourceManager.getString('drilldown','sizeCol')}" 
+						   width="55" paddingLeft="4" paddingRight="4" 
+						   itemRenderer="com.kaltura.edw.view.ir.FlavorAssetSizeRenderer"/>
+		<mx:DataGridColumn headerText="{resourceManager.getString('drilldown','statusCol')}" 
+						   width="45" paddingLeft="4" paddingRight="4" 
+						   itemRenderer="com.kaltura.edw.view.ir.FlavorAssetStatusRenderer"/>
+		<mx:DataGridColumn headerText="{resourceManager.getString('drilldown','tagsCol')}" 
+						   width="45" paddingLeft="4" paddingRight="4" id="tagsCol"
+						   itemRenderer="com.kaltura.edw.view.ir.FlavorAssetTagsRenderer"/>
+		<mx:DataGridColumn headerText="{resourceManager.getString('drilldown','actionCol')}" 
+						   width="120" paddingLeft="4" paddingRight="4" 
+						   itemRenderer="com.kaltura.edw.view.ir.FlavorAssetActionRenderer"/>
+	</mx:columns>
+</mx:DataGrid>

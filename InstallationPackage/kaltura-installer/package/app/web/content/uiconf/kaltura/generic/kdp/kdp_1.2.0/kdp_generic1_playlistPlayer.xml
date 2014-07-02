@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layouts>
+	<layout layoutId="full" skinPath="/content/uiconf/kaltura/generic/kdp/kdp_1.2.0/kdp_generic1_playlistPlayer.swf">
+	<Canvas height="100%" styleName="mlayout" width="100%">
+		<HBox height="100%" styleName="noPaddings" width="100%">
+		<VBox height="100%" styleName="mlayout" width="100%">
+			<HBox height="100%" styleName="playerContainer" width="100%">
+				<Canvas width="100%" height="100%" id="PlayerHolder" styleName="PlayerBackground" >
+					<KplayerModule height="100%" id="myKplayer" k_path="kplayer/KplayerModule.swf" styleName="centered" width="100%"/>
+					<screens styleName="centered" width="100%" height="100%" id="screens"  k_path="screens/Screens.swf"
+						k_end_screen_id="endScreen" k_end_screen_over_id="endScreen"
+						k_pause_screen_id="pauseScreen" k_pause_screen_over_id="pauseScreen"
+						k_play_screen_id="emptyScreen" k_play_screen_over_id="emptyScreen"
+						k_start_screen_id="startScreen" k_start_screen_over_id="startScreen" />
+				</Canvas>
+			</HBox>
+			<HBox height="29" styleName="controllerBox" width="100%">
+				<VBox width="25" height="100%" styleName="noPadding" >
+					<Spacer height="2" />
+					<Button width="25" height="25" id="play" styleName="playBtnController" />
+				</VBox>
+				<VBox width="100%" height="100%" styleName="scrubberHolder" >
+					<Spacer height="2" />
+					<Scrubber width="100%" height="12" id="scrubber" styleName="scrubber" />
+					<Spacer height="1" />
+					<HBox width="100%" styleName="noPadding" >
+						<Spacer width="3" />
+						<TimerCountdown height="20" id="timer" k_path="timertext/TimerCountdown.swf" styleName="timer" width="40"/>
+					</HBox>
+				</VBox>
+				<VBox width="18" height="100%" styleName="noPadding" >
+					<Spacer height="6" />
+					<VolumeModule width="18" height="18" id="Volume" k_path="VolumeBars/VolumeBarA.swf" />
+				</VBox>
+				<Spacer width="3" />
+				<VBox width="18" height="100%" styleName="noPadding" >
+					<Spacer height="7" />
+					<Button width="18" height="18" id="fullScreen" label="" styleName="fullScreen" tooltip="Full Screen" />
+				</VBox>
+				<Spacer width="3" />
+				<VBox width="50" height="100%" styleName="noPadding" >
+					<Spacer height="2" />
+					<Button id="shareBtn" command="gigyaButton" width="50" label="Share" styleName="controllerBtn" />
+				</VBox>
+				<VBox width="30" height="100%" styleName="noPadding" >
+					<Spacer height="4" />
+					<Button id="poweredByController" width="40" k_click="navigate:http://www.kaltura.com" styleName="kalturaLogo" />
+				</VBox>
+				<Spacer width="5" />
+			</HBox>
+		</VBox>
+		<Playlist id="playlistApi" k_path="playlist/PlaylistAPI.swf" width="300" height="100%" />
+		</HBox>
+		<Gigya height="100%" id="Gigya" k_share_email_link="http://www.poli.com"
+			k_share_email_body="Hi%2c%3cbr%3eI watched this video and thought you'd enjoy it too %24URL%24 to watch.%3cbr%3e%0d%0a%24sender%24%0d%0a"
+			k_share_email_subject="Take a look at this video"
+			k_path="addons/Gigya.swf" width="100%" />
+	</Canvas>
+		<screens>
+		<screen id="startScreen">
+				<Canvas width="100%" height="100%">
+					<VBox width="100%" height="100%" id="startScreenCont" styleName="overScreenWhite">
+						<Button id="onVideoPlayBtnStartScreen" command="play" styleName="playBtn" label="" labelPlacement="top" />
+					</VBox>
+				</Canvas>
+		</screen>
+		<screen id="pauseScreen">
+				<Canvas width="100%" height="100%">
+					<VBox width="100%" height="100%" id="startScreenCont" styleName="overScreenWhite">
+						<Button id="shareBtnPauseScreen" command="gigyaButton" styleName="shareBtn" label="Share" labelPlacement="top" />
+					</VBox>
+				</Canvas>
+		</screen>
+		<screen id="endScreen">
+				<HBox width="100%" height="100%" id="startScreenCont" styleName="overScreenWhite">
+					<Button id="shareBtnEndScreen" command="gigyaButton" styleName="shareBtn" label="Share" labelPlacement="top" />
+					<Button id="replayBtnEndScreen" command="replay"  styleName="replayBtn" label="replay" labelPlacement="top" />
+				</HBox>
+		</screen>
+	</screens>
+	<extraData>
+			<GigyaUI>
+<config>
+  <display showEmail="true" useTransitions="true" showBookmark="true" codeBoxHeight="auto" showCodeBox="true" showCloseButton="true" networksWithCodeBox="" networksToHide="livespaces, piczo, orkut, pageflakes, vox, tagged, hi5, wordpress, multiply" networksToShow="myspace, facebook, bebo, blogger, freewebs, livejournal, blackplanet, myyearbook, typepad, xanga, igoogle, netvibes, migente, friendster" bookmarksToShow="googlebookmarks,delicious,digg,facebookshare,newsvine,reddit,twitter,ask,myaol,slashdot,skimbit,simpy,blogmarks,spurl,linkagogo,Magnolia,faves,segnalo,netvouz,blinklist,dropjack,feedmelinks"/>
+  <body>
+    <background frame-color="#BFBFBF" background-color="#292929" frame-thickness="0" gradient-color-begin="#292929" gradient-color-end="#292929" corner-roundness="0;0;0;0"/>
+    <controls corner-roundness="4;4;4;4" gradient-color-begin="#EAEAEA" gradient-color-end="#F4F4F4" bold="false">
+      <snbuttons type="textUnder" frame-color="#666666" background-color="#292929" over-frame-color="#FFFFFF" color="#BFBFBF" gradient-color-begin="#666666" gradient-color-end="Transparent" size="10" bold="false" down-frame-color="#666666" down-gradient-color-begin="Transparent" over-gradient-color-end="#ffffff" down-gradient-color-end="#666666" over-color="#ffffff" down-color="#ffffff" over-bold="false">
+        <more frame-color="#A4DBFF" over-frame-color="#A4DBFF" gradient-color-begin="#F4F4F4" gradient-color-end="#BBE4FF" over-gradient-color-begin="#A4DBFF" over-gradient-color-end="#F4F4F4"/>
+        <previous frame-color="#BBE4FF" over-frame-color="#A4DBFF" gradient-color-begin="#FFFFFF" gradient-color-end="#A4DBFF" over-gradient-color-begin="#A4DBFF" over-gradient-color-end="#F4F4F4"/>
+      </snbuttons>
+      <textboxes frame-color="#CACACA" background-color="#292929" color="#757575" gradient-color-begin="#292929" gradient-color-end="#292929" bold="false">
+        <codeboxes color="#808080" frame-color="#6A6A6A" background-color="#606060" gradient-color-begin="Transparent" gradient-color-end="Transparent" size="10"/>
+        <inputs frame-color="#6a6a6a" color="#808080" gradient-color-begin="Transparent" gradient-color-end="Transparent"/>
+        <dropdowns list-item-over-color="#52A4DA" frame-color="#6a6a6a" background-color="#292929" color="#808080" gradient-color-begin="#292929" gradient-color-end="#292929"/>
+      </textboxes>
+      <buttons frame-color="#6a6a6a" background-color="Transparent" gradient-color-begin="#666666" gradient-color-end="Transparent" color="#FFFFFF" frame-thickness="1" size="12" bold="false" over-frame-color="#FFFFFF" down-frame-color="#6a6a6a" over-gradient-color-begin="#666666" down-gradient-color-begin="Transparent" over-gradient-color-end="#353535" down-gradient-color-end="Transparent" over-size="12" over-bold="false">
+        <post-buttons frame-color="#6a6a6a" gradient-color-end="Transparent"/>
+      </buttons>
+      <listboxes frame-color="#CACACA" corner-roundness="4;4;4;4" gradient-color-begin="#F4F4F4" gradient-color-end="#FFFFFF"/>
+      <checkboxes checkmark-color="#FFFFC8" frame-color="#6a6a6a" down-gradient-color-begin="#292929" down-gradient-color-end="#292929" background-color="#292929" corner-roundness="3;3;3;3" gradient-color-begin="Transparent" gradient-color-end="Transparent" over-background-color="#292929" down-background-color="#292929"/>
+      <servicemarker gradient-color-begin="Transparent" gradient-color-end="#666666"/>
+      <tooltips frame-thickness="0" color="#292929" gradient-color-begin="#FFFFFF" gradient-color-end="#FFFFC8" size="10" frame-color="#FFDBA4"/>
+    </controls>
+    <texts color="808080">
+      <privacy color="#808080"/>
+      <headers color="#FFFFFF" bold="false"/>
+      <labels color="#FFFFFF" bold="false"/>
+      <messages color="#202020" background-color="#FFFFA4" frame-thickness="0" corner-roundness="4;4;4;4"/>
+      <links color="#FFFFFF" underline="false" over-color="#666666" down-color="#666666" down-bold="false"/>
+    </texts>
+  </body>
+</config>
+			</GigyaUI>
+		</extraData>
+	</layout>
+</layouts>

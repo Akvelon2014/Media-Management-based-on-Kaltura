@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+
+ Modified by Akvelon Inc.
+ 2014-06-30
+ http://www.akvelon.com/contact-us
+-->
+<!---
+	 KMC Dashboard module
+	 First phase - Launch link and show basic graphs
+-->
+<modules:KmcModule xmlns:mx="http://www.adobe.com/2006/mxml" 
+				   xmlns:modules="com.kaltura.kmc.modules.*"
+				   preloader="com.kaltura.preloaders.KmcPreloader" 
+				   backgroundColor="#034F57" layout="vertical"
+				   verticalAlign="top" styleName="mainView"
+				   minHeight="520" minWidth="950" 
+				   verticalGap="0"
+				   xmlns:panels="com.kaltura.kmc.modules.dashboard.panels.*" 
+				   initialize="onInit()"
+				   >
+
+
+	<mx:Metadata>
+			[ResourceBundle("kdashboard")]
+			[ResourceBundle("common")]
+		</mx:Metadata>
+
+	<mx:Script>
+		<![CDATA[
+			import com.kaltura.analytics.GoogleAnalyticsTracker;
+			import com.kaltura.analytics.KAnalyticsTracker;
+			import com.kaltura.kmc.modules.dashboard.DashboardManager;
+			import com.kaltura.kmc.modules.dashboard.panels.FirstTimeWelcomePanel;
+			
+			import mx.controls.Alert;
+			import mx.resources.IResourceManager;
+			import mx.resources.ResourceManager;
+			
+			/**
+			 * KMC is responsible to use the value of  
+			 * this const as the id of this module.
+			 * */
+			public static const NAME:String = "dashboard";
+			
+			// keep this public, it is used in the panels
+			public static const BUTTON_WIDTH_SIZE:int = 150;
+			
+
+			[Bindable]
+			/**
+			 * readable user name
+			 * */
+			private var _userName:String = '';
+			
+
+			/**
+			 * user name for google analytics
+			 * */
+			private var _gaUserId:String;
+
+			/**
+			 * google analytics identifier
+			 * */
+			private var _gaUrchinNumber:String;
+			
+			private var _showGraphs : Boolean =true;
+			
+			override public function getModuleName():String {
+				return NAME;
+			}
+			
+			override public function showSubtab(subtab:String, data:Object = null):void {
+				// dashboard don't have tabs, empty implementation
+			}
+			
+			
+			protected function onInit () : void
+			{
+				permissionManager.applyAllAttributes(this,NAME);
+			}
+			
+			/**
+			 * Selecting the right state for the user - first time or not.
+			 */
+			override protected function start():void {
+				Security.allowDomain('*');
+
+				_gaUrchinNumber = _flashvars.urchinnumber;
+
+				_userName = _userInfo.user.fullName;
+				_gaUserId = _flashvars.uid;
+
+				if (_flashvars.firstlogin == 'true') {
+					currentState = 'firstTimeUserState';
+//					removeChild(chartsPanel);
+//					var ft:FirstTimeWelcomePanel = new FirstTimeWelcomePanel();
+//					aaa.addChildAt(ft, 0);
+				}
+
+				DashboardManager.instance.kc = _kc;
+				var confFile:XML = new XML(_uiconf.confFile);
+				var links:XMLList = confFile.links.link;
+
+				uploadPanel.quickStartURL = links.(@id == "upload")[0].@path; 		//_flashvars.uploaddoclink;
+				embedPanel.quickStartURL = links.(@id == "embed")[0].@path; 		//_flashvars.embeddoclink;
+				customizePanel.quickStartURL = links.(@id == "customize")[0].@path; //_flashvars.customizedoclink;
+
+				DashboardManager.instance.app = this;
+				DashboardManager.instance.getData();
+
+				/// set Alert locale for all this application
+				var rm:IResourceManager = ResourceManager.getInstance(); 
+				Alert.yesLabel = rm.getString('kdashboard', 'yes');
+				Alert.noLabel = rm.getString('kdashboard', 'no');
+				Alert.okLabel = rm.getString('kdashboard', 'ok');
+				Alert.cancelLabel = rm.getString('kdashboard', 'cancel');
+
+				var ka:KAnalyticsTracker = KAnalyticsTracker.getInstance();
+				ka.init(DashboardManager.instance.kc, "KMC/Dashboard", "2.0", _gaUserId);
+				
+				if (stage) {
+					initGoogleTracker(null);
+				}
+				else {
+					addEventListener(Event.ADDED_TO_STAGE, initGoogleTracker);
+				}
+				
+				setModuleReady();
+			}
+
+			
+			/**
+			 * Initialize Google analytics tracker.
+			 * This can ionly be done after there is a stage, because in debug  
+			 * mode (flashvars: gaDebug=true) the tracker requires the stage.
+			 * */
+			private function initGoogleTracker(event:Event):void {
+				GoogleAnalyticsTracker.getInstance().setBasePath("KMC/Dashboard");
+			}
+			
+			[Bindable]
+			public function get showGraphs():Boolean
+			{
+				return _showGraphs;
+			}
+
+			public function set showGraphs(value:Boolean):void
+			{
+				if (!value)
+					_showGraphs = value;
+			}
+
+		]]>
+	</mx:Script>
+	<modules:states>
+			<mx:State name="firstTimeUserState">
+				<mx:RemoveChild target="{chartsPanel}"/>
+				<mx:AddChild relativeTo="{aaa}" position="firstChild">
+					<panels:FirstTimeWelcomePanel />
+				</mx:AddChild>
+			</mx:State>
+	</modules:states>
+
+	<mx:HBox width="100%" styleName="tabsContainer" height="39" verticalScrollPolicy="off">
+		<mx:Label text="{resourceManager.getString('kdashboard','main_screen_welcome_title',[_userName, _userInfo.role.name, DashboardManager.instance.publisherName])}" 
+				  id="welcomeLable" styleName="titleWelcomeLabelStyle" />
+	</mx:HBox>
+	<mx:HBox width="100%" height="100%" styleName="innerView">
+		
+		<mx:VBox width="65%" height="100%">
+					<panels:UploadPanel id="uploadPanel" />
+					<panels:EmbedPanel id="embedPanel"/>
+					<panels:CustomizePanel id="customizePanel"/>
+		</mx:VBox>
+		<mx:VBox width="35%" height="100%" id="aaa">
+					<panels:ChartsPanel id="chartsPanel" width="100%" height="100%" showGraphs="{showGraphs}"/>
+			
+		</mx:VBox>
+		
+
+	</mx:HBox>
+</modules:KmcModule>

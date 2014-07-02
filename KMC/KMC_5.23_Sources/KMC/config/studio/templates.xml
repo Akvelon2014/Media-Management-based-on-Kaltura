@@ -1,0 +1,54 @@
+<templates id="firstRevision">
+	<template id="@@StudioPlayer1UIConfID@@" isSinglePlaylist="false" isMultiPlaylistTemplate="false"
+		editableStyle="true">
+		<Label>New Player - Single Video</Label>
+	</template>
+	<template id="@@StudioPlayer2UIConfID@@" isSinglePlaylist="true" isMultiPlaylistTemplate="false"
+		editableStyle="true">
+		<Label>New Player - Horizontal Playlist</Label>
+	</template>
+	<template id="@@StudioPlayer3UIConfID@@" isSinglePlaylist="true" isMultiPlaylistTemplate="false"
+		editableStyle="true">
+		<Label>New Player - Vertical Playlist</Label>
+	</template>
+	<template id="@@StudioPlayer4UIConfID@@" isSinglePlaylist="false" isMultiPlaylistTemplate="true"
+		editableStyle="true">
+		<Label>New Player - Multiple Horizontal Playlist</Label>
+	</template>
+	<template id="@@StudioPlayer7UIConfID@@" isSinglePlaylist="false" isMultiPlaylistTemplate="true"
+		editableStyle="true">
+		<Label>New Player - Multiple Vertical Playlist</Label>
+	</template>
+	<template id="@@StudioPlayer5UIConfID@@" isSinglePlaylist="false" isMultiPlaylistTemplate="false"
+		editableStyle="true">
+		<Label>New Player - Hovering Controllers</Label>
+	</template>
+	<template id="@@StudioPlayer8UIConfID@@" isSinglePlaylist="true" isMultiPlaylistTemplate="false"
+		editableStyle="true">
+		<Label>New Player - Hovering Playlist</Label>
+	</template>
+	<template id="@@StudioPlayer6UIConfID@@" isSinglePlaylist="false" isMultiPlaylistTemplate="false"
+		editableStyle="false">
+		<Label>508 Player - Single Video</Label>
+	</template>
+	<template id="@@StudioPlayer9UIConfID@@" isSinglePlaylist="false" isMultiPlaylistTemplate="false"
+		editableStyle="true">
+		<Label>Basic Template - Single Video</Label>
+	</template>
+	<template id="@@StudioPlayer10UIConfID@@" isSinglePlaylist="true" isMultiPlaylistTemplate="false"
+		editableStyle="true">
+		<Label>Basic Template - Horizontal Playlist</Label>
+	</template>
+	<template id="@@StudioPlayer11UIConfID@@" isSinglePlaylist="true" isMultiPlaylistTemplate="false"
+		editableStyle="true">
+		<Label>Basic Template - Vertical Playlist</Label>
+	</template>
+	<template id="@@StudioPlayer12UIConfID@@" isSinglePlaylist="false" isMultiPlaylistTemplate="true"
+		editableStyle="true">
+		<Label>Basic Template - Multiple Playlist</Label>
+	</template>
+	<template id="@@StudioPlayer13UIConfID@@" isSinglePlaylist="false" isMultiPlaylistTemplate="false"
+		editableStyle="true">
+		<Label>Basic Template - Hovering Controllers</Label>
+	</template>
+</templates>

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panels:AdditionalFilter xmlns:mx="http://www.adobe.com/2006/mxml"
+						 xmlns:panels="com.kaltura.edw.components.fltr.panels.*"
+						 creationComplete="creationCompleteHandler(event)">
+	<mx:Script>
+		<![CDATA[
+			import com.kaltura.types.KalturaEntryModerationStatus;
+			import com.kaltura.types.KalturaNullableBoolean;
+			
+			import mx.events.FlexEvent;
+
+
+			override public function set filter(value:Object):void {
+				if (!value) {
+					//no moderation 
+					all.selected = true;
+					approved.selected = false;
+					rejected.selected = false;
+					flagged.selected = false;
+					
+					autoApproved.selected = false;
+					pendingModeration.selected = false;
+				}
+				else {
+					// one or more moderation types selected
+					all.selected = false;
+					var mods:Array = value.split(',');
+					for each (var mod:int in mods) {
+						switch (mod) {
+							case KalturaEntryModerationStatus.APPROVED:
+//								approved.selected = true;
+								approved.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+								break;
+							case KalturaEntryModerationStatus.REJECTED:
+//								rejected.selected = true;
+								rejected.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+								break;
+							case KalturaEntryModerationStatus.FLAGGED_FOR_REVIEW:
+//								flagged.selected = true;
+								flagged.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+								break;
+							case KalturaEntryModerationStatus.AUTO_APPROVED:
+//								autoApproved.selected = true;
+								autoApproved.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+								break;
+							case KalturaEntryModerationStatus.PENDING_MODERATION:
+//								pendingModeration.selected = true;
+								pendingModeration.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+								break;
+						}
+					}
+				}
+			}
+
+
+			override public function get filter():Object {
+				var moderationString:String = '';
+				if (approved.selected)
+					moderationString += KalturaEntryModerationStatus.APPROVED + ",";
+				if (rejected.selected)
+					moderationString += KalturaEntryModerationStatus.REJECTED + ",";
+				if (flagged.selected)
+					moderationString += KalturaEntryModerationStatus.FLAGGED_FOR_REVIEW + ",";
+				if (autoApproved.selected)
+					moderationString += KalturaEntryModerationStatus.AUTO_APPROVED + ",";
+				if (pendingModeration.selected)
+					moderationString += KalturaEntryModerationStatus.PENDING_MODERATION + ",";
+				
+				if (moderationString) {
+					// remove last ","
+					moderationString = moderationString.slice(0, moderationString.length - 1);
+					return moderationString;
+				}
+				return null;
+			}
+
+
+			protected function creationCompleteHandler(event:FlexEvent):void {
+				_buttons = [all, approved, flagged, rejected, autoApproved, pendingModeration];
+			}
+		]]>
+	</mx:Script>
+	<mx:CheckBox id="all" width="100%" selected="true" styleName="mainFilterGroupButton"
+				 label="{resourceManager.getString('filter', 'allModerationStatus')}"
+				 click="onDynamicTitleClicked(event)" />
+	<mx:CheckBox id="approved" width="100%" selected="false" styleName="innerFilterGroupButton" 
+				 label="{resourceManager.getString('filter', 'approved')}"
+				 click="onDynamicMemberClicked(event)"/>
+	<mx:CheckBox id="flagged" width="100%" selected="false" styleName="innerFilterGroupButton" 
+				 label="{resourceManager.getString('filter', 'pending')}"
+				 click="onDynamicMemberClicked(event)"/>
+	<mx:CheckBox id="rejected" width="100%" selected="false" styleName="innerFilterGroupButton" 
+				 label="{resourceManager.getString('filter', 'rejected')}"
+				 click="onDynamicMemberClicked(event)"/>
+	<mx:CheckBox id="autoApproved" width="100%" selected="false" styleName="innerFilterGroupButton" 
+				 label="{resourceManager.getString('filter', 'autoApproved')}" 
+				 click="onDynamicMemberClicked(event)"/>
+	<mx:CheckBox id="pendingModeration" width="100%" selected="false" styleName="innerFilterGroupButton" 
+				 label="{resourceManager.getString('filter', 'pendingModeration')}" 
+				 click="onDynamicMemberClicked(event)"/>
+</panels:AdditionalFilter>

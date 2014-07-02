@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<settings>
+  <theme>
+    <name>Falcon_theme</name>
+    <predefined>false</predefined>
+    <baseTheme>Tabs</baseTheme>
+    <baseVersion>1.10.5</baseVersion>
+  </theme>
+  <pageHeader>
+    <logoImage>images/kaltura_logo_transparent_large4olh.png</logoImage>
+  </pageHeader>
+  <topic>
+    <applyStylesheet>true</applyStylesheet>
+  </topic>
+</settings>

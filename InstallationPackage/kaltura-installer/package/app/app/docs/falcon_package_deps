@@ -1,0 +1,42 @@
+The following pre-requisites are needed for Falcon:
+===================================================
+
+NOTE: RPM package names listed in this document are as they are called in CentOS/RHEL and may vary for other Linux distros.
+
+MySQL 5.1.33 or higher.
+PHP 5.3.3 or higher.
+
+The follwing RPM packages need to be installed from the distro's official repository:
+=====================================================================================
+php-gd php-pdo php-mysql php-pecl-apc php-soap php-common php php-pear php-xml php-mysql php-mbstring php-xmlrpc php-cli php-pear memcached zlib.i686  bzip2-libs.i686 glibc.i686 ImageMagick ncurses-libs.i686 httpd java php-pecl-memcache mysql rsync cronie mailx
+
+The Apache package, PHP Apache module extensions listed above are used by the Kaltura Core as well as the various plugins shipped with the platform.
+Memcached is used for caching purposes to accelerate performance.
+mysql client binaries as well as rsync are used by shell scripts provided with the Kaltura platform.
+java is used by Pentaho for Analytics purposes.
+ImageMagic is used for generating video thumbnails.
+cronie is needed for the scheduling various cronjobs, for both maintenance and daemon watchdog purposes.
+An MTA such as: postfix, sendmail, exim or any other sendmail compatible variation is required to allow email delivery.
+mailx is used by various shell scripts in order to send out mail alerts about various system events.
+
+The following Apache modules need to be enabled:
+rewrite_module
+headers_module
+expires_module
+filter_module
+deflate_module
+env_module
+proxy_module
+
+For analytics Pentaho 4.2.0 or higher is required. Package can be downloaded from here:
+=======================================================================================
+http://sourceforge.net/projects/pentaho/files/Data%20Integration/$PENTAHO_VER-stable/pdi-ce-$PENTAHO_VER-stable.tar.gz/download
+
+Third party software bundled in the OnPrem package:
+=============================
+FFMPEG 0.10, 0.6 [as fallback to 0.10] - used for transcoding videos.
+MEncoder 3.4.6 - fallback transcoding software.
+Sphinx 2.0.4 - full text search engine.
+Mediainfo v0.7.28 - used for by the Kaltura transcoding decision layer.
+Zend Framework 1.9.6 - used by Kaltura admin console.
+Red5 1.0.0 [an optional component for web cam recording].
