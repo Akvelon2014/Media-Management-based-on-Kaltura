@@ -7,7 +7,7 @@
  limitations under the License.
 
  Modified by Akvelon Inc.
- 2014-06-30
+ 2014-08-08
  http://www.akvelon.com/contact-us
 -->
 <!---
@@ -349,10 +349,12 @@
 			<mx:Label styleName="addPanelLabel" htmlText="{resourceManager.getString('create', 'upload_lbl')}"
 					  includeInLayout="{uploadBox.includeInLayout}" visible="{uploadBox.visible}"/>
 			<mx:VBox id="uploadBox" styleName="addPanelButtonBox" width="100%" horizontalAlign="center"
-					 visible="{btnUpload.visible}"
-					 includeInLayout="{btnUpload.includeInLayout}">
+					 visible="{btnUpload.visible || btnWebcam.visible}"
+					 includeInLayout="{btnUpload.includeInLayout || btnWebcam.includeInLayout}">
 				<mx:Button id="btnUpload" click="addUpload(event)" width="{BTN_WIDTH}" styleName="addPanelButton"
 						   label="{resourceManager.getString('create', 'upload_btn')}" buttonMode="true"/>
+				<mx:Button id="btnWebcam" click="btnWebcam_clickHandler(event)" width="{BTN_WIDTH}" styleName="addPanelButton"
+						   label="{resourceManager.getString('create', 'webcam_btn')}" buttonMode="true"/>						
 			</mx:VBox>
 			
 			<!-- prepare -->

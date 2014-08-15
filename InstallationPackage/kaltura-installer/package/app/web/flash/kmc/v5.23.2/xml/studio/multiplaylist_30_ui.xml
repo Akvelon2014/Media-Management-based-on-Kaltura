@@ -1,3 +1,15 @@
+<!--
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+
+ Modified by Akvelon Inc.
+ 2014-06-30
+ http://www.akvelon.com/contact-us
+-->
+
 <layout id="full" skinPath="/content/uiconf/kaltura/kmc/appstudio/kdp3/falcon/skin/v3.6.5/KDP_Blue.swf" isPlaylist="multi">
   <HBox id="topLevel" width="100%" height="100%">
     <VBox id="player" width="100%" height="100%" styleName="black_horizontal_playlist" paddingRight="1">

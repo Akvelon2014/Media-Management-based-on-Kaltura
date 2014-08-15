@@ -1,5 +1,17 @@
 <?php
 /**
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Modified by Akvelon Inc.
+ * 2014-08-08
+ * http://www.akvelon.com/contact-us
+ */
+
+/**
  * @package Core
  * @subpackage model.enum
  */ 
@@ -36,4 +48,5 @@ interface BatchJobType extends BaseEnum
 	const INDEX = 32;
 	const MOVE_CATEGORY_ENTRIES = 33;
 	const COPY = 34;
+	const WEBCAM_PREPARE = 35;
 }

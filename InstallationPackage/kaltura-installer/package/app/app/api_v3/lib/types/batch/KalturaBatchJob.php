@@ -1,5 +1,17 @@
 <?php
 /**
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Modified by Akvelon Inc.
+ * 2014-08-08
+ * http://www.akvelon.com/contact-us
+ */
+
+/**
  * @package api
  * @subpackage objects
  */
@@ -336,7 +348,11 @@ class KalturaBatchJob extends KalturaBaseJob implements IFilterable
 			case 'kDeleteJobData':
 				$this->data = new KalturaDeleteJobData();
 				break;
-				
+
+			case 'kWebcamPrepareJobData':
+				$this->data = new KalturaWebcamPrepareJobData();
+				break;
+
 			default:			
 				if($dbData instanceof kBulkUploadJobData)
 					$this->data = KalturaPluginManager::loadObject('KalturaBulkUploadJobData', $dbBatchJob->getJobSubType());

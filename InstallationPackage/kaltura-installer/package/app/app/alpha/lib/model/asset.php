@@ -7,7 +7,7 @@
 * limitations under the License.
 *
 * Modified by Akvelon Inc.
-* 2014-06-30
+* 2014-08-08
 * http://www.akvelon.com/contact-us
 */
 
@@ -311,6 +311,9 @@ class asset extends Baseasset implements ISyncableFile
 	 */
 	public function getFlavorParamsName () {
 		$flavorParamsId = $this->getFlavorParamsId();
+		if (is_null($flavorParamsId) && ($this->getIsOriginal())) {
+			$flavorParamsId = 0;
+		}
 		$flavorParams = assetParamsPeer::retrieveByPK($flavorParamsId);
 		if ($flavorParams) {
 			return $flavorParams->getName();

@@ -7,7 +7,7 @@
 * limitations under the License.
 *
 * Modified by Akvelon Inc.
-* 2014-06-30
+* 2014-08-08
 * http://www.akvelon.com/contact-us
 */
 
@@ -236,6 +236,12 @@ class UserInput
 						"yes");
 
 		$this->set('XYMON_URL', null);
+
+		$this->getInput('RED5_INSTALL',
+							"Would you like to install Red5 on this machine? Server needs it for web camera recording support. (Y/n)",
+							"Please input yes/no.",
+							InputValidator::createYesNoValidator(),
+							"yes");
 
 		$this->getInput('SPHINX_DB_HOST', 
 						"Sphinx host (leave empty if Sphinx is running on this machine).", 

@@ -1,4 +1,16 @@
-<?php 
+<?php
+/**
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Modified by Akvelon Inc.
+ * 2014-08-08
+ * http://www.akvelon.com/contact-us
+ */
+
 class myInsertEntryHelper
 {
 	private $action = null;
@@ -73,16 +85,15 @@ class myInsertEntryHelper
 		$entry_fileName = $this->getParam('entry_data');
 		$entry_thumbNum = $this->getParam('entry_thumb_num', 0);
 		$entry_thumbUrl  = $this->getParam('entry_thumb_url', '');
-		$entry_from_time  = $this->getParam('entry_from_time', 0);
-		$entry_to_time  = $this->getParam('entry_to_time', 0);
-		
+
 		$should_copy = $this->getParam('should_copy' , false );
 		$skip_conversion = $this->getParam('skip_conversion' , false );
 		$webcam_suffix = $this->getParam('webcam_suffix' , '' );
-		
+		$duration =  $this->getParam('duration' , null );;
+
 		$entry_fullPath = "";
 		$ext = null;
-		$duration = null;
+
 		
 		$entry = null;
 		if ($entry_id)
@@ -134,34 +145,14 @@ class myInsertEntryHelper
 		{
 			// set $entry_fileName to webcam output file and flag that conversion is not needed
 			$webcam_basePath = $content.'/content/webcam/'.($webcam_suffix ? $webcam_suffix : 'my_recorded_stream_'.$kuser_id);
-			$entry_fullPath = $webcam_basePath.'.flv';
-			
+			$entry_fullPath = $webcam_basePath.'.'.kWAMSWebcam::OUTPUT_FILE_EXT;;
+			$ext = kWAMSWebcam::OUTPUT_FILE_EXT;
+
 			if(file_exists($entry_fullPath))
 			{
-				// webcam should be preconvert until REALLY ready
-				$entry_status = entryStatus::READY;
-				$ext = "flv";
-				
-				//echo "myInsertEtryHelper:: [$entry_fullPath]";
-				
-				// for webcams that might have problmes with the metada - run the clipping even if $entry_from_time and $entry_to_time are null
-	
-				if ( $entry_to_time == 0 ) $entry_to_time = null; // this will cause the clipper to reach the end of the file
-				
-				// clip the webcam to some new file
-				
-				$entry_fixedFullPath = $webcam_basePath.'_fixed.flv';
-				myFlvStaticHandler::fixRed5WebcamFlv($entry_fullPath, $entry_fixedFullPath);
-				
-				$entry_newFullPath = $webcam_basePath.'_clipped.flv';
-				myFlvStaticHandler::clipToNewFile( $entry_fixedFullPath, $entry_newFullPath, $entry_from_time, $entry_to_time );
-				$entry_fullPath = $entry_newFullPath ;
-	
-				// continue tracking the webcam 
+				// continue tracking the webcam
 				$te->setParam3Str( $entry_fullPath );
 				$te->setDescription(  __METHOD__ . ":" . __LINE__ . "::ENTRY_MEDIA_SOURCE_WEBCAM" );
-							
-				$duration = myFlvStaticHandler::getLastTimestamp($entry_fullPath);
 			}
 			else 
 			{

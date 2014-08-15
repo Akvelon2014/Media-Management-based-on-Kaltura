@@ -7,7 +7,7 @@
 * limitations under the License.
 *
 * Modified by Akvelon Inc.
-* 2014-06-30
+* 2014-08-08
 * http://www.akvelon.com/contact-us
 */
 
@@ -352,6 +352,7 @@ class Installer {
 	
 	public function finalizeInstallation ($app)
 	{
+		$this->installRed5($app);
 		$this->configureSSL ($app);
 	}
 	
@@ -383,19 +384,32 @@ class Installer {
 			symlink($app->get('APP_DIR'). "/configurations/apache/my_kaltura.ssl.conf", "/etc/httpd/conf.d/my_kaltura.ssl.conf");
 		}		
 	}
-	
-	private function extractKCWUiconfIds ($app)
+
+	private function installRed5 ($app)
 	{
-		$uiconfIds = array();
-		$log = file_get_contents($app->get('LOG_DIR') . "/instlBkgrndRun.log");
-		preg_match_all("/creating uiconf \[\d+\] for widget \w+ with default values \( \/flash\/kcw/", $log, $matches);
-		foreach ($matches[0] as $match)
-		{
-			preg_match("/\[\d+\]/", $match, $bracketedId);
-			$id = str_replace(array ('[' , ']'), array ('', ''), $bracketedId[0]);
-			$uiconfIds[] = $id;
-		}
-		
-		return $uiconfIds;
+		if (!$app->get('RED5_INSTALL'))
+			return;
+
+		OsUtils::execute("dos2unix " . $app->get('BIN_DIR') ."/red5/red5");
+		OsUtils::execute("ln -s ". $app->get('BIN_DIR') ."/red5/red5 /etc/init.d/red5");
+		OsUtils::execute("/etc/init.d/red5 start");
+		OsUtils::executeInBackground('chkconfig red5 on');
+
+		//Replace rtmp_url parameter in the local.ini configuration file
+		$location = $app->get('APP_DIR')."/configurations/local.ini";
+		$localValues = parse_ini_file($location, true);
+		$localValues['rtmp_url'] = 'rtmp://' . $app->get('BASE_HOST_NO_PORT') . '/oflaDemo';
+		OsUtils::writeToIniFile($location, $localValues);
+
+		//url-managers.ini change
+		$location  = $app->get('APP_DIR')."/configurations/url_managers.ini";
+		$urlManagersValues = parse_ini_file($location);
+		$red5Addition = array ('class' => 'kLocalPathUrlManager');
+		$urlManagersValues[$app->get('BASE_HOST_NO_PORT')] = $red5Addition;
+		OsUtils::writeToIniFile($location, $urlManagersValues);
+
+		OsUtils::execute("mv ". $app->get('BIN_DIR') . "/red5/webapps/oflaDemo/streams " . $app->get('BIN_DIR'). "/red5/webapps/oflaDemo/streams_x");
+		OsUtils::execute ("ln -s " .$app->get('WEB_DIR'). "/content/webcam " . $app->get('BIN_DIR') ."/red5/webapps/oflaDemo/streams");
+		OsUtils::execute ("ln -s " .$app->get('WEB_DIR'). "/content " . $app->get('BIN_DIR') . "/red5/webapps/oflaDemo/streams");
 	}
 }
