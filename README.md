@@ -1,32 +1,38 @@
 Media Management based on Kaltura
 =================================
-This project provides integration of Kaltura CE with Microsoft Azure Media Services. Integration between Kaltura Server and Microsoft Azure makes it possible to move the storage and encoding of media to the Microsoft Azure platform. For instance, a video or audio file that has been uploaded to KMC, can then be transmitted to Microsoft Azure Media Services and encoded. Kaltura player can also pull media content directly from Microsoft Azure, significantly decreasing, the network and operational load on the Kaltura Server.
+This project provides integration of Kaltura CE with Microsoft Azure Media Services. Integration between Kaltura Server and Microsoft Azure makes it possible to move the storage and encoding of media to the Microsoft Azure platform. For instance, a video or audio file that has been uploaded to KMC, can then be transmitted to Microsoft Azure Media Services and encoded. Kaltura player can also pull media content directly from Microsoft Azure, significantly decreasing the network and operational load on the Kaltura Server.
 
 # Getting Started
 ## Prepare a developer machine 
-You may use ready to run VM Image from VM Depot on Microsoft Azure. Follow the instructions from [“Uploading an Image from VM Depot”](https://github.com/Akvelon2014/Media-Management-based-on-Kaltura/wiki/Deploying-Kaltura-On-Microsoft-Azure#uploading-an-image-from-vm-depot) and [“Create a VM Instance”](https://github.com/Akvelon2014/Media-Management-based-on-Kaltura/wiki/Deploying-Kaltura-On-Microsoft-Azure#create-a-vm-instance) sections at Installation Manual to set up VM at Microsoft Azure.
+You may use ready-to-run VM Image from VM Depot on Microsoft Azure. Follow the instructions from [“Uploading an Image from VM Depot”](https://github.com/Akvelon2014/Media-Management-based-on-Kaltura/wiki/Deploying-Kaltura-On-Microsoft-Azure#uploading-an-image-from-vm-depot) and [“Create a VM Instance”](https://github.com/Akvelon2014/Media-Management-based-on-Kaltura/wiki/Deploying-Kaltura-On-Microsoft-Azure#create-a-vm-instance) sections at Installation Manual to set up VM at Microsoft Azure.
 
 Or you may prepare developer environment yourself. Follow the instructions from the “Create Developer Machine” below.
 
 ## Download source code
 Repository contains the installer of Kaltura CE 6 with integrated Microsoft Azure support. So to get fresh copy of distribution please perform the following steps:
 
-1. Clone this repository to your VM
+1. Install git client if needed
+
+   ```
+   sudo yum install git
+   ```
+2. Clone this repository to your VM
 
    ```
    cd ~/
    git clone https://github.com/Akvelon2014/Media-Management-based-on-Kaltura.git
+   sudo chmod -R 0777 Media-Management-based-on-Kaltura
    ```
-2. Run installation script
+3. Run installation script
 
    ```
    cd Media-Management-based-on-Kaltura/InstallationPackage/kaltura-installer
    sudo php install.php
    ```
-3. Follow the instructions at [“Installation process”](https://github.com/Akvelon2014/Media-Management-based-on-Kaltura/wiki/Deploying-Kaltura-On-Microsoft-Azure#installation-process) section at Installation Manual 
+3. Follow the instructions from [“Installation process”](https://github.com/Akvelon2014/Media-Management-based-on-Kaltura/wiki/Deploying-Kaltura-On-Microsoft-Azure#installation-process) section of Installation Manual 
 
 ## Use
-Performing above steps you will get ready to go Kaltura server. Please find 
+When the steps above are completed, you are ready to go to Kaltura server. Please find 
 * Admin Console at `http(s)://<your domain>/admin_console`
 * Kaltura Management Console (KMC) at `http(s)://<your domain>`
 
@@ -37,27 +43,27 @@ First steps to go:
 
 # Contribute 
 ## Kaltura Server
-Kaltura server source files are located at `/opt/kaltura` by default. You can change scripts there for debugging. 
+Kaltura server source files are located at `/opt/kaltura` by default. You can change the scripts located there if needed for debugging. 
 
 Noteworthy that Kaltura installer generates some files during installation process. So please apply your changes to installer folder `InstallationPackage/kaltura-installer/package/app`. Than try to install server on the clean machine. Check if all your changes are in place. And commit changes after that.
 
 ## Kaltura Management Console (KMC)
-KMC is implemented on flash. So Kaltura server contains only flash binaries.
+KMC is implemented in flash. So Kaltura server contains only flash binaries.
 
 You can find KMC source code at KMC folder of the repository. Compile KMC with your changes and put binaries to `web/flash/kmc/v5.23.2` folder of your server.
 
 ## Kaltura Dynamic Player (KDP)
-KDP is implemented on flash. So Kaltura server contains only flash binaries.
+KDP is implemented in flash. So Kaltura server contains only flash binaries.
 
 You can find KDP source code at KDP folder of the repository. Compile KDP with your changes and put binaries to `web/flash/kdp3/v3.6.11` folder of your server.
 
 ## Kaltura Management Console Login (KMC-Login)
-Kaltura Management Console Login is implemented on flash. So Kaltura server contains only flash binaries.
+Kaltura Management Console Login is implemented in flash. So Kaltura server contains only flash binaries.
 
 You can find Kaltura Management Console Login source code at KMC-LOGIN folder of the repository. Compile kmc-login with your changes and put binaries to `web/flash/kmc/login/v1.2.2` folder of your server.
 
 # Create Developer Machine
-Preform following steps to create machine for development:
+Perform following steps to create machine for development:
 
 1. Install CentOS 6 x64 (“Minimal” variation is enough)
 2. Install additional packages: 
@@ -124,3 +130,4 @@ Preform following steps to create machine for development:
    sudo tar xzf pdi-ce-4.2.1-stable.tar.gz
    sudo mv data-integration pdi
    ```
+11. Now your machine is ready. Download source code and enjoy Media Management based on Kaltura.
