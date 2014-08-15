@@ -6,7 +6,7 @@
  limitations under the License.
 
  Modified by Akvelon Inc.
- 2014-06-30
+ 2014-08-08
  http://www.akvelon.com/contact-us
 -->
 
@@ -38,6 +38,10 @@
 			<permission text="Match Media Files from Drop Folder" id="dropFolder.CONTENT_INGEST_DROP_FOLDER_MATCH"
 						dependsOnFeature="CONTENT_INGEST_DROP_FOLDER_MATCH">
 				<ui id="entryAssets" allowMatchFromDrop="false"/>
+			</permission>
+			<!-- KCW: webcam -->
+			<permission text="Record from Webcam" id="CONTENT_INGEST_WEBCAM">
+				<ui id="addPanel.btnWebcam" visible="false" includeInLayout="false"/>
 			</permission>
 			<!-- create empty video entry -->
 			<permission text="Prepare Video Entry" id="CONTENT_INGEST_ORPHAN_VIDEO">

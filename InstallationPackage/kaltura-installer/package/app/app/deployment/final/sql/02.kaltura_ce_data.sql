@@ -6,7 +6,7 @@
 * limitations under the License.
 *
 * Modified by Akvelon Inc.
-* 2014-06-30
+* 2014-08-08
 * http://www.akvelon.com/contact-us
 */
 
@@ -336,6 +336,7 @@ insert  into `permission`(`id`,`type`,`name`,`friendly_name`,`description`,`part
 (139,1,'BULK_LOG_DOWNLOAD','Bulk upload log download','Permission to download bulk upload logs',0,1,'BULK_LOG_BASE','',now(),now(),'a:1:{s:13:\"partner_group\";s:0:\"\";}'),
 (140,1,'BULK_LOG_DELETE','Bulk upload log delete','Permission to delete bulk upload logs',0,1,'BULK_LOG_BASE','',now(),now(),'a:1:{s:13:\"partner_group\";s:0:\"\";}'),
 (141,1,'CONTENT_INGEST_EXTERNAL_SEARCH','Content ingest external search','Permission to ingest content from external providers',0,1,'','',now(),now(),'a:1:{s:13:\"partner_group\";s:0:\"\";}'),
+(142,1,'CONTENT_INGEST_WEBCAM','Content ingest webcam','Permission to ingest content from webcam',0,1,'','',now(),now(),'a:1:{s:13:\"partner_group\";s:0:\"\";}'),
 (144,1,'CONTENT_INGEST_REPLACE','Content ingest replace','Permission to replace entry content',0,1,'FEATURE_ENTRY_REPLACEMENT','',now(),now(),'a:1:{s:13:\"partner_group\";s:0:\"\";}'),
 (145,1,'CONTENT_INGEST_ORPHAN_VIDEO','Content ingest orphan video','Permission to create orphan video media entry',0,1,'','',now(),now(),'a:1:{s:13:\"partner_group\";s:0:\"\";}'),
 (146,1,'CONTENT_INGEST_ORPHAN_AUDIO','Content ingest orphan audio','Permission to create orphan audio media entry',0,1,'','',now(),now(),'a:1:{s:13:\"partner_group\";s:0:\"\";}'),

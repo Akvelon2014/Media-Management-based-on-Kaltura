@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width" />
+<link rel="apple-touch-icon" href="logo.png" />
+<link rel="icon" type="image/vnd.microsoft.icon" href="favicon.ico">
+<link rel="icon" type="image/png" href="favicon.png">
+<title>Red5 - The open source media server</title>
+<style type="text/css">
+<!--
+body {
+    background-color:#680000;
+    font-family: sans-serif;
+    font-size: 0.9em;
+    color:#ffffff;
+}
+  -->
+</style>
+</head>
+<body>
+<script type='text/javascript' src='jwplayer.js'></script>
+<table>
+<tr><th>RTMPT</th><th>RTMP</th></tr>
+<tr><td>
+<div id='mediaspace'>This text will be replaced</div>
+<script type='text/javascript'>
+  jwplayer('mediaspace').setup({
+    'flashplayer': 'player.swf',
+    'file': 'prometheus.mp4',
+    'streamer': 'rtmpt://domain-name:5080/oflaDemo',
+    'controlbar': 'bottom',
+    'width': '470',
+    'height': '320'
+  });
+</script>
+</td><td>
+<div id='mediaspace2'>This text will be replaced</div>
+<script type='text/javascript'>
+  jwplayer('mediaspace2').setup({
+    'flashplayer': 'player.swf',
+    'file':	'prometheus.mp4',
+    'streamer': 'rtmp://domain-name/oflaDemo',
+    'controlbar': 'bottom',
+    'width': '470',
+    'height': '320'
+  });
+</script>
+</td></tr>
+</table>
+</body>
+</html>
