@@ -7,7 +7,7 @@
 * limitations under the License.
 *
 * Modified by Akvelon Inc.
-* 2014-06-30
+* 2014-08-08
 * http://www.akvelon.com/contact-us
 */
 
@@ -58,6 +58,7 @@ return array(
 	'Kaltura_Client_Enum_BatchJobType::DROP_FOLDER_WATCHER' => 'Drop Folder Watcher',
 	'Kaltura_Client_Enum_BatchJobType::DROP_FOLDER_HANDLER' => 'Drop Folder Handler',
 	'Kaltura_Client_Enum_BatchJobType::EVENT_NOTIFICATION_HANDLER' => 'Event Notification',
+	'Kaltura_Client_Enum_BatchJobType::WEBCAM_PREPARE' => 'Prepare Recorded File',
 
 	'Kaltura_Client_Enum_ConversionEngineType::FFMPEG' => 'Convert - FFMpeg',
 	'Kaltura_Client_Enum_ConversionEngineType::FFMPEG_AUX' => 'Convert - FFMpeg Aux',
@@ -74,7 +75,7 @@ return array(
 	'Kaltura_Client_Enum_ConversionEngineType::PDF2SWF' => 'Convert - PDF to SWF',
 	'Kaltura_Client_Enum_ConversionEngineType::PDF_CREATOR' => 'Convert - PDF Creator',
 	'Kaltura_Client_Enum_ConversionEngineType::SEGMENTER' => 'Convert – Stream Segmenter',
-	'Kaltura_Client_Enum_ConversionEngineType::WAMS' => 'Microsoft Azure encoder',
+	'Kaltura_Client_Enum_ConversionEngineType::WAMS' => 'Microsoft Azure Encoder',
 
 	'Kaltura_Client_Enum_BatchJobStatus::PENDING' => 'Pending',
 	'Kaltura_Client_Enum_BatchJobStatus::QUEUED' => 'Started',

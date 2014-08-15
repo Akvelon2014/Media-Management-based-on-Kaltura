@@ -7,7 +7,7 @@
 * limitations under the License.
 *
 * Modified by Akvelon Inc.
-* 2014-06-30
+* 2014-08-08
 * http://www.akvelon.com/contact-us
 */
 
@@ -1204,7 +1204,7 @@ class kJobsManager
 	    $moveCategoryEntriesData->setDestCategoryId($destCategoryId);
 	    $moveCategoryEntriesData->setMoveFromChildren($moveFromChildren);
 	    $moveCategoryEntriesData->setCopyOnly($copyOnly);
-		
+
 		$batchJob = null;
 		if($parentJob)
 		{
@@ -1465,5 +1465,22 @@ class kJobsManager
     	}
 
 		return kJobsManager::addJob($job, $jobData, BatchJobType::BULKUPLOAD, kPluginableEnumsManager::apiToCore("BulkUploadType", $bulkUploadType));
+	}
+
+	/**
+	 * Method adds webcam prepare job to the queue
+	 * @param int $partnerId
+	 * @param KalturaMediaEntry $mediaEntry
+	 * @param string $webcamTokenId
+	 * @return BatchJob
+	 */
+	public static function addWebcamPrepareJob($partnerId, KalturaMediaEntry $mediaEntry, $webcamTokenId) {
+		$job = new BatchJob();
+		$job->setPartnerId($partnerId);
+		$job->setEntryId($mediaEntry->id);
+		$data = new kWebcamPrepareJobData();
+		$data->setWebcamTokenId($webcamTokenId);
+
+		return self::addJob($job, $data, BatchJobType::WEBCAM_PREPARE);
 	}
 }

@@ -7,7 +7,7 @@
 * limitations under the License.
 *
 * Modified by Akvelon Inc.
-* 2014-06-30
+* 2014-08-08
 * http://www.akvelon.com/contact-us
 */
 
@@ -508,42 +508,17 @@ class MediaService extends KalturaEntryService
 	 */
 	function addFromRecordedWebcamAction(KalturaMediaEntry $mediaEntry, $webcamTokenId)
 	{
-    	if($mediaEntry->conversionQuality && !$mediaEntry->conversionProfileId)
-    		$mediaEntry->conversionProfileId = $mediaEntry->conversionQuality;
-    		
-	    // check that the webcam file exists
-	    $content = myContentStorage::getFSContentRootPath();
-	    $webcamBasePath = $content."/content/webcam/".$webcamTokenId; // filesync ok
-		$entryFullPath = $webcamBasePath.'.flv';
-		if (! file_exists ( $entryFullPath )) {
-			kFile::dumpApiRequest ( kDataCenterMgr::getRemoteDcExternalUrlByDcId ( 1 - kDataCenterMgr::getCurrentDcId () ) );
-			throw new KalturaAPIException ( KalturaErrors::RECORDED_WEBCAM_FILE_NOT_FOUND );
-		}
-			
-		$dbEntry = $this->prepareEntryForInsert($mediaEntry);
-		
-        $kshowId = $dbEntry->getKshowId();
-			
-		// setup the needed params for my insert entry helper
-		$paramsArray = array (
-			"entry_media_source" => KalturaSourceType::WEBCAM,
-            "entry_media_type" => $dbEntry->getMediaType(),
-			"webcam_suffix" => $webcamTokenId,
-			"entry_license" => $dbEntry->getLicenseType(),
-			"entry_credit" => $dbEntry->getCredit(),
-			"entry_source_link" => $dbEntry->getSourceLink(),
-			"entry_tags" => $dbEntry->getTags(),
-		);
-		
-		$token = $this->getKsUniqueString();
-		$insert_entry_helper = new myInsertEntryHelper(null , $dbEntry->getKuserId(), $kshowId, $paramsArray);
-		$insert_entry_helper->setPartnerId($this->getPartnerId(), $this->getPartnerId() * 100);
-		$insert_entry_helper->insertEntry($token, $dbEntry->getType(), $dbEntry->getId(), $dbEntry->getName(), $dbEntry->getTags(), $dbEntry);
-		$dbEntry = $insert_entry_helper->getEntry();
+		if($mediaEntry->conversionQuality && !$mediaEntry->conversionProfileId)
+			$mediaEntry->conversionProfileId = $mediaEntry->conversionQuality;
 
-		myNotificationMgr::createNotification( kNotificationJobData::NOTIFICATION_TYPE_ENTRY_ADD, $dbEntry);
+		$mediaEntry = $this->addAction($mediaEntry);
 
-		$mediaEntry->fromObject($dbEntry);
+		$dbentry = entryPeer::retrieveByPK($mediaEntry->id);
+		$dbentry->setStatus(entryStatus::PRECONVERT);
+		$dbentry->save();
+		$mediaEntry->fromObject($dbentry);
+
+		kJobsManager::addWebcamPrepareJob($this->getPartnerId(), $mediaEntry, $webcamTokenId);
 		return $mediaEntry;
 	}
 	
